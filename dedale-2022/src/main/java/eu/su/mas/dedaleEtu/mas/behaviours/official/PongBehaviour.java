@@ -19,7 +19,7 @@ public class PongBehaviour extends OneShotBehaviour {
 		
 		ACLMessage msg = this.ping.createReply();
 		msg.setSender(this.myAgent.getAID());
-		msg.setPerformative(ACLMessage.AGREE);
+		msg.setPerformative(ACLMessage.ACCEPT_PROPOSAL);
 		
 		//msg.setContent("1");
 		byte[] b = {1};

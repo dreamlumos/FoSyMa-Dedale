@@ -32,7 +32,7 @@ public class CheckForPingBehaviour extends SimpleBehaviour { // OneShotBehaviour
 			
 			ACLMessage pong = ping.createReply();
 			pong.setSender(this.myAgent.getAID());
-			pong.setPerformative(ACLMessage.AGREE);
+			pong.setPerformative(ACLMessage.ACCEPT_PROPOSAL);
 			
 			//msg.setContent("1");
 			byte[] b = {1};

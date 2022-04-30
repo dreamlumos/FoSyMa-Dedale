@@ -8,6 +8,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.graphstream.algorithm.Dijkstra;
 import org.graphstream.graph.Edge;
@@ -30,6 +31,10 @@ import javafx.application.Platform;
  * 
  * @author zdkg
  */
+
+// TODO -  figuring out how to only send part of the map in the map sharing protocol
+// difficulty being needing to code a function in FullMapRepresentation to extract a list of nodes and edges given a list
+
 public class FullMapRepresentation implements Serializable {
 
 	/**
@@ -72,7 +77,7 @@ public class FullMapRepresentation implements Serializable {
 	}
 
 	/**
-	 * Adds a new node or updates an existing node if there is more recent information on its attibutes.
+	 * Adds a new node or updates an existing node if there is more recent information on its attributes.
 	 * Compares timestamps and ignores the information passed in the parameters if it is older than ours.
 	 * @param nodeId
 	 * @param lObservations list of observations of the visit
@@ -171,8 +176,30 @@ public class FullMapRepresentation implements Serializable {
 	}
 
 	/**
+	 * Compute the Map to send from the ag1's map and a list of nodes of ag2.
+	 *
+	 * @param nodesId list of id of the open nodes from ag2
+	 * @return part of ag1's Map to be sent to ag2 to update ag2's Map
+	 */
+
+	public FullMapRepresentation getPartMap(ArrayList<String> nodesId){
+		FullMapRepresentation partialMap = new FullMapRepresentation();
+		for (String nodeId : nodesId){
+			Node oldNode = this.g.getNode(nodeId);
+			Node newNode = partialMap.g.addNode(nodeId);
+			for (String attribute : (String[]) oldNode.attributeKeys().toArray()){
+				newNode.setAttribute(attribute,oldNode.getAttribute(attribute));
+			}
+			for (String edgeId : (String[]) oldNode.edges().toArray()){
+				Edge oldEdge = this.g.getEdge(edgeId);
+				partialMap.g.addEdge(edgeId, oldEdge.getNode0(), oldEdge.getNode1());
+			}
+		}
+		return partialMap;
+	}
+
+	/**
 	 * Compute the shortest Path from idFrom to IdTo. The computation is currently not very efficient
-	 * 
 	 * 
 	 * @param idFrom id of the origin node
 	 * @param idTo id of the destination node
@@ -314,7 +341,7 @@ public class FullMapRepresentation implements Serializable {
 
 		g.display();
 	}
-
+	/* takes most recent nodes*/
 	public void mergeNode(SerializableNode<String, HashMap<String, Object>> n2) {
 		
 		// n1 : our node

@@ -156,4 +156,8 @@ public class ExploreDFSAgent extends AbstractDedaleAgent {
 	public FullMapRepresentation getMap() {
 		return this.myMap;
 	}
+
+	public ArrayList<String> getNodesToShare(String agentName){
+		return this.nodesToShare.get(agentName);
+	}
 }
