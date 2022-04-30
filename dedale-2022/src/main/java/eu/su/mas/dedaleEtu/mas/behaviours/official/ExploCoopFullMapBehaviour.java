@@ -8,9 +8,7 @@ import dataStructures.serializableGraph.SerializableSimpleGraph;
 import dataStructures.tuple.Couple;
 import eu.su.mas.dedale.env.Observation;
 import eu.su.mas.dedale.mas.AbstractDedaleAgent;
-import eu.su.mas.dedaleEtu.mas.behaviours.ShareMapBehaviour;
 import eu.su.mas.dedaleEtu.mas.knowledge.FullMapRepresentation;
-import eu.su.mas.dedaleEtu.mas.knowledge.FullMapRepresentation.FullMapAttribute;
 import jade.core.AID;
 import jade.core.behaviours.SimpleBehaviour;
 import jade.lang.acl.ACLMessage;
@@ -68,7 +66,7 @@ public class ExploCoopFullMapBehaviour extends SimpleBehaviour {
 			List<Couple<Observation,Integer>> lObservations = lobs.get(0).getRight(); // observations at current position
 
 			//1) remove the current node from openlist and add it to closedNodes.
-			this.myMap.addNode(myPosition, FullMapAttribute.closed, lObservations, System.currentTimeMillis(), (long) -1);
+			this.myMap.addNode(myPosition, lObservations, System.currentTimeMillis(), -1);
 
 			//2) get the surrounding nodes and, if not in closedNodes, add them to open nodes.
 			String nextNode = null;
@@ -76,7 +74,7 @@ public class ExploCoopFullMapBehaviour extends SimpleBehaviour {
 			int nbObs = lobs.size();
 			for (int i = 1; i<nbObs; i++) {
 				String nodeId = lobs.get(i).getLeft();
-				boolean isNewNode = this.myMap.addNewNode(nodeId, lobs.get(i).getRight(), System.currentTimeMillis());
+				boolean isNewNode = this.myMap.addNode(nodeId, lobs.get(i).getRight(), -1, System.currentTimeMillis());
 				// the node may exist, but not necessarily the edge
 				this.myMap.addEdge(myPosition, nodeId);
 				if (nextNode == null && isNewNode) {
@@ -101,9 +99,9 @@ public class ExploCoopFullMapBehaviour extends SimpleBehaviour {
 				} else {
 					//System.out.println("nextNode notNUll - "+this.myAgent.getLocalName()+"-- list= "+this.myMap.getOpenNodes()+"\n -- nextNode: "+nextNode);
 				}
+				
 				//4) At each time step, the agent blindly send all its graph to its surrounding to illustrate how to share its knowledge (the topology currently) with the the others agents. 	
 				// If it was written properly, this sharing action should be in a dedicated behaviour set, the receivers be automatically computed, and only a subgraph would be shared.
-
 				ACLMessage msg = new ACLMessage(ACLMessage.INFORM);
 				msg.setProtocol("SHARE-TOPO");
 				msg.setSender(this.myAgent.getAID());

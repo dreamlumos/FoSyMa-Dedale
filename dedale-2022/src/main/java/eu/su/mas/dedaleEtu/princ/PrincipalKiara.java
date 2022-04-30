@@ -396,11 +396,11 @@ public class PrincipalKiara {
 		agentName="1stAgent";
 
 		//3) If you want to give specific parameters to your agent, add them here
-		Object [] entityParametersExplo4={"2ndAgent"};
+		Object [] entityParametersExplo4={ConfigurationFileKiara.INSTANCE_CONFIGURATION_ENTITIES};
 
 		//4) Give the class name of your agent to let the system instantiate it
-		//ag=createNewDedaleAgent(c, agentName, ExploreCoopAgent.class.getName(), entityParametersExplo4);//ExploreSoloAgent
-		ag=createNewDedaleAgent(c, agentName, ExploreDFSAgent.class.getName(), entityParametersExplo4);//ExploreSoloAgent
+		//ag=createNewDedaleAgent(c, agentName, ExploreCoopAgent.class.getName(), entityParametersExplo4);
+		ag = createNewDedaleAgent(c, agentName, ExploreDFSAgent.class.getName(), entityParametersExplo4);
 		
 		agentList.add(ag);
 
@@ -415,11 +415,11 @@ public class PrincipalKiara {
 		agentName="2ndAgent";
 
 		//3) If you want to give specific parameters to your agent, add them here
-		Object [] entityParametersExplo5={"1stAgent"};
+		Object [] entityParametersExplo5={ConfigurationFileKiara.INSTANCE_CONFIGURATION_ENTITIES};
 
 		//4) Give the class name of your agent to let the system instantiate it
-		//ag=createNewDedaleAgent(c, agentName, ExploreCoopAgent.class.getName(), entityParametersExplo5);//ExploreSoloAgent
-		ag=createNewDedaleAgent(c, agentName, ExploreDFSAgent.class.getName(), entityParametersExplo4);//ExploreSoloAgent
+		//ag=createNewDedaleAgent(c, agentName, ExploreCoopAgent.class.getName(), entityParametersExplo5);
+		ag = createNewDedaleAgent(c, agentName, ExploreDFSAgent.class.getName(), entityParametersExplo5);
 
 		agentList.add(ag);
 		
@@ -444,40 +444,6 @@ public class PrincipalKiara {
 		//		ag=createNewDedaleAgent(c, agentName, DummyCollectorAgent.class.getName(), entityParametersC);
 		//		agentList.add(ag);
 
-		/***************
-		 * AGENT Tanker
-		 ***************/
-		//		
-		//		//1) Get the container where the agent will appear
-		//		c = containerList.get(ConfigurationFileKiara.LOCAL_CONTAINER2_NAME);
-		//		Assert.assertNotNull("This container does not exist",c);
-		//		
-		//		//2) Give the name of your agent, MUST be the same as the one given in the entities file.
-		//		agentName="Tanker1";
-		//		
-		//		//3) If you want to give specific parameters to your agent, add them here
-		//		Object [] entityParametersT={"My parameters"};
-		//		
-		//		//4) Give the class name of your agent to let the system instantiate it
-		//		ag=createNewDedaleAgent(c, agentName, DummyTankerAgent.class.getName(), entityParametersT);
-		//		agentList.add(ag);
-		//		
-
-		//1) Get the container where the agent will appear
-		//		c = containerList.get(ConfigurationFileKiara.LOCAL_CONTAINER2_NAME);
-		//		Assert.assertNotNull("This container does not exist",c);
-		//
-		//		//2) Give the name of your agent, MUST be the same as the one given in the entities file.
-		//		agentName="2ndAgent";
-		//
-		//		//3) If you want to give specific parameters to your agent, add them here
-		//		Object [] entityParametersExplo5={"1stAgent"};
-		//
-		//		//4) Give the class name of your agent to let the system instantiate it
-		//		ag=createNewDedaleAgent(c, agentName, ExploreCoopAgent.class.getName(), entityParametersExplo5);//ExploreSoloAgent
-		//
-		//		agentList.add(ag);
-
 
 		/*********************
 		 * All agents created
@@ -494,15 +460,14 @@ public class PrincipalKiara {
 
 		System.out.println("Starting agents...");
 
-
-		for(final AgentController ac: agentList){
+		for (final AgentController ac: agentList) {
 			try {
 				ac.start();
 			} catch (StaleProxyException e) {
 				e.printStackTrace();
 			}
-
 		}
+		
 		System.out.println("Agents started...");
 	}
 
@@ -513,16 +478,15 @@ public class PrincipalKiara {
 	 * @param className class of the agent
 	 * @param additionnalParameters 
 	 */
-	private static AgentController createNewDedaleAgent(ContainerController initialContainer, String agentName,String className, Object[] additionnalParameters){
+	private static AgentController createNewDedaleAgent(ContainerController initialContainer, String agentName, String className, Object[] additionnalParameters){
 		//Object[] objtab=new Object[]{env,agentName};//used to give informations to the agent
 		Object[] objtab=AbstractDedaleAgent.loadEntityCaracteristics(agentName,ConfigurationFileKiara.INSTANCE_CONFIGURATION_ENTITIES);
-		Object []res2=merge(objtab,additionnalParameters);
+		Object [] res2=merge(objtab,additionnalParameters);
 
 		AgentController ag=null;
 		try {
 			ag = initialContainer.createNewAgent(agentName,className,res2);
 		} catch (StaleProxyException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		Assert.assertNotNull(ag);

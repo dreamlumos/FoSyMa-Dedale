@@ -1,13 +1,26 @@
 package eu.su.mas.dedaleEtu.mas.agents.official;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
+import eu.su.mas.dedale.env.EntityCharacteristics;
 import eu.su.mas.dedale.mas.AbstractDedaleAgent;
 import eu.su.mas.dedale.mas.agent.behaviours.startMyBehaviours;
+import eu.su.mas.dedaleEtu.mas.behaviours.official.CheckForPingBehaviour;
 import eu.su.mas.dedaleEtu.mas.behaviours.official.ExploCoopFullMapBehaviour;
+import eu.su.mas.dedaleEtu.mas.behaviours.official.ObserveEnvBehaviour;
+import eu.su.mas.dedaleEtu.mas.behaviours.official.PingBehaviour;
+import eu.su.mas.dedaleEtu.mas.behaviours.official.ReceiveMapBehaviour;
+import eu.su.mas.dedaleEtu.mas.behaviours.official.StepBehaviour;
 import eu.su.mas.dedaleEtu.mas.knowledge.FullMapRepresentation;
+import jade.core.AID;
 import jade.core.behaviours.Behaviour;
+import jade.core.behaviours.FSMBehaviour;
+import jade.core.behaviours.SequentialBehaviour;
+import jade.domain.AMSService;
+import jade.domain.FIPAAgentManagement.AMSAgentDescription;
+import jade.domain.FIPAAgentManagement.SearchConstraints;
 
 /**
  * <pre>
@@ -17,24 +30,35 @@ import jade.core.behaviours.Behaviour;
  *  - The shortestPath computation is not optimized
  *  - Agents do not coordinate themselves on the node(s) to visit, thus progressively creating a single file. It's bad.
  *  - The agent sends all its map, periodically, forever. Its bad x3.
- *   - You should give him the list of agents'name to send its map to in parameter when creating the agent.
+ *  - You should give him the list of agents'name to send its map to in parameter when creating the agent.
  *   Object [] entityParameters={"Name1","Name2};
  *   ag=createNewDedaleAgent(c, agentName, ExploreCoopAgent.class.getName(), entityParameters);
  *  
  * It stops when all nodes have been visited.
  * 
- * 
  *  </pre>
  *  
- * @author hc
- *
  */
-
 
 public class ExploreDFSAgent extends AbstractDedaleAgent {
 
 	private static final long serialVersionUID = -7969469610241668140L;
-	private FullMapRepresentation myMap;
+	
+	private FullMapRepresentation myMap = new FullMapRepresentation();
+	private EntityCharacteristics myCharacteristics;
+	private HashMap<String, ArrayList<String>> nodesToShare; // key: agent name, value: list of IDs of the nodes to be shared next time we meet this agent
+	private ArrayList<String> knownAgents;
+	private HashMap<String, EntityCharacteristics> knownAgentCharacteristics;
+	
+	private String nextNodeId;
+	
+	private static final String ObserveEnv = "Observe Environment";
+	private static final String Step = "Step";
+	private static final String Ping = "Ping";
+	
+	private static final String CheckForPing = "Check Mailbox for Ping";
+	private static final String ReceiveMap = "Receive Map";
+	
 	
 	/**
 	 * This method is automatically called when "agent".start() is executed.
@@ -47,22 +71,41 @@ public class ExploreDFSAgent extends AbstractDedaleAgent {
 
 		super.setup();
 		
-		//get the parameters added to the agent at creation (if any)
+		// Get the parameters added to the agent at creation (in this case, the EntityCharacteristics file)
 		final Object[] args = getArguments();
-		
-		List<String> list_agentNames = new ArrayList<String>();
-		
+				
 		if (args.length == 0) {
-			System.err.println("Error while creating the agent, names of agent to contact expected");
+			System.err.println("Error while creating the agent, entity configuration file expected.");
 			System.exit(-1);
 		} else {
-			int i = 2;// WARNING YOU SHOULD ALWAYS START AT 2. This will be corrected in the next release.
-			while (i < args.length) {
-				list_agentNames.add((String)args[i]);
-				i++;
-			}
+			String entityCharFile = (String) args[2];
+			myCharacteristics = (EntityCharacteristics) AbstractDedaleAgent.loadEntityCaracteristics(getName(), entityCharFile)[0];
 		}
 
+		// Getting the list of all agents on the platform
+		AMSAgentDescription[] agentsDescriptionCatalog = null;
+		List <String> agentsNames = new ArrayList<String>();
+		try {
+			SearchConstraints c = new SearchConstraints();
+			c.setMaxResults(Long.valueOf("−1"));
+			agentsDescriptionCatalog = AMSService.search(this, new AMSAgentDescription(), c);
+		} catch (Exception e) {
+			System.out.println("Problem searching AMS: " + e);
+			e.printStackTrace();
+		}
+		for (int i=0; i<agentsDescriptionCatalog.length; i++){
+			AID agentID = agentsDescriptionCatalog[i].getName();
+			agentsNames.add(agentID.getLocalName());
+		}
+		
+		// Initialising dictionary containing the list of nodes to be shared with each agent		
+		this.nodesToShare = new HashMap<String, ArrayList<String>>();
+		
+		for (String agent: agentsNames) {
+			this.nodesToShare.put(agent, new ArrayList<String>());
+		}
+		
+		// Agent behaviours
 		List<Behaviour> lb = new ArrayList<Behaviour>();
 		
 		/************************************************
@@ -71,16 +114,46 @@ public class ExploreDFSAgent extends AbstractDedaleAgent {
 		 * 
 		 ************************************************/
 		
-		lb.add(new ExploCoopFullMapBehaviour(this, this.myMap , list_agentNames));
+		FSMBehaviour FSMPingPong = new FSMBehaviour();
+		
+		FSMPingPong.registerFirstState(new CheckForPingBehaviour(this), CheckForPing);
+		FSMPingPong.registerState(new ReceiveMapBehaviour(this), ReceiveMap);
+		
+		FSMPingPong.registerDefaultTransition(CheckForPing, CheckForPing); //Default
 
+		lb.add(FSMPingPong);
+		
+		FSMBehaviour fsm = new FSMBehaviour(this);
+	
+		fsm.registerFirstState(new ObserveEnvBehaviour(this), ObserveEnv);
+		fsm.registerState(new StepBehaviour(this), Step);
+		fsm.registerState(new PingBehaviour(this, agentsNames), Ping);
+		//fsm.registerState(new CollectTreasureBehaviour(), CollectTreasure);
+		//fsm.registerLastState(new ?(), ?);
+		
+//		fsm.registerDefaultTransition(B, A);//Default
+//		fsm.registerTransition(B, B, 2) ; //Cond 2
+//		fsm.registerTransition(B, C, 1) ; //Cond 1
+		
+		lb.add(fsm);
+		
 		/***
 		 * MANDATORY TO ALLOW YOUR AGENT TO BE DEPLOYED CORRECTLY
 		 */
-		addBehaviour(new startMyBehaviours(this,lb));
+		addBehaviour(new startMyBehaviours(this, lb));
 		
 		System.out.println("the  agent "+this.getLocalName()+ " is started");
 	}
 	
+	public void setNextNodeId(String nodeId) {
+		this.nextNodeId = nodeId;
+	}
 	
+	public String getNextNodeId() {
+		return this.nextNodeId;
+	}
 	
+	public FullMapRepresentation getMap() {
+		return this.myMap;
+	}
 }

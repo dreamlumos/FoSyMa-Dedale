@@ -7,7 +7,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.graphstream.algorithm.Dijkstra;
@@ -20,12 +19,9 @@ import org.graphstream.graph.Node;
 import org.graphstream.graph.implementations.SingleGraph;
 import org.graphstream.ui.fx_viewer.FxViewer;
 import org.graphstream.ui.view.Viewer;
-import org.graphstream.ui.view.Viewer.CloseFramePolicy;
-
 import dataStructures.serializableGraph.*;
 import dataStructures.tuple.Couple;
 import eu.su.mas.dedale.env.Observation;
-import eu.su.mas.dedale.mas.AbstractDedaleAgent;
 import javafx.application.Platform;
 
 /**
@@ -39,7 +35,7 @@ public class FullMapRepresentation implements Serializable {
 	/**
 	 * A node is open, closed, or agent
 	 */
-	public enum FullMapAttribute {	
+	public enum NodeStatus {	
 		agent, open, closed;
 	}
 
@@ -65,7 +61,7 @@ public class FullMapRepresentation implements Serializable {
 		//System.setProperty("org.graphstream.ui.renderer","org.graphstream.ui.j2dviewer.J2DGraphRenderer");
 		System.setProperty("org.graphstream.ui", "javafx");
 		this.g = new SingleGraph("My world vision");
-		this.g.setAttribute("ui.stylesheet",nodeStyle);
+		this.g.setAttribute("ui.stylesheet", nodeStyle);
 
 		Platform.runLater(() -> {
 			openGui();
@@ -78,19 +74,39 @@ public class FullMapRepresentation implements Serializable {
 	/**
 	 * Adds a new node or updates an existing node if there is more recent information on its attibutes.
 	 * Compares timestamps and ignores the information passed in the parameters if it is older than ours.
-	 * @param id
-	 * @param mapAttribute
+	 * @param nodeId
 	 * @param lObservations list of observations of the visit
 	 * @param lastVisitTimestamp timestamp at which the node was visited
 	 * @param nbVisitTimestamp timestamp at which a neighbouring node was visited
+	 * Either lastVisitTimestamp or nbVisitTimestamp should be -1, thereby indicating whether the observations that are being passed were obtained from visiting 
+	 * - the node itself (nbVisitTimestamp = -1), 
+	 * - a neighbour (lastVisitTimestamp = -1).
 	 */
-	public synchronized void addNode(String id, FullMapAttribute mapAttribute, List<Couple<Observation, Integer>> lObservations, long lastVisitTimestamp, long nbVisitTimestamp){
+	public synchronized boolean addNode(String nodeId, 
+									List<Couple<Observation, Integer>> lObservations, 
+									long lastVisitTimestamp, 
+									long nbVisitTimestamp){
 		
+		boolean newNode = false;
 		Node n;
-		if (this.g.getNode(id) == null){
-			n = this.g.addNode(id);
-		} else {
-			n = this.g.getNode(id);
+		
+		if (this.g.getNode(nodeId) == null){ // Adding new node
+			
+			n = this.g.addNode(nodeId);
+			newNode = true;
+			
+//			if (lastVisitTimestamp != -1) { // Special case: the node the agent starts on will be immediately closed
+//				n.setAttribute("ui.class", NodeStatus.closed.toString());
+//			} else {
+//				n.setAttribute("ui.class", NodeStatus.open.toString());
+//			}
+//			
+//			n.setAttribute("ui.label", nodeId);
+//			n.setAttribute("timestamp", lastVisitTimestamp);
+			
+		} else { // Updating known node
+			
+			n = this.g.getNode(nodeId);
 		}
 		
 		Object previousTimestamp = n.getAttribute("timestamp");
@@ -98,9 +114,11 @@ public class FullMapRepresentation implements Serializable {
 
 		if (previousTimestamp == null || lastVisitTimestamp > (long) previousTimestamp) {
 			n.clearAttributes();
-			n.setAttribute("ui.label", id);
-			n.setAttribute("ui.class", mapAttribute.toString());
+			n.setAttribute("ui.label", nodeId);
 			n.setAttribute("timestamp", lastVisitTimestamp);
+			if (lastVisitTimestamp != -1) {
+				n.setAttribute("ui.class", NodeStatus.closed.toString());
+			}
 		}
 		
 		for (Couple<Observation, Integer> o: lObservations){
@@ -129,28 +147,16 @@ public class FullMapRepresentation implements Serializable {
 					break;
 			}
 		}
+		
+		return newNode;
 	}
 	
-	/**
-	 * Add a node to the graph. Do nothing if the node already exists.
-	 * If new, it is labeled as open (non-visited)
-	 * @param id id of the node
-	 * @return true if added
-	 */
-	public synchronized boolean addNewNode(String id, List<Couple<Observation, Integer>> lObservations, long nbVisitTimestamp) {
-		if (this.g.getNode(id) == null){
-			addNode(id, FullMapAttribute.open, lObservations, -1, nbVisitTimestamp);
-			return true;
-		}
-		return false;
-	}
-
 	/**
 	 * Add an undirect edge if not already existing.
 	 * @param idNode1
 	 * @param idNode2
 	 */
-	public synchronized void addEdge(String idNode1,String idNode2){
+	public synchronized void addEdge(String idNode1, String idNode2){
 		this.nbEdges++;
 		try {
 			this.g.addEdge(this.nbEdges.toString(), idNode1, idNode2);
@@ -172,7 +178,7 @@ public class FullMapRepresentation implements Serializable {
 	 * @param idTo id of the destination node
 	 * @return the list of nodes to follow, null if the targeted node is not currently reachable
 	 */
-	public synchronized List<String> getShortestPath(String idFrom,String idTo){
+	public synchronized List<String> getShortestPath(String idFrom, String idTo){
 		List<String> shortestPath = new ArrayList<String>();
 
 		Dijkstra dijkstra = new Dijkstra();//number of edge
@@ -211,7 +217,7 @@ public class FullMapRepresentation implements Serializable {
 
 	public List<String> getOpenNodes(){
 		return this.g.nodes()
-				.filter(x ->x .getAttribute("ui.class") == FullMapAttribute.open.toString()) 
+				.filter(x ->x .getAttribute("ui.class") == NodeStatus.open.toString()) 
 				.map(Node::getId)
 				.collect(Collectors.toList());
 	}
@@ -370,7 +376,7 @@ public class FullMapRepresentation implements Serializable {
 	 */
 	public boolean hasOpenNode() {
 		return (this.g.nodes()
-				.filter(n -> n.getAttribute("ui.class") == FullMapAttribute.open.toString())
+				.filter(n -> n.getAttribute("ui.class") == NodeStatus.open.toString())
 				.findAny()).isPresent();
 	}
 
