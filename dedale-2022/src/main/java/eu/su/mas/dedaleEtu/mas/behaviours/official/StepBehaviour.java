@@ -17,10 +17,12 @@ public class StepBehaviour extends SimpleBehaviour {
 	public void action() {
 		String myPosition = ((AbstractDedaleAgent) this.myAgent).getCurrentPosition();
 		String nextNodeId = ((ExploreDFSAgent) myAgent).getNextNodeId();
-		
+		System.out.println(myPosition);
+		if(myPosition == null){ System.out.println("help map not initialised yet");}
+		else{
 		FullMapRepresentation map = ((ExploreDFSAgent) this.myAgent).getMap();
 		if (!map.hasOpenNode()) { //Explo finished
-			System.out.println(this.myAgent.getLocalName()+" - Exploration successufully done, behaviour removed.");
+			System.out.println(this.myAgent.getLocalName()+" - Exploration successfully done, behaviour removed.");
 		} else {
 			//4) select next move.
 			//4.1 If there exist one open node directly reachable, go for it,
@@ -34,8 +36,8 @@ public class StepBehaviour extends SimpleBehaviour {
 				//System.out.println("nextNode notNUll - "+this.myAgent.getLocalName()+"-- list= "+this.myMap.getOpenNodes()+"\n -- nextNode: "+nextNode);
 			}
 		}
-		
-		((AbstractDedaleAgent)this.myAgent).moveTo(nextNodeId);
+
+		((AbstractDedaleAgent)this.myAgent).moveTo(nextNodeId);}
 
 	}
 

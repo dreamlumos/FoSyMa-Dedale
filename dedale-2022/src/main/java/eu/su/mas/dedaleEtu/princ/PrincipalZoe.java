@@ -8,12 +8,12 @@ import eu.su.mas.dedaleEtu.mas.agents.dummies.DummyMovingAgent;
 import eu.su.mas.dedaleEtu.mas.agents.dummies.DummyTankerAgent;
 import eu.su.mas.dedaleEtu.mas.agents.dummies.ExploreSoloAgent;
 import eu.su.mas.dedaleEtu.mas.agents.dummies.explo.ExploreCoopAgent;
-import eu.su.mas.dedaleEtu.mas.agents.official.ExploreDFSAgent;
 import eu.su.mas.dedale.mas.AbstractDedaleAgent;
 import eu.su.mas.dedale.mas.agents.GateKeeperAgent;
 import eu.su.mas.dedale.mas.agents.dedaleDummyAgents.DummyWumpusShift;
 import eu.su.mas.dedale.mas.agents.dedaleDummyAgents.DummyWumpusShift2;
 import eu.su.mas.dedale.mas.agents.dedaleDummyAgents.Controlled.ControlledAgent;
+import eu.su.mas.dedaleEtu.mas.agents.official.ExploreDFSAgent;
 import jade.core.Profile;
 import jade.core.ProfileImpl;
 import jade.core.Runtime;
@@ -26,13 +26,13 @@ import jade.wrapper.AgentContainer;
 
 
 /**
- * This class is used to start the platform and the agents.
+ * This class is used to start the platform and the agents. 
  * To launch your agents in the environment you desire you will have to :
  * <ul>
  * <li> set the ConfigurationFileZoe parameters (and maybe update the files in resources/) {@link ConfigurationFileZoe}</li>
  * <li> create your agents classes and call them in the createAgents method below </li>
  * </ul>
- * @author kg
+ * @author hc
  *
  */
 public class PrincipalZoe {
@@ -45,7 +45,7 @@ public class PrincipalZoe {
     public static void main(String[] args){
 
         if(ConfigurationFileZoe.COMPUTERisMAIN){
-            //Whe should create the Platform and the GateKeeper, whether the platform is distributed or not
+            //Whe should create the Platform and the GateKeeper, whether the platform is distributed or not 
 
             //1), create the platform (Main container (DF+AMS) + containers + monitoring agents : RMA and SNIFFER)
             rt=emptyPlatform(containerList);
@@ -94,16 +94,16 @@ public class PrincipalZoe {
         // 2) create the containers
         containerList.putAll(createContainers(rt));
 
-        // 3) create monitoring agents : rma agent, used to debug and monitor the platform; sniffer agent, to monitor communications;
+        // 3) create monitoring agents : rma agent, used to debug and monitor the platform; sniffer agent, to monitor communications; 
         createMonitoringAgents(mainContainerRef);
 
-        System.out.println("Plaform ok");
+        System.out.println("Platform ok");
         return rt;
 
     }
 
     /**
-     * Create the containers used to hold the agents
+     * Create the containers used to hold the agents 
      * @param rt The reference to the main container
      * @return an Hmap associating the name of a container and its object reference.
      * <br/>
@@ -117,7 +117,7 @@ public class PrincipalZoe {
 
         System.out.println("Launching containers ...");
 
-        //create the container0
+        //create the container0	
         containerName=ConfigurationFileZoe.LOCAL_CONTAINER_NAME;
         pContainer = new ProfileImpl(ConfigurationFileZoe.PLATFORM_HOSTNAME, ConfigurationFileZoe.PLATFORM_PORT, ConfigurationFileZoe.PLATFORM_ID);
         pContainer.setParameter(Profile.CONTAINER_NAME,containerName);
@@ -126,7 +126,7 @@ public class PrincipalZoe {
 
         containerList.put(containerName, containerRef);
 
-        //create the container0
+        //create the container0	
         containerName=ConfigurationFileZoe.LOCAL_CONTAINER2_NAME;
         pContainer = new ProfileImpl(ConfigurationFileZoe.PLATFORM_HOSTNAME, ConfigurationFileZoe.PLATFORM_PORT, ConfigurationFileZoe.PLATFORM_ID);
         pContainer.setParameter(Profile.CONTAINER_NAME,containerName);
@@ -135,7 +135,7 @@ public class PrincipalZoe {
 
         containerList.put(containerName, containerRef);
 
-        //create the container1
+        //create the container1	
         containerName=ConfigurationFileZoe.LOCAL_CONTAINER3_NAME;
         pContainer = new ProfileImpl(ConfigurationFileZoe.PLATFORM_HOSTNAME, ConfigurationFileZoe.PLATFORM_PORT, ConfigurationFileZoe.PLATFORM_ID);
         //pContainer = new ProfileImpl(null, 8888, null);
@@ -144,7 +144,7 @@ public class PrincipalZoe {
         containerRef = rt.createAgentContainer(pContainer); //ContainerController replace AgentContainer in the new versions of Jade.
         containerList.put(containerName, containerRef);
 
-        //create the container2
+        //create the container2	
         containerName=ConfigurationFileZoe.LOCAL_CONTAINER4_NAME;
         pContainer = new ProfileImpl(ConfigurationFileZoe.PLATFORM_HOSTNAME, ConfigurationFileZoe.PLATFORM_PORT, ConfigurationFileZoe.PLATFORM_ID);
         //pContainer = new ProfileImpl(null, 8888, null);
@@ -259,7 +259,7 @@ public class PrincipalZoe {
             agentName=ConfigurationFileZoe.DEFAULT_GATEKEEPER_NAME;
             try {
                 Object[] objtab=new Object[]{ConfigurationFileZoe.ENVIRONMENT_TYPE,ConfigurationFileZoe.GENERATOR_TYPE,ConfigurationFileZoe.INSTANCE_TOPOLOGY,ConfigurationFileZoe.INSTANCE_CONFIGURATION_ELEMENTS,ConfigurationFileZoe.ACTIVE_DIAMOND,ConfigurationFileZoe.ACTIVE_GOLD,ConfigurationFileZoe.ACTIVE_WELL,ConfigurationFileZoe.GENERATOR_PARAMETERS};//used to give informations to the agent
-                //Object[] objtab=new Object[]{null,null,ConfigurationFile.ENVIRONMENT_TYPE};//used to give informations to the agent
+                //Object[] objtab=new Object[]{null,null,ConfigurationFileZoe.ENVIRONMENT_TYPE};//used to give informations to the agent
                 System.out.println("GateKeeperAgent.class.getName(): "+GateKeeperAgent.class.getName());
                 AgentController	ag=c.createNewAgent(agentName,GateKeeperAgent.class.getName(),objtab);
 
@@ -274,7 +274,7 @@ public class PrincipalZoe {
 
         /************************************************************************************************
          * The main container (now) exist, we deploy the agent(s) on  their local containers
-         *They will have to find the gatekeeper's container to deploy themselves in the environment.
+         *They will have to find the gatekeeper's container to deploy themselves in the environment. 
          *This is automatically performed by all agent that extends AbstractDedaleAgent
          ************************************************************************************************/
         AgentController	ag;
@@ -282,9 +282,43 @@ public class PrincipalZoe {
         /*****************************************************
          *
          * 				ADD YOUR AGENTS HERE - As many as you want.
-         * Any agent added here should have its associated configuration available in the entities file
+         * Any agent added here should have its associated configuration available in the entities file 
+         *
+         *
          *
          *****************************************************/
+        // HERE TODO testAndHope agents
+        // 1st agent
+        c = containerList.get(ConfigurationFileZoe.LOCAL_CONTAINER2_NAME);
+        Assert.assertNotNull("This container does not exist",c);
+
+        //2) Give the name of your agent, MUST be the same as the one given in the entities file.
+        agentName="1stAgent";
+
+        //3) If you want to give specific parameters to your agent, add them here
+        Object [] entityParametersExplo1={"2ndAgent"};
+
+        //4) Give the class name of your agent to let the system instantiate it
+        ag=createNewDedaleAgent(c, agentName, ExploreDFSAgent.class.getName(), entityParametersExplo1);//ExploreSoloAgent
+
+        agentList.add(ag);
+
+        // 2nd agent
+        //1) Get the container where the agent will appear
+        c = containerList.get(ConfigurationFileZoe.LOCAL_CONTAINER2_NAME);
+        Assert.assertNotNull("This container does not exist",c);
+
+        //2) Give the name of your agent, MUST be the same as the one given in the entities file.
+        agentName="2ndAgent";
+
+        //3) If you want to give specific parameters to your agent, add them here
+        Object [] entityParametersExplo2={"1stAgent"};
+
+        //4) Give the class name of your agent to let the system instantiate it
+        ag=createNewDedaleAgent(c, agentName, ExploreDFSAgent.class.getName(), entityParametersExplo2);//ExploreSoloAgent
+
+        agentList.add(ag);
+
         /*********
          * User controlled agent (with N(ext) and O(k))
          *********/
@@ -300,7 +334,7 @@ public class PrincipalZoe {
         //
         //		//4) Give the class name of your agent to let the system instantiate it
         //		ag=createNewDedaleAgent(c, agentName, ControlledAgent.class.getName(), entityParameters);
-        //		agentList.add(ag);
+        //		agentList.add(ag);	
         /*********
          * GOLEM
          *********/
@@ -316,7 +350,7 @@ public class PrincipalZoe {
         //
         //		//4) Give the class name of your agent to let the system instantiate it
         //		ag=createNewDedaleAgent(c, agentName, DummyWumpusShift.class.getName(), entityParameters);
-        //		agentList.add(ag);
+        //		agentList.add(ag);	
 
         //		//1) Get the container where the agent will appear
         //		c = containerList.get(ConfigurationFileZoe.LOCAL_CONTAINER2_NAME);
@@ -330,7 +364,7 @@ public class PrincipalZoe {
         //
         //		//4) Give the class name of your agent to let the system instantiate it
         //		ag=createNewDedaleAgent(c, agentName, DummyWumpusShift.class.getName(), entityParametersg2);
-        //		agentList.add(ag);
+        //		agentList.add(ag);	
 
         /*********
          * AGENT Explo1
@@ -353,76 +387,75 @@ public class PrincipalZoe {
         /*********
          * AGENT Explo2
          *********/
-//		//1) Get the container where the agent will appear
-//		c = containerList.get(ConfigurationFileZoe.LOCAL_CONTAINER2_NAME);
-//		Assert.assertNotNull("This container does not exist",c);
-//
-//		//2) Give the name of your agent, MUST be the same as the one given in the entities file.
-//		agentName="Explo2";
-//
-//		//3) If you want to give specific parameters to your agent, add them here
-//		Object [] entityParametersExplo2={"My parameters"};
-//
-//		//4) Give the class name of your agent to let the system instantiate it
-//		ag=createNewDedaleAgent(c, agentName, ExploreSoloAgent.class.getName(), entityParametersExplo2);//ExploreSoloAgent
-//		agentList.add(ag);
-
+        //		//1) Get the container where the agent will appear
+        //				c = containerList.get(ConfigurationFileZoe.LOCAL_CONTAINER2_NAME);
+        //				Assert.assertNotNull("This container does not exist",c);
+        //				
+        //				//2) Give the name of your agent, MUST be the same as the one given in the entities file.
+        //				agentName="Explo2";
+        //				
+        //				//3) If you want to give specific parameters to your agent, add them here
+        //				Object [] entityParametersExplo2={"My parameters"};
+        //				
+        //				//4) Give the class name of your agent to let the system instantiate it
+        //				ag=createNewDedaleAgent(c, agentName, ExploreSoloAgent.class.getName(), entityParametersExplo2);//ExploreSoloAgent
+        //				agentList.add(ag);
+        //		
+        //		
+        //		
         /*********
          * AGENT Explo3
          *********/
         //		//1) Get the container where the agent will appear
         //		c = containerList.get(ConfigurationFileZoe.LOCAL_CONTAINER2_NAME);
         //		Assert.assertNotNull("This container does not exist",c);
-        //
+        //		
         //		//2) Give the name of your agent, MUST be the same as the one given in the entities file.
         //		agentName="Explo3";
-        //
+        //		
         //		//3) If you want to give specific parameters to your agent, add them here
         //		Object [] entityParametersExplo3={"My parameters"};
-        //
+        //		
         //		//4) Give the class name of your agent to let the system instantiate it
         //		ag=createNewDedaleAgent(c, agentName, DummyMovingAgent.class.getName(), entityParametersExplo3);//ExploreSoloAgent
-        //
+        //		
         //		agentList.add(ag);
 
         /*********
          * AGENT Explo4
          *********/
         //1) Get the container where the agent will appear
-        c = containerList.get(ConfigurationFileZoe.LOCAL_CONTAINER2_NAME);
-        Assert.assertNotNull("This container does not exist",c);
-
-        //2) Give the name of your agent, MUST be the same as the one given in the entities file.
-        agentName="1stAgent";
-
-        //3) If you want to give specific parameters to your agent, add them here
-        Object [] entityParametersExplo4={ConfigurationFileZoe.INSTANCE_CONFIGURATION_ENTITIES};
-
-        //4) Give the class name of your agent to let the system instantiate it
-        //ag=createNewDedaleAgent(c, agentName, ExploreCoopAgent.class.getName(), entityParametersExplo4);
-        ag = createNewDedaleAgent(c, agentName, ExploreDFSAgent.class.getName(), entityParametersExplo4);
-
-        agentList.add(ag);
+//        c = containerList.get(ConfigurationFileZoe.LOCAL_CONTAINER2_NAME);
+//        Assert.assertNotNull("This container does not exist",c);
+//
+//        //2) Give the name of your agent, MUST be the same as the one given in the entities file.
+//        agentName="1stAgent";
+//
+//        //3) If you want to give specific parameters to your agent, add them here
+//        Object [] entityParametersExplo4={"2ndAgent"};
+//
+//        //4) Give the class name of your agent to let the system instantiate it
+//        ag=createNewDedaleAgent(c, agentName, ExploreCoopAgent.class.getName(), entityParametersExplo4);//ExploreSoloAgent
+//
+//        agentList.add(ag);
 
         /*********
-         * AGENT Explo5
+         //		 * AGENT Explo5
          *********/
-        //1) Get the container where the agent will appear
-        c = containerList.get(ConfigurationFileZoe.LOCAL_CONTAINER2_NAME);
-        Assert.assertNotNull("This container does not exist",c);
-
-        //2) Give the name of your agent, MUST be the same as the one given in the entities file.
-        agentName="2ndAgent";
-
-        //3) If you want to give specific parameters to your agent, add them here
-        Object [] entityParametersExplo5={ConfigurationFileZoe.INSTANCE_CONFIGURATION_ENTITIES};
-
-        //4) Give the class name of your agent to let the system instantiate it
-        //ag=createNewDedaleAgent(c, agentName, ExploreCoopAgent.class.getName(), entityParametersExplo5);
-        ag = createNewDedaleAgent(c, agentName, ExploreDFSAgent.class.getName(), entityParametersExplo5);
-
-        agentList.add(ag);
-
+//        //1) Get the container where the agent will appear
+//        c = containerList.get(ConfigurationFileZoe.LOCAL_CONTAINER2_NAME);
+//        Assert.assertNotNull("This container does not exist",c);
+//
+//        //2) Give the name of your agent, MUST be the same as the one given in the entities file.
+//        agentName="2ndAgent";
+//
+//        //3) If you want to give specific parameters to your agent, add them here
+//        Object [] entityParametersExplo5={"1stAgent"};
+//
+//        //4) Give the class name of your agent to let the system instantiate it
+//        ag=createNewDedaleAgent(c, agentName, ExploreCoopAgent.class.getName(), entityParametersExplo5);//ExploreSoloAgent
+//
+//        agentList.add(ag);
         /***********************************************************************
          * Type of agents used when you collect and gather treasures on the map
          ***********************************************************************/
@@ -433,15 +466,49 @@ public class PrincipalZoe {
         //		//1) Get the container where the agent will appear
         //		c = containerList.get(ConfigurationFileZoe.LOCAL_CONTAINER2_NAME);
         //		Assert.assertNotNull("This container does not exist",c);
-        //
+        //		
         //		//2) Give the name of your agent, MUST be the same as the one given in the entities file.
         //		agentName="Collect1";
-        //
+        //		
         //		//3) If you want to give specific parameters to your agent, add them here
         //		Object [] entityParametersC={"My parameters"};
-        //
+        //		
         //		//4) Give the class name of your agent to let the system instantiate it
         //		ag=createNewDedaleAgent(c, agentName, DummyCollectorAgent.class.getName(), entityParametersC);
+        //		agentList.add(ag);
+
+        /***************
+         * AGENT Tanker
+         ***************/
+        //		
+        //		//1) Get the container where the agent will appear
+        //		c = containerList.get(ConfigurationFileZoe.LOCAL_CONTAINER2_NAME);
+        //		Assert.assertNotNull("This container does not exist",c);
+        //		
+        //		//2) Give the name of your agent, MUST be the same as the one given in the entities file.
+        //		agentName="Tanker1";
+        //		
+        //		//3) If you want to give specific parameters to your agent, add them here
+        //		Object [] entityParametersT={"My parameters"};
+        //		
+        //		//4) Give the class name of your agent to let the system instantiate it
+        //		ag=createNewDedaleAgent(c, agentName, DummyTankerAgent.class.getName(), entityParametersT);
+        //		agentList.add(ag);
+        //		
+
+        //1) Get the container where the agent will appear
+        //		c = containerList.get(ConfigurationFileZoe.LOCAL_CONTAINER2_NAME);
+        //		Assert.assertNotNull("This container does not exist",c);
+        //
+        //		//2) Give the name of your agent, MUST be the same as the one given in the entities file.
+        //		agentName="2ndAgent";
+        //
+        //		//3) If you want to give specific parameters to your agent, add them here
+        //		Object [] entityParametersExplo5={"1stAgent"};
+        //
+        //		//4) Give the class name of your agent to let the system instantiate it
+        //		ag=createNewDedaleAgent(c, agentName, ExploreCoopAgent.class.getName(), entityParametersExplo5);//ExploreSoloAgent
+        //
         //		agentList.add(ag);
 
 
@@ -450,6 +517,7 @@ public class PrincipalZoe {
          *********************/
         System.out.println("Agents created...");
         return agentList;
+
     }
 
     /**
@@ -460,14 +528,15 @@ public class PrincipalZoe {
 
         System.out.println("Starting agents...");
 
-        for (final AgentController ac: agentList) {
+
+        for(final AgentController ac: agentList){
             try {
                 ac.start();
             } catch (StaleProxyException e) {
                 e.printStackTrace();
             }
-        }
 
+        }
         System.out.println("Agents started...");
     }
 
@@ -478,15 +547,16 @@ public class PrincipalZoe {
      * @param className class of the agent
      * @param additionnalParameters
      */
-    private static AgentController createNewDedaleAgent(ContainerController initialContainer, String agentName, String className, Object[] additionnalParameters){
+    private static AgentController createNewDedaleAgent(ContainerController initialContainer, String agentName,String className, Object[] additionnalParameters){
         //Object[] objtab=new Object[]{env,agentName};//used to give informations to the agent
         Object[] objtab=AbstractDedaleAgent.loadEntityCaracteristics(agentName,ConfigurationFileZoe.INSTANCE_CONFIGURATION_ENTITIES);
-        Object [] res2=merge(objtab,additionnalParameters);
+        Object []res2=merge(objtab,additionnalParameters);
 
         AgentController ag=null;
         try {
             ag = initialContainer.createNewAgent(agentName,className,res2);
         } catch (StaleProxyException e) {
+            // TODO Auto-generated catch block
             e.printStackTrace();
         }
         Assert.assertNotNull(ag);

@@ -3,6 +3,7 @@ package eu.su.mas.dedaleEtu.mas.agents.official;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
 
 import eu.su.mas.dedale.env.EntityCharacteristics;
 import eu.su.mas.dedale.mas.AbstractDedaleAgent;
@@ -45,7 +46,7 @@ public class ExploreDFSAgent extends AbstractDedaleAgent {
 
 	private static final long serialVersionUID = -7969469610241668140L;
 	
-	private FullMapRepresentation myMap = new FullMapRepresentation();
+	private FullMapRepresentation myMap; // = new FullMapRepresentation();
 	private EntityCharacteristics myCharacteristics;
 	private HashMap<String, ArrayList<String>> nodesToShare; // key: agent name, value: list of IDs of the nodes to be shared next time we meet this agent
 	private ArrayList<String> knownAgents;
@@ -95,7 +96,7 @@ public class ExploreDFSAgent extends AbstractDedaleAgent {
 			System.out.println("Problem searching AMS: " + e);
 			e.printStackTrace();
 		}
-		for (int i=0; i<agentsDescriptionCatalog.length; i++){
+		for (int i = 0; i< agentsDescriptionCatalog.length; i++){  // modified agentsDescriptionCatalog
 			AID agentID = agentsDescriptionCatalog[i].getName();
 			agentsNames.add(agentID.getLocalName());
 		}
@@ -161,6 +162,10 @@ public class ExploreDFSAgent extends AbstractDedaleAgent {
 	
 	public FullMapRepresentation getMap() {
 		return this.myMap;
+	}
+
+	public void setMap(FullMapRepresentation map) {
+		this.myMap = map;
 	}
 
 	/* Get the list of nodes to share with a certain agent. */

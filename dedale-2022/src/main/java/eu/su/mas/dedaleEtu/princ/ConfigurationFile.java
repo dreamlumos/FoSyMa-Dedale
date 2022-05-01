@@ -148,6 +148,7 @@ public final class ConfigurationFile {
 	 */
 	//public static String INSTANCE_CONFIGURATION_ENTITIES=null;
 //	public static String INSTANCE_CONFIGURATION_ENTITIES="resources/agentExplo";
+//	public static String INSTANCE_CONFIGURATION_ENTITIES="resources/testAndHope";
 	//public static String INSTANCE_CONFIGURATION_ENTITIES="resources/agentExplo-2";
 	public static String INSTANCE_CONFIGURATION_ENTITIES="resources/agentExploCoop-2";
 	//public static String INSTANCE_CONFIGURATION_ENTITIES="resources/agentExploCoop-2.json";

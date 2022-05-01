@@ -2,6 +2,7 @@ package eu.su.mas.dedaleEtu.mas.behaviours.official;
 
 import eu.su.mas.dedale.mas.AbstractDedaleAgent;
 import eu.su.mas.dedaleEtu.mas.agents.official.ExploreDFSAgent;
+import eu.su.mas.dedaleEtu.mas.knowledge.FullMapRepresentation;
 import jade.core.behaviours.SimpleBehaviour;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
@@ -18,7 +19,10 @@ public class CheckForPingBehaviour extends SimpleBehaviour { // OneShotBehaviour
 
 	@Override
 	public void action() {
-		
+		if(((ExploreDFSAgent)this.myAgent).getMap() == null){
+			FullMapRepresentation newMap = new FullMapRepresentation();
+			((ExploreDFSAgent)this.myAgent).setMap(newMap);
+		}
 		// The agent checks if he received a ping from a teammate. 	
 		MessageTemplate msgTemplate = MessageTemplate.and(
 				MessageTemplate.MatchProtocol("SHARE-TOPO"),
