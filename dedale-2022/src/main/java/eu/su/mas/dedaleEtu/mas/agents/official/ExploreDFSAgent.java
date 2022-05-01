@@ -8,6 +8,7 @@ import eu.su.mas.dedale.env.EntityCharacteristics;
 import eu.su.mas.dedale.mas.AbstractDedaleAgent;
 import eu.su.mas.dedale.mas.agent.behaviours.startMyBehaviours;
 import eu.su.mas.dedaleEtu.mas.behaviours.official.CheckForPingBehaviour;
+import eu.su.mas.dedaleEtu.mas.behaviours.official.CheckForPongBehaviour;
 import eu.su.mas.dedaleEtu.mas.behaviours.official.ExploCoopFullMapBehaviour;
 import eu.su.mas.dedaleEtu.mas.behaviours.official.ObserveEnvBehaviour;
 import eu.su.mas.dedaleEtu.mas.behaviours.official.PingBehaviour;
@@ -55,6 +56,7 @@ public class ExploreDFSAgent extends AbstractDedaleAgent {
 	private static final String ObserveEnv = "Observe Environment";
 	private static final String Step = "Step";
 	private static final String Ping = "Ping";
+	private static final String CheckForPong = "CheckForPong";
 	
 	private static final String CheckForPing = "Check Mailbox for Ping";
 	private static final String ReceiveMap = "Receive Map";
@@ -119,23 +121,27 @@ public class ExploreDFSAgent extends AbstractDedaleAgent {
 		FSMPingPong.registerFirstState(new CheckForPingBehaviour(this), CheckForPing);
 		FSMPingPong.registerState(new ReceiveMapBehaviour(this), ReceiveMap);
 		
-		FSMPingPong.registerDefaultTransition(CheckForPing, CheckForPing); //Default
-
+		FSMPingPong.registerDefaultTransition(CheckForPing, CheckForPing); //K: if it works as I expect, this line is useless, and the default could just be CFPing -> ReceiveMap
+		FSMPingPong.registerTransition(CheckForPing, ReceiveMap, 1);
+		FSMPingPong.registerDefaultTransition(ReceiveMap, CheckForPing);
+		
 		lb.add(FSMPingPong);
 		
-		FSMBehaviour fsm = new FSMBehaviour(this);
+		FSMBehaviour FSMExploCollect = new FSMBehaviour(this);
 	
-		fsm.registerFirstState(new ObserveEnvBehaviour(this), ObserveEnv);
-		fsm.registerState(new StepBehaviour(this), Step);
-		fsm.registerState(new PingBehaviour(this, agentsNames), Ping);
+		FSMExploCollect.registerFirstState(new ObserveEnvBehaviour(this), ObserveEnv);
+		FSMExploCollect.registerState(new StepBehaviour(this), Step);
+		FSMExploCollect.registerState(new PingBehaviour(this), Ping);
+		FSMExploCollect.registerState(new CheckForPongBehaviour(this), CheckForPong);
 		//fsm.registerState(new CollectTreasureBehaviour(), CollectTreasure);
 		//fsm.registerLastState(new ?(), ?);
 		
+		// TODO: register transitions
 //		fsm.registerDefaultTransition(B, A);//Default
 //		fsm.registerTransition(B, B, 2) ; //Cond 2
 //		fsm.registerTransition(B, C, 1) ; //Cond 1
 		
-		lb.add(fsm);
+		lb.add(FSMExploCollect);
 		
 		/***
 		 * MANDATORY TO ALLOW YOUR AGENT TO BE DEPLOYED CORRECTLY
@@ -157,7 +163,23 @@ public class ExploreDFSAgent extends AbstractDedaleAgent {
 		return this.myMap;
 	}
 
+	/* Get the list of nodes to share with a certain agent. */
 	public ArrayList<String> getNodesToShare(String agentName){
 		return this.nodesToShare.get(agentName);
+	}
+	
+	/* Get the list of agents whom we should ping (agents to whom we have new information to share). */
+	public ArrayList<String> getAgentsToPing(){
+		
+		ArrayList<String> agentsToPing = new ArrayList<String>();
+		
+		// Obtaining the list of agents whose nodesToShare list is not empty
+		for (String agent: this.nodesToShare.keySet()) {
+			if (!this.nodesToShare.get(agent).isEmpty()){
+				agentsToPing.add(agent);
+			}
+		}
+		
+		return agentsToPing;
 	}
 }

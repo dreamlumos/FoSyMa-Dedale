@@ -18,6 +18,8 @@ public class ObserveEnvBehaviour extends SimpleBehaviour {
 	
 	@Override
 	public void action() {
+		
+		// TODO: update nodesToShare in agent
 
 		FullMapRepresentation map = ((ExploreDFSAgent) this.myAgent).getMap();
 

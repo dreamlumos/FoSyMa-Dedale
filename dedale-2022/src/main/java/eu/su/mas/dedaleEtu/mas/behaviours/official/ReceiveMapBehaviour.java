@@ -12,6 +12,8 @@ import jade.lang.acl.UnreadableException;
 
 public class ReceiveMapBehaviour extends SimpleBehaviour {
 	
+	private static final long serialVersionUID = -1122887021789014975L;
+	
 	private int mapReceived;
 	
 	public ReceiveMapBehaviour(ExploreDFSAgent agent) {

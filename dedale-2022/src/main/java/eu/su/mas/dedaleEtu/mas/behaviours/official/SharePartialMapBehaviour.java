@@ -15,45 +15,52 @@ import jade.core.behaviours.SimpleBehaviour;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
 
-public class ShareFullMapBehaviour extends SimpleBehaviour {
+public class SharePartialMapBehaviour extends SimpleBehaviour {
 
 	private static final long serialVersionUID = -5609039653282110622L;
 	
-	private int pongReceived;
+	private int phase; //Phase 0: sending map, Phase 1: waiting for ack
+	private ACLMessage pong;
+	private boolean ackReceivedOrTimedOut;
 
-	public ShareFullMapBehaviour(Agent agent) {
+	public SharePartialMapBehaviour(Agent agent, ACLMessage pong) {
 		super(agent);
+		this.pong = pong;
+		this.phase = 0;
 	}
 	
 	@Override
 	public void action() {
-		this.pongReceived = 0;
-		// The agent checks if he received a pong from a teammate.
-		MessageTemplate msgTemplate = MessageTemplate.and(
-				MessageTemplate.MatchProtocol("SHARE-TOPO"),
-				MessageTemplate.MatchPerformative(ACLMessage.ACCEPT_PROPOSAL));
-		ACLMessage pong = this.myAgent.receive(msgTemplate);
+		
+		// TODO: timeout
 
-		if (pong != null) {
-			this.pongReceived = 1;
+		if (this.phase == 0) {
+			
 			ACLMessage mapMsg = pong.createReply();
 			mapMsg.setSender(this.myAgent.getAID());
 			mapMsg.setPerformative(ACLMessage.INFORM);
-			mapMsg.setPostTimeStamp(System.currentTimeMillis());
 		
-			// TODO select a portion of the graph to send
 			ArrayList<String> nodesToShare = ((ExploreDFSAgent)this.myAgent).getNodesToShare(pong.getSender().getName()); // getLocalName()?
-			// TODO call function
-			FullMapRepresentation sg = ((ExploreDFSAgent)this.myAgent).getMap().getPartMap(nodesToShare);
-
-//			SerializableSimpleGraph<String, HashMap<String, Object>> sg = ((ExploreDFSAgent)this.myAgent).getMap().getSerializableGraph();
+			FullMapRepresentation partialMap = ((ExploreDFSAgent)this.myAgent).getMap().getPartMap(nodesToShare);
+			SerializableSimpleGraph<String, HashMap<String, Object>> sg = partialMap.getSerializableGraph();
+	
 			try {
 				mapMsg.setContentObject(sg);
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
-
+	
 			((AbstractDedaleAgent)this.myAgent).sendMessage(mapMsg);
+			
+		} else if (this.phase == 1) {
+		
+			// Wait for ack 	
+			MessageTemplate msgTemplate = MessageTemplate.and(
+					MessageTemplate.MatchProtocol("SHARE-TOPO"),
+					MessageTemplate.MatchPerformative(ACLMessage.CONFIRM));
+			ACLMessage ackMsg = this.myAgent.receive(msgTemplate);
+			
+			
 		}
 	}
 

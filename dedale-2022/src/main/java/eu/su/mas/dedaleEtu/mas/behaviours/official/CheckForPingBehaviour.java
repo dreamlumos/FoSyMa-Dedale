@@ -10,7 +10,7 @@ public class CheckForPingBehaviour extends SimpleBehaviour { // OneShotBehaviour
 
 	private static final long serialVersionUID = -2824535739297657670L;
 		
-	private int pingReceived;
+	private int pingReceived; // 1 if ping message received, 0 otherwise
 	
 	public CheckForPingBehaviour(ExploreDFSAgent agent) {
 		super(agent);
@@ -18,6 +18,7 @@ public class CheckForPingBehaviour extends SimpleBehaviour { // OneShotBehaviour
 
 	@Override
 	public void action() {
+		
 		// The agent checks if he received a ping from a teammate. 	
 		MessageTemplate msgTemplate = MessageTemplate.and(
 				MessageTemplate.MatchProtocol("SHARE-TOPO"),
