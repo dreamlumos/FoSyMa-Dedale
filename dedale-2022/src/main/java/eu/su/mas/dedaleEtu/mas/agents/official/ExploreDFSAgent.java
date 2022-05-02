@@ -1,5 +1,6 @@
 package eu.su.mas.dedaleEtu.mas.agents.official;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -23,6 +24,7 @@ import jade.core.behaviours.SequentialBehaviour;
 import jade.domain.AMSService;
 import jade.domain.FIPAAgentManagement.AMSAgentDescription;
 import jade.domain.FIPAAgentManagement.SearchConstraints;
+import javafx.util.Pair;
 
 /**
  * <pre>
@@ -225,4 +227,32 @@ public class ExploreDFSAgent extends AbstractDedaleAgent {
 		}
 		this.knownAgentCharacteristics.put(agent, charac);
 	}
+
+	public Pair<ArrayList<String>, Integer> calculateCoalition(int size, ArrayList<String> agents, ArrayList<Integer> gold){
+		Pair<ArrayList<String>, Integer> bestCoal; // TODO instead of int for gold spot size, we need the object, to be able to compare afterwards with others coal size
+		HashMap<String, Integer> goldCapDict = new HashMap<>();
+		for(String a : agents) {
+			Integer cap = (this.knownAgentCharacteristics.get(a)).get(0);
+			goldCapDict.put(a, cap);
+		}
+		int currCoalCap = 0;
+		ArrayList<String> currCoal = new ArrayList<>(); // temp TODO need to use a combination function... tried a lib but no luck
+		for(String a : currCoal){
+			currCoalCap += goldCapDict.get(a);
+		}
+		int bestGold = 0;
+		for(Integer i : gold){
+			if(i <= currCoalCap && i>bestGold){
+				// here to make a thoughtful choice we would need to check the position of the two different gold spots and see which is closest to currentPos
+				bestGold = i;
+			}
+		}
+		bestCoal = new Pair<>(currCoal, bestGold);
+
+		return bestCoal;
+	}
+
+//	public ArrayList<String> combinations(int size ArrayList<String> agents){
+//
+//	}
 }
