@@ -205,7 +205,7 @@ public class FullMapRepresentation implements Serializable {
 				String node0 = oldEdge.getNode0().getId();
 				String node1 = oldEdge.getNode1().getId();
 				if (nodes.contains(node0) && nodes.contains(node1)) {
-					partialMap.g.addEdge(edgeId, node0, node1);
+					partialMap.addEdge(node0, node1);
 				}
 			}
 		}
