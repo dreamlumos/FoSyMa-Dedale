@@ -121,6 +121,8 @@ public class FullMapRepresentation implements Serializable {
 			n.setAttribute("timestamp", lastVisitTimestamp);
 			if (lastVisitTimestamp != -1) {
 				n.setAttribute("ui.class", NodeStatus.closed.toString());
+			} else {
+				n.setAttribute("ui.class", NodeStatus.open.toString());
 			}
 		}
 		
@@ -174,23 +176,37 @@ public class FullMapRepresentation implements Serializable {
 	}
 
 	/**
-	 * Compute the Map to send from the ag1's map and a list of nodes of ag2.
+	 * Compute the Map to send from ag1's map and a list of nodes.
 	 *
 	 * @param nodesId list of id of the open nodes from ag2
 	 * @return part of ag1's Map to be sent to ag2 to update ag2's Map
 	 */
 
-	public FullMapRepresentation getPartMap(ArrayList<String> nodesId){
+	public FullMapRepresentation getPartialMap(ArrayList<String> nodesId) {
 		FullMapRepresentation partialMap = new FullMapRepresentation();
-		for (String nodeId : nodesId){
+		if (nodesId == null) {
+			return partialMap;
+		}
+		ArrayList<String> nodes = new ArrayList<String>();
+		for (String nodeId: nodesId) {
 			Node oldNode = this.g.getNode(nodeId);
 			Node newNode = partialMap.g.addNode(nodeId);
-			for (String attribute : (String[]) oldNode.attributeKeys().toArray()){
-				newNode.setAttribute(attribute,oldNode.getAttribute(attribute));
+			nodes.add(nodeId);
+			for (Object attribute : oldNode.attributeKeys().toArray()) {
+				newNode.setAttribute((String) attribute, oldNode.getAttribute((String) attribute));
 			}
-			for (String edgeId : (String[]) oldNode.edges().toArray()){
+		}
+		// TODO: debug
+		for (String nodeId: nodesId) {
+			Node oldNode = this.g.getNode(nodeId);
+			for (Object edge : oldNode.edges().toArray()) {
+				String edgeId = ((Edge) edge).getId();
 				Edge oldEdge = this.g.getEdge(edgeId);
-				partialMap.g.addEdge(edgeId, oldEdge.getNode0(), oldEdge.getNode1());
+				String node0 = oldEdge.getNode0().getId();
+				String node1 = oldEdge.getNode1().getId();
+				if (nodes.contains(node0) && nodes.contains(node1)) {
+					partialMap.g.addEdge(edgeId, node0, node1);
+				}
 			}
 		}
 		return partialMap;
@@ -203,7 +219,7 @@ public class FullMapRepresentation implements Serializable {
 	 * @param idTo id of the destination node
 	 * @return the list of nodes to follow, null if the targeted node is not currently reachable
 	 */
-	public synchronized List<String> getShortestPath(String idFrom, String idTo){
+	public synchronized List<String> getShortestPath(String idFrom, String idTo) {
 		List<String> shortestPath = new ArrayList<String>();
 
 		Dijkstra dijkstra = new Dijkstra();//number of edge
@@ -212,13 +228,13 @@ public class FullMapRepresentation implements Serializable {
 		dijkstra.compute();//compute the distance to all nodes from idFrom
 		List<Node> path=dijkstra.getPath(g.getNode(idTo)).getNodePath(); //the shortest path from idFrom to idTo
 		Iterator<Node> iter=path.iterator();
-		while (iter.hasNext()){
+		while (iter.hasNext()) {
 			shortestPath.add(iter.next().getId());
 		}
 		dijkstra.clear();
 		if (shortestPath.isEmpty()) {//The openNode is not currently reachable
 			return null;
-		}else {
+		} else {
 			shortestPath.remove(0);//remove the current position
 		}
 		return shortestPath;

@@ -22,6 +22,7 @@ public class SharePartialMapBehaviour extends SimpleBehaviour {
 	private int phase; //Phase 0: sending map, Phase 1: waiting for ack
 	private ACLMessage pong;
 	private boolean ackReceivedOrTimedOut;
+	private long timeoutDate;
 
 	public SharePartialMapBehaviour(Agent agent, ACLMessage pong) {
 		super(agent);
@@ -40,8 +41,8 @@ public class SharePartialMapBehaviour extends SimpleBehaviour {
 			mapMsg.setSender(this.myAgent.getAID());
 			mapMsg.setPerformative(ACLMessage.INFORM);
 		
-			ArrayList<String> nodesToShare = ((ExploreDFSAgent)this.myAgent).getNodesToShare(pong.getSender().getName()); // getLocalName()?
-			FullMapRepresentation partialMap = ((ExploreDFSAgent)this.myAgent).getMap().getPartMap(nodesToShare);
+			ArrayList<String> nodesToShare = ((ExploreDFSAgent)this.myAgent).getNodesToShare(pong.getSender().getLocalName());
+			FullMapRepresentation partialMap = ((ExploreDFSAgent)this.myAgent).getMap().getPartialMap(nodesToShare);
 			SerializableSimpleGraph<String, HashMap<String, Object>> sg = partialMap.getSerializableGraph();
 	
 			try {
@@ -51,6 +52,7 @@ public class SharePartialMapBehaviour extends SimpleBehaviour {
 			}
 	
 			((AbstractDedaleAgent)this.myAgent).sendMessage(mapMsg);
+			this.timeoutDate = System.currentTimeMillis() + 1000; // 1s timeout
 			
 		} else if (this.phase == 1) {
 		
@@ -60,6 +62,14 @@ public class SharePartialMapBehaviour extends SimpleBehaviour {
 					MessageTemplate.MatchPerformative(ACLMessage.CONFIRM));
 			ACLMessage ackMsg = this.myAgent.receive(msgTemplate);
 			
+			if (ackMsg != null) {
+				System.out.println("Agent "+this.myAgent.getLocalName()+" received ack from Agent "+ackMsg.getSender().getLocalName());
+				((ExploreDFSAgent) this.myAgent).clearNodesToShare(ackMsg.getSender().getLocalName());
+				this.ackReceivedOrTimedOut = true;
+			} else if (System.currentTimeMillis() > this.timeoutDate) {
+				System.out.println("Agent "+this.myAgent.getLocalName()+" didn't receive ack and timed out");
+				this.ackReceivedOrTimedOut = true;
+			}
 			
 		}
 	}
@@ -67,6 +77,6 @@ public class SharePartialMapBehaviour extends SimpleBehaviour {
 	@Override
 	public boolean done() {
 		// TODO Auto-generated method stub
-		return false;
+		return ackReceivedOrTimedOut;
 	}
 }

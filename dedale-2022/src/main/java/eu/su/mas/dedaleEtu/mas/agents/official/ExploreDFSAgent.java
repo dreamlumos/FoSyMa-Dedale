@@ -46,7 +46,7 @@ public class ExploreDFSAgent extends AbstractDedaleAgent {
 
 	private static final long serialVersionUID = -7969469610241668140L;
 	
-	private FullMapRepresentation myMap; // = new FullMapRepresentation();
+	private FullMapRepresentation myMap; 
 	private EntityCharacteristics myCharacteristics;
 	private HashMap<String, ArrayList<String>> nodesToShare; // key: agent name, value: list of IDs of the nodes to be shared next time we meet this agent
 	private ArrayList<String> knownAgents;
@@ -90,15 +90,20 @@ public class ExploreDFSAgent extends AbstractDedaleAgent {
 		List <String> agentsNames = new ArrayList<String>();
 		try {
 			SearchConstraints c = new SearchConstraints();
-			c.setMaxResults(Long.valueOf("-1"));
+			c.setMaxResults(Long.valueOf("-1")); // copied from example in slides, but not sure it is correct as it means to return a max of -1 results
 			agentsDescriptionCatalog = AMSService.search(this, new AMSAgentDescription(), c);
 		} catch (Exception e) {
 			System.out.println("Problem searching AMS: " + e);
 			e.printStackTrace();
 		}
+		
+		List<String> unnecessaryAgentsList = List.of("sniffeur", "GK", "rma", "ams", "df");
 		for (int i = 0; i< agentsDescriptionCatalog.length; i++){  // modified agentsDescriptionCatalog
 			AID agentID = agentsDescriptionCatalog[i].getName();
-			agentsNames.add(agentID.getLocalName());
+			String agentName = agentID.getLocalName();
+			if (!unnecessaryAgentsList.contains(agentName)) {
+				agentsNames.add(agentName);
+			}
 		}
 		
 		// Initialising dictionary containing the list of nodes to be shared with each agent		
@@ -137,8 +142,10 @@ public class ExploreDFSAgent extends AbstractDedaleAgent {
 		//fsm.registerState(new CollectTreasureBehaviour(), CollectTreasure);
 		//fsm.registerLastState(new ?(), ?);
 		
-		// TODO: register transitions
-//		fsm.registerDefaultTransition(B, A);//Default
+		FSMExploCollect.registerDefaultTransition(ObserveEnv, Step);
+		FSMExploCollect.registerDefaultTransition(Step, Ping);
+		FSMExploCollect.registerDefaultTransition(Ping, CheckForPong);
+		FSMExploCollect.registerDefaultTransition(CheckForPong, ObserveEnv);
 //		fsm.registerTransition(B, B, 2) ; //Cond 2
 //		fsm.registerTransition(B, C, 1) ; //Cond 1
 		
@@ -171,6 +178,18 @@ public class ExploreDFSAgent extends AbstractDedaleAgent {
 	/* Get the list of nodes to share with a certain agent. */
 	public ArrayList<String> getNodesToShare(String agentName){
 		return this.nodesToShare.get(agentName);
+	}
+	
+	public void addNodeToShare(String nodeId) {
+		for (String agentName: this.nodesToShare.keySet()) {
+			ArrayList<String> nodesList = this.nodesToShare.get(agentName);
+			nodesList.add(nodeId);
+			// this.nodesToShare.put(agentName, nodesList);
+		}
+	}
+	
+	public void clearNodesToShare(String agentId) {
+		this.nodesToShare.put(agentId, new ArrayList<String>());
 	}
 	
 	/* Get the list of agents whom we should ping (agents to whom we have new information to share). */

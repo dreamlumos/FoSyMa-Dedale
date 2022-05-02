@@ -19,10 +19,9 @@ public class CheckForPingBehaviour extends SimpleBehaviour { // OneShotBehaviour
 
 	@Override
 	public void action() {
-		if(((ExploreDFSAgent)this.myAgent).getMap() == null){
-			FullMapRepresentation newMap = new FullMapRepresentation();
-			((ExploreDFSAgent)this.myAgent).setMap(newMap);
-		}
+		
+		System.out.println("Agent "+this.myAgent.getLocalName()+" is checking for ping.");
+
 		// The agent checks if he received a ping from a teammate. 	
 		MessageTemplate msgTemplate = MessageTemplate.and(
 				MessageTemplate.MatchProtocol("SHARE-TOPO"),

@@ -19,6 +19,7 @@ public class PingBehaviour extends OneShotBehaviour { // ProposeInitiator?
 	@Override
 	public void action() {
 		
+		System.out.println("Ping!");
 		ACLMessage ping = new ACLMessage(ACLMessage.PROPOSE);
 		ping.setProtocol("SHARE-TOPO");
 		ping.setSender(this.myAgent.getAID());

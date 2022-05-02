@@ -19,19 +19,22 @@ public class ObserveEnvBehaviour extends SimpleBehaviour {
 	@Override
 	public void action() {
 		
-		// TODO: update nodesToShare in agent
-
 		FullMapRepresentation map = ((ExploreDFSAgent) this.myAgent).getMap();
+		
+		if (map == null) {
+			map = new FullMapRepresentation();
+			((ExploreDFSAgent) this.myAgent).setMap(map);
+		}
 
 		try {
-			this.myAgent.doWait(500); // Just added here so we can see what the agent is doing
+			this.myAgent.doWait(1000); // Just added here so we can see what the agent is doing
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		
 		// Retrieve the current position and the list of observations
-		String myPosition = ((AbstractDedaleAgent)this.myAgent).getCurrentPosition();
-		List<Couple<String,List<Couple<Observation,Integer>>>> lobs = ((AbstractDedaleAgent)this.myAgent).observe();
+		String myPosition = ((AbstractDedaleAgent) this.myAgent).getCurrentPosition();
+		List<Couple<String,List<Couple<Observation,Integer>>>> lobs = ((AbstractDedaleAgent) this.myAgent).observe();
 
 		// Update current node
 		List<Couple<Observation,Integer>> lObservations = lobs.get(0).getRight(); //list of observations associated to the currentPosition
@@ -53,13 +56,21 @@ public class ObserveEnvBehaviour extends SimpleBehaviour {
 			}
 		}
 		
-		((ExploreDFSAgent) myAgent).setNextNodeId(nextNodeId);
+		// Update nodesToShare
+		((ExploreDFSAgent) this.myAgent).addNodeToShare(myPosition);
+		
+		// Update next position
+		if (nextNodeId == null){
+			//no directly accessible openNode
+			//chose one, compute the path and take the first step.
+			nextNodeId = map.getShortestPathToClosestOpenNode(myPosition).get(0);
+		}
+		((ExploreDFSAgent) this.myAgent).setNextNodeId(nextNodeId);
 	}
 	
 	@Override
 	public boolean done() {
-		// TODO
-		return false;
+		return true;
 	}
 
 }
