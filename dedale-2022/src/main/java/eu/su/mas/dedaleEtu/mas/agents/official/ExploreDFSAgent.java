@@ -50,8 +50,9 @@ public class ExploreDFSAgent extends AbstractDedaleAgent {
 	private EntityCharacteristics myCharacteristics;
 	private HashMap<String, ArrayList<String>> nodesToShare; // key: agent name, value: list of IDs of the nodes to be shared next time we meet this agent
 	private ArrayList<String> knownAgents;
-	private HashMap<String, EntityCharacteristics> knownAgentCharacteristics;
-	
+//	private HashMap<String, EntityCharacteristics> knownAgentCharacteristics;
+	private HashMap<String, ArrayList<Integer>> knownAgentCharacteristics;
+
 	private String nextNodeId;
 	
 	private static final String ObserveEnv = "Observe Environment";
@@ -205,5 +206,23 @@ public class ExploreDFSAgent extends AbstractDedaleAgent {
 		}
 		
 		return agentsToPing;
+	}
+
+	public EntityCharacteristics getMyCharacteristics(){
+		return myCharacteristics;
+	}
+
+	public HashMap<String, ArrayList<Integer>> getKnownAgentCharacteristics(){
+		return knownAgentCharacteristics;
+	}
+
+	public void updateKnownCharacteristics(String agent, String msg){
+
+		String[] splitArray = msg.split(" ");
+		ArrayList<Integer> charac = new ArrayList<>();
+		for (int j = 0; j < 3; j++) {
+			charac.add(Integer.parseInt(splitArray[j])); // gold cap, dia cap, comm radius
+		}
+		this.knownAgentCharacteristics.put(agent, charac);
 	}
 }
