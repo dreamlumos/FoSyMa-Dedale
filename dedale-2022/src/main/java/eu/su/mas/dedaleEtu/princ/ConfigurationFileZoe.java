@@ -74,8 +74,8 @@ public final class ConfigurationFileZoe {
      */
     //public static String INSTANCE_TOPOLOGY=null;
 
-    public static String INSTANCE_TOPOLOGY="resources/topology/map2020-topologyExam1-graph.dgs";
-    //public static String INSTANCE_TOPOLOGY="resources/topology/HouatTopology";
+    //public static String INSTANCE_TOPOLOGY="resources/topology/map2020-topologyExam1-graph.dgs";
+    public static String INSTANCE_TOPOLOGY="resources/topology/HouatTopology";
 //    public static String INSTANCE_TOPOLOGY="resources/topology/map2018-topology-ica";
     //public static String INSTANCE_TOPOLOGY="resources/topology/map2021-topologyExam1-tree.dgs";
     //public static String INSTANCE_TOPOLOGY="resources/interlocking/mapInterlocking2-topology";

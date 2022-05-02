@@ -82,7 +82,7 @@ public class ExploreDFSAgent extends AbstractDedaleAgent {
 			System.exit(-1);
 		} else {
 			String entityCharFile = (String) args[2];
-			myCharacteristics = (EntityCharacteristics) AbstractDedaleAgent.loadEntityCaracteristics(getName(), entityCharFile)[0];
+			myCharacteristics = (EntityCharacteristics) AbstractDedaleAgent.loadEntityCaracteristics(getLocalName(), entityCharFile)[0];
 		}
 
 		// Getting the list of all agents on the platform
@@ -90,7 +90,7 @@ public class ExploreDFSAgent extends AbstractDedaleAgent {
 		List <String> agentsNames = new ArrayList<String>();
 		try {
 			SearchConstraints c = new SearchConstraints();
-			c.setMaxResults(Long.valueOf("−1"));
+			c.setMaxResults(Long.valueOf("-1"));
 			agentsDescriptionCatalog = AMSService.search(this, new AMSAgentDescription(), c);
 		} catch (Exception e) {
 			System.out.println("Problem searching AMS: " + e);

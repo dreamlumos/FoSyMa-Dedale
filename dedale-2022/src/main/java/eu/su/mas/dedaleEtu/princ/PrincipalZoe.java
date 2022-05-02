@@ -296,7 +296,7 @@ public class PrincipalZoe {
         agentName="1stAgent";
 
         //3) If you want to give specific parameters to your agent, add them here
-        Object [] entityParametersExplo1={"2ndAgent"};
+        Object [] entityParametersExplo1={ConfigurationFileKiara.INSTANCE_CONFIGURATION_ENTITIES};
 
         //4) Give the class name of your agent to let the system instantiate it
         ag=createNewDedaleAgent(c, agentName, ExploreDFSAgent.class.getName(), entityParametersExplo1);//ExploreSoloAgent
@@ -312,7 +312,7 @@ public class PrincipalZoe {
         agentName="2ndAgent";
 
         //3) If you want to give specific parameters to your agent, add them here
-        Object [] entityParametersExplo2={"1stAgent"};
+        Object [] entityParametersExplo2={ConfigurationFileKiara.INSTANCE_CONFIGURATION_ENTITIES};
 
         //4) Give the class name of your agent to let the system instantiate it
         ag=createNewDedaleAgent(c, agentName, ExploreDFSAgent.class.getName(), entityParametersExplo2);//ExploreSoloAgent
