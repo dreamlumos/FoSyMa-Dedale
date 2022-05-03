@@ -18,11 +18,12 @@ public class ObserveEnvBehaviour extends SimpleBehaviour {
 	
 	@Override
 	public void action() {
-		
+		System.out.println("observe env!");
+
 		FullMapRepresentation map = ((ExploreDFSAgent) this.myAgent).getMap();
 		
 		if (map == null) {
-			map = new FullMapRepresentation();
+			map = new FullMapRepresentation(true);
 			((ExploreDFSAgent) this.myAgent).setMap(map);
 		}
 

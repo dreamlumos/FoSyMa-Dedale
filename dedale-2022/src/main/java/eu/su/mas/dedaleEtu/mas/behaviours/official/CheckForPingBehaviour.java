@@ -14,7 +14,7 @@ public class CheckForPingBehaviour extends SimpleBehaviour { // OneShotBehaviour
 
 	private static final long serialVersionUID = -2824535739297657670L;
 		
-	private int pingReceived; // 1 if ping message received, 0 otherwise
+	private int pingReceived; // 1 if ping message received, 0 otherwise, 2 if from unknown agent
 	
 	public CheckForPingBehaviour(ExploreDFSAgent agent) {
 		super(agent);
@@ -29,19 +29,24 @@ public class CheckForPingBehaviour extends SimpleBehaviour { // OneShotBehaviour
 		MessageTemplate msgTemplate = MessageTemplate.and(
 				MessageTemplate.MatchProtocol("SHARE-TOPO"),
 				MessageTemplate.MatchPerformative(ACLMessage.PROPOSE));
+//				MessageTemplate.MatchConversationId();
+
+
 		ACLMessage ping = this.myAgent.receive(msgTemplate);
-		
 		if (ping != null) {
 			this.pingReceived = 1;
 
-//			String sentBy = ping.getSender().getLocalName();
-//			boolean knownAgent = (((ExploreDFSAgent)this.myAgent).getKnownAgentCharacteristics()).containsKey(sentBy);
-//
-			boolean knownAgent = true; // Zoe : put it at TRUE to not cause any bug in case my code sucks
+			String sentBy = ping.getSender().getLocalName();
+			boolean knownAgent = false;
+
+			if(((ExploreDFSAgent)this.myAgent).getKnownAgentCharacteristics() != null){
+				knownAgent = (((ExploreDFSAgent)this.myAgent).getKnownAgentCharacteristics()).containsKey(sentBy);
+			} // is null when launched, could try catch
+
+//			boolean knownAgent = true; // Zoe : put it at TRUE to not cause any bug in case my code sucks
 
 			if(knownAgent) {
 				// byte[] pingContent = ping.getByteSequenceContent();
-				// TODO: maybe use 0 to indicate that agent 1 doesn't known agent 2, and 1 to just ping
 
 				ACLMessage pong = ping.createReply();
 				pong.setSender(this.myAgent.getAID());
@@ -53,7 +58,8 @@ public class CheckForPingBehaviour extends SimpleBehaviour { // OneShotBehaviour
 
 				((AbstractDedaleAgent) this.myAgent).sendMessage(pong);
 			}
-			else{
+			else{ // myAgent doesn't have any information about the sender
+				this.pingReceived = 2;
 				ACLMessage unknown = ping.createReply();
 				unknown.setSender(this.myAgent.getAID());
 				unknown.setPerformative(ACLMessage.UNKNOWN);
@@ -72,10 +78,9 @@ public class CheckForPingBehaviour extends SimpleBehaviour { // OneShotBehaviour
 
 	@Override
 	public boolean done() {
-		if (this.pingReceived == 1) { // Kiara: idk if this is necessary, have to test how it works with FSM
-			return true;
-		}
-		return false;
+		// Kiara: idk if this is necessary, have to test how it works with FSM
+		return this.pingReceived == 1 || this.pingReceived == 2;
+//		return true;
 	}
 	
 	@Override

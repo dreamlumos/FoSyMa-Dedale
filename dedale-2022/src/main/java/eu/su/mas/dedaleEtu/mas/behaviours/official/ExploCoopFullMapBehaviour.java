@@ -44,7 +44,7 @@ public class ExploCoopFullMapBehaviour extends SimpleBehaviour {
 	public void action() {
 
 		if (this.myMap == null) {
-			this.myMap = new FullMapRepresentation();
+			this.myMap = new FullMapRepresentation(true);
 		}
 
 		//0) Retrieve the current position
@@ -129,7 +129,6 @@ public class ExploCoopFullMapBehaviour extends SimpleBehaviour {
 					try {
 						sgreceived = (SerializableSimpleGraph<String, HashMap<String, Object>>) msgReceived.getContentObject();
 					} catch (UnreadableException e) {
-						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
 					this.myMap.mergeMap(sgreceived);

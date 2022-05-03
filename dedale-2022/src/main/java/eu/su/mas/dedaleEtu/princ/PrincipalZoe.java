@@ -287,7 +287,6 @@ public class PrincipalZoe {
          *
          *
          *****************************************************/
-        // HERE TODO testAndHope agents
         // 1st agent
         c = containerList.get(ConfigurationFileZoe.LOCAL_CONTAINER2_NAME);
         Assert.assertNotNull("This container does not exist",c);
@@ -556,7 +555,6 @@ public class PrincipalZoe {
         try {
             ag = initialContainer.createNewAgent(agentName,className,res2);
         } catch (StaleProxyException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
         Assert.assertNotNull(ag);

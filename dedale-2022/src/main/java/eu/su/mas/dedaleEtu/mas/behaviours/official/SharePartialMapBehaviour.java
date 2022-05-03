@@ -32,7 +32,9 @@ public class SharePartialMapBehaviour extends SimpleBehaviour {
 	
 	@Override
 	public void action() {
-		
+
+		System.out.println("Agent "+this.myAgent.getLocalName()+" is sharing a map.");
+
 		if (this.phase == 0) {
 			
 			ACLMessage mapMsg = pong.createReply();
@@ -51,7 +53,7 @@ public class SharePartialMapBehaviour extends SimpleBehaviour {
 	
 			((AbstractDedaleAgent)this.myAgent).sendMessage(mapMsg);
 			this.timeoutDate = System.currentTimeMillis() + 1000; // 1s timeout
-			
+			this.phase = 1;
 		} else if (this.phase == 1) {
 		
 			// Wait for ack 	
