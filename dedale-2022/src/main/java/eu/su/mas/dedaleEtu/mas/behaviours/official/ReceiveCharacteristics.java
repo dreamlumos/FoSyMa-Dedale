@@ -36,17 +36,16 @@ public class ReceiveCharacteristics extends SimpleBehaviour {
 
             ((ExploreDFSAgent) this.myAgent).updateKnownCharacteristics(infoMsg.getSender().getLocalName(), infoMsg.getContent());
 
-            // TODO Zoe : again, like in shareCharacteristics, here im not sure if i should just call for a Pong behaviour?
-
-            ACLMessage mapReceivedAck = infoMsg.createReply();
-            mapReceivedAck.setSender(this.myAgent.getAID());
-            mapReceivedAck.setPerformative(ACLMessage.CONFIRM);
+            // myAgent now sends a pong as an acknowledgment, and we enter the normal share map protocol
+            ACLMessage pong = infoMsg.createReply();
+            pong.setSender(this.myAgent.getAID());
+            pong.setPerformative(ACLMessage.ACCEPT_PROPOSAL);
 
             //msg.setContent("1");
             byte[] b = {1};
-            mapReceivedAck.setByteSequenceContent(b);
+            pong.setByteSequenceContent(b);
 
-            ((AbstractDedaleAgent)this.myAgent).sendMessage(mapReceivedAck);
+            ((AbstractDedaleAgent)this.myAgent).sendMessage(pong);
 
         } else {
             this.infoReceived = 0;

@@ -16,7 +16,8 @@ public class PongBehaviour extends OneShotBehaviour {
 	
 	@Override
 	public void action() {
-		
+
+		System.out.println("Pong!");
 		ACLMessage msg = this.ping.createReply();
 		msg.setSender(this.myAgent.getAID());
 		msg.setPerformative(ACLMessage.ACCEPT_PROPOSAL);

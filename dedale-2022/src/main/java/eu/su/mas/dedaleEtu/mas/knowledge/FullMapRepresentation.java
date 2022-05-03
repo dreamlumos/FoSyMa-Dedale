@@ -30,7 +30,6 @@ import javafx.application.Platform;
  * @author zdkg
  */
 
-// TODO -  figuring out how to only send part of the map in the map sharing protocol
 // difficulty being needing to code a function in FullMapRepresentation to extract a list of nodes and edges given a list
 
 public class FullMapRepresentation implements Serializable {
@@ -56,19 +55,22 @@ public class FullMapRepresentation implements Serializable {
 	private Graph g; //data structure non serializable
 	private Viewer viewer; //ref to the display,  non serializable
 	private Integer nbEdges; //used to generate the edges ids
+	private boolean fullMap;
 
 	private SerializableSimpleGraph<String, HashMap<String, Object>> sg; //used as a temporary dataStructure during migration
 
 
-	public FullMapRepresentation() {
+	public FullMapRepresentation(boolean fullMap) {
 		//System.setProperty("org.graphstream.ui.renderer","org.graphstream.ui.j2dviewer.J2DGraphRenderer");
 		System.setProperty("org.graphstream.ui", "javafx");
 		this.g = new SingleGraph("My world vision");
 		this.g.setAttribute("ui.stylesheet", nodeStyle);
-
-//		Platform.runLater(() -> {
-//			openGui();
-//		});
+		this.fullMap = fullMap;
+		if(fullMap) {
+			Platform.runLater(() -> {
+				openGui();
+			});
+		}
 		//this.viewer = this.g.display();
 
 		this.nbEdges=0;
@@ -94,7 +96,7 @@ public class FullMapRepresentation implements Serializable {
 		Node n;
 		
 		if (this.g.getNode(nodeId) == null){ // Adding new node
-			
+
 			n = this.g.addNode(nodeId);
 			newNode = true;
 			
@@ -106,7 +108,6 @@ public class FullMapRepresentation implements Serializable {
 //			
 //			n.setAttribute("ui.label", nodeId);
 //			n.setAttribute("timestamp", lastVisitTimestamp);
-			
 		} else { // Updating known node
 			n = this.g.getNode(nodeId);
 		}
@@ -175,7 +176,7 @@ public class FullMapRepresentation implements Serializable {
 	 */
 
 	public FullMapRepresentation getPartialMap(ArrayList<String> nodesId) {
-		FullMapRepresentation partialMap = new FullMapRepresentation();
+		FullMapRepresentation partialMap = new FullMapRepresentation(false);
 		if (nodesId == null) {
 			return partialMap;
 		}

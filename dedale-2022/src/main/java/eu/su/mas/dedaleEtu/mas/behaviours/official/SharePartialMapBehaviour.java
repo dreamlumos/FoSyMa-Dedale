@@ -32,7 +32,9 @@ public class SharePartialMapBehaviour extends SimpleBehaviour {
 	
 	@Override
 	public void action() {
-		
+
+		System.out.println("Agent "+this.myAgent.getLocalName()+" is sharing a map.");
+
 		if (this.phase == 0) {
 			
 			ACLMessage mapMsg = pong.createReply();

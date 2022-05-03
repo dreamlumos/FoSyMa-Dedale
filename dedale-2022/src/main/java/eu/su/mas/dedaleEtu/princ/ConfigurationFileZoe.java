@@ -52,7 +52,8 @@ public final class ConfigurationFileZoe {
     /**
      * The environment is either manually designed, or generated with a specific generator
      */
-    public static GeneratorType GENERATOR_TYPE=GeneratorType.MANUAL;
+//    public static GeneratorType GENERATOR_TYPE=GeneratorType.MANUAL;
+    public static GeneratorType GENERATOR_TYPE=GeneratorType.GS_GRID;
 
     /**
      * 	The GateKeeper is in charge of the Platform and of the agents within, do not change its name.
@@ -74,13 +75,14 @@ public final class ConfigurationFileZoe {
      */
     //public static String INSTANCE_TOPOLOGY=null;
 
-    public static String INSTANCE_TOPOLOGY="resources/topology/map2020-topologyExam1-graph.dgs";
+
+    //    public static String INSTANCE_TOPOLOGY="resources/topology/map2020-topologyExam1-graph.dgs";
 //    public static String INSTANCE_TOPOLOGY="resources/topology/HouatTopology";
-//    public static String INSTANCE_TOPOLOGY="resources/topology/map2018-topology-ica";
+    public static String INSTANCE_TOPOLOGY="resources/topology/map2018-topology-ica";
     //public static String INSTANCE_TOPOLOGY="resources/topology/map2021-topologyExam1-tree.dgs";
     //public static String INSTANCE_TOPOLOGY="resources/interlocking/mapInterlocking2-topology";
     //public static String INSTANCE_TOPOLOGY="resources/topology/map2021-topologyExam1-graph.dgs";
-    //public static String INSTANCE_TOPOLOGY="resources/map2018-topology";
+//    public static String INSTANCE_TOPOLOGY="resources/map2018-topology";
     //public static String INSTANCE_TOPOLOGY="resources/map2019-topologyExam1";
 
 
@@ -93,7 +95,7 @@ public final class ConfigurationFileZoe {
     // otherwise
     //public static String INSTANCE_CONFIGURATION_ELEMENTS="resources/treasureHunt/map2019-elementsExam1";
     //public static String INSTANCE_CONFIGURATION_ELEMENTS="resources/treasureHunt/Houat-elements";
-    //public static String INSTANCE_CONFIGURATION_ELEMENTS="resources/treasureHunt/map2018-elements-ica";
+//    public static String INSTANCE_CONFIGURATION_ELEMENTS="resources/treasureHunt/map2018-elements-ica";
     //public static String INSTANCE_CONFIGURATION_ELEMENTS="resources/interlocking/mapInterlocking2-elements";
     //public static String INSTANCE_CONFIGURATION_ELEMENTS="resources/map2018-elements";
     //public static String INSTANCE_CONFIGURATION_ELEMENTS="resources/mapInterlocking2-elements";

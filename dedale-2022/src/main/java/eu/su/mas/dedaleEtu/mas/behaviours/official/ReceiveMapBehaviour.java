@@ -23,10 +23,14 @@ public class ReceiveMapBehaviour extends SimpleBehaviour {
 	@SuppressWarnings("unchecked")
 	@Override
 	public void action() {
-		// The agent checks if he received a ping from a teammate. 	
+
+		System.out.println("Agent "+this.myAgent.getLocalName()+" is receiving a map.");
+
+		// The agent checks if he received a map from a teammate.
 		MessageTemplate msgTemplate = MessageTemplate.and(
 				MessageTemplate.MatchProtocol("SHARE-TOPO"),
 				MessageTemplate.MatchPerformative(ACLMessage.INFORM));
+
 		ACLMessage mapMsg = this.myAgent.receive(msgTemplate);
 		
 		if (mapMsg != null) {

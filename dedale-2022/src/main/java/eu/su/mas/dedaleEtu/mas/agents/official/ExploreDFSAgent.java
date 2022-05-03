@@ -3,16 +3,12 @@ package eu.su.mas.dedaleEtu.mas.agents.official;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
 
 import eu.su.mas.dedale.env.EntityCharacteristics;
 import eu.su.mas.dedale.mas.AbstractDedaleAgent;
 import eu.su.mas.dedale.mas.agent.behaviours.startMyBehaviours;
-import eu.su.mas.dedaleEtu.mas.behaviours.official.CheckForPingBehaviour;
-import eu.su.mas.dedaleEtu.mas.behaviours.official.CheckForPongBehaviour;
-import eu.su.mas.dedaleEtu.mas.behaviours.official.ObserveEnvBehaviour;
-import eu.su.mas.dedaleEtu.mas.behaviours.official.PingBehaviour;
-import eu.su.mas.dedaleEtu.mas.behaviours.official.ReceiveMapBehaviour;
-import eu.su.mas.dedaleEtu.mas.behaviours.official.StepBehaviour;
+import eu.su.mas.dedaleEtu.mas.behaviours.official.*;
 import eu.su.mas.dedaleEtu.mas.knowledge.FullMapRepresentation;
 import jade.core.AID;
 import jade.core.behaviours.Behaviour;
@@ -49,7 +45,7 @@ public class ExploreDFSAgent extends AbstractDedaleAgent {
 	private HashMap<String, ArrayList<String>> nodesToShare; // key: agent name, value: list of IDs of the nodes to be shared next time we meet this agent
 	private ArrayList<String> knownAgents;
 //	private HashMap<String, EntityCharacteristics> knownAgentCharacteristics;
-	private HashMap<String, ArrayList<Integer>> knownAgentCharacteristics;
+	private HashMap<String, ArrayList<Integer>> knownAgentCharacteristics = new HashMap<>();
 	private HashMap<String, Integer> goldNode; // key : nodeId of where the gold is, value : gold size
 
 	private String nextNodeId;
@@ -61,6 +57,8 @@ public class ExploreDFSAgent extends AbstractDedaleAgent {
 	
 	private static final String CheckForPing = "Check Mailbox for Ping";
 	private static final String ReceiveMap = "Receive Map";
+	private static final String ReceiveCharacteristics = "ReceiveCharacteristics";
+	private List<Behaviour> listBehavTemp;
 	
 	
 	/**
@@ -97,12 +95,13 @@ public class ExploreDFSAgent extends AbstractDedaleAgent {
 			e.printStackTrace();
 		}
 		
-		List<String> unnecessaryAgentsList = List.of("sniffeur", "GK", "rma", "ams", "df");
+		List<String> unnecessaryAgentsList = List.of("sniffeur", "GK", "rma", "ams", "df", this.getLocalName());
 		for (int i = 0; i< agentsDescriptionCatalog.length; i++){  // modified agentsDescriptionCatalog
 			AID agentID = agentsDescriptionCatalog[i].getName();
 			String agentName = agentID.getLocalName();
 			if (!unnecessaryAgentsList.contains(agentName)) {
-				agentsNames.add(agentName);
+					agentsNames.add(agentName);
+//				}
 			}
 		}
 		
@@ -126,11 +125,14 @@ public class ExploreDFSAgent extends AbstractDedaleAgent {
 		
 		FSMPingPong.registerFirstState(new CheckForPingBehaviour(this), CheckForPing);
 		FSMPingPong.registerState(new ReceiveMapBehaviour(this), ReceiveMap);
+		FSMPingPong.registerState(new ReceiveCharacteristics(this), ReceiveCharacteristics);
 		
 		FSMPingPong.registerDefaultTransition(CheckForPing, CheckForPing); //K: if it works as I expect, this line is useless, and the default could just be CFPing -> ReceiveMap
 		FSMPingPong.registerTransition(CheckForPing, ReceiveMap, 1);
 		FSMPingPong.registerDefaultTransition(ReceiveMap, CheckForPing);
-		
+		FSMPingPong.registerTransition(CheckForPing, ReceiveCharacteristics, 2);
+		FSMPingPong.registerDefaultTransition(ReceiveCharacteristics, ReceiveMap);
+
 		lb.add(FSMPingPong);
 		
 		FSMBehaviour FSMExploCollect = new FSMBehaviour(this);
@@ -138,7 +140,7 @@ public class ExploreDFSAgent extends AbstractDedaleAgent {
 		FSMExploCollect.registerFirstState(new ObserveEnvBehaviour(this), ObserveEnv);
 		FSMExploCollect.registerState(new StepBehaviour(this), Step);
 		FSMExploCollect.registerState(new PingBehaviour(this), Ping);
-		FSMExploCollect.registerState(new CheckForPongBehaviour(this), CheckForPong);
+		FSMExploCollect.registerState(new CheckForPongUnknown(this), CheckForPong);
 		//fsm.registerState(new CollectTreasureBehaviour(), CollectTreasure);
 		//fsm.registerLastState(new ?(), ?);
 		
@@ -146,10 +148,16 @@ public class ExploreDFSAgent extends AbstractDedaleAgent {
 		FSMExploCollect.registerDefaultTransition(Step, Ping);
 		FSMExploCollect.registerDefaultTransition(Ping, CheckForPong);
 		FSMExploCollect.registerDefaultTransition(CheckForPong, ObserveEnv);
+//		FSMExploCollect.registerTransition(CheckForPong, ObserveEnv, 1);
+		FSMExploCollect.registerTransition(CheckForPong, ObserveEnv, 1);
+		FSMExploCollect.registerTransition(CheckForPong, CheckForPong, 2); //if unknown, call shareChar then wait for a pong !!
 //		fsm.registerTransition(B, B, 2) ; //Cond 2
 //		fsm.registerTransition(B, C, 1) ; //Cond 1
 		
 		lb.add(FSMExploCollect);
+		listBehavTemp = lb;
+		String s = FSMExploCollect.stringifyTransitionTable();
+		System.out.println(s);
 		
 		/***
 		 * MANDATORY TO ALLOW YOUR AGENT TO BE DEPLOYED CORRECTLY
@@ -271,5 +279,14 @@ public class ExploreDFSAgent extends AbstractDedaleAgent {
 		msg += coal.toString();
 
 		return msg;
+	}
+
+	public String getListBehavTemp(){
+		StringBuilder s = new StringBuilder();
+		for(Behaviour b: listBehavTemp){
+			s.append(b.getBehaviourName());
+			s.append("; ");
+		}
+		return s.toString();
 	}
 }

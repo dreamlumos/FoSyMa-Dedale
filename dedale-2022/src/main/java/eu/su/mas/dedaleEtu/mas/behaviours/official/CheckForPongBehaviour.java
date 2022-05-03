@@ -1,5 +1,6 @@
 package eu.su.mas.dedaleEtu.mas.behaviours.official;
 
+import eu.su.mas.dedaleEtu.mas.agents.official.ExploreDFSAgent;
 import jade.core.Agent;
 import jade.core.behaviours.SimpleBehaviour;
 import jade.lang.acl.ACLMessage;
@@ -31,6 +32,8 @@ public class CheckForPongBehaviour extends SimpleBehaviour {
 			
 			// Sharing of the map in a separate behaviour which is added to the pool
 			this.myAgent.addBehaviour(new SharePartialMapBehaviour(this.myAgent, pong));
+			String s = ((ExploreDFSAgent)(this.myAgent)).getListBehavTemp();
+			System.out.println(s);
 			
 		} else {
 			this.pongReceived = false;
@@ -40,5 +43,12 @@ public class CheckForPongBehaviour extends SimpleBehaviour {
 	@Override
 	public boolean done() {
 		return pongReceived;
+	}
+
+	@Override
+	public int onEnd() {
+//		reset();
+//		((FSMBehaviour) getParent()).registerState();
+		return 1;
 	}
 }
