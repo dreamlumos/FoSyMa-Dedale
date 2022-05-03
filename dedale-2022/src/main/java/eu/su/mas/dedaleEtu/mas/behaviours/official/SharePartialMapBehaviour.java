@@ -33,8 +33,6 @@ public class SharePartialMapBehaviour extends SimpleBehaviour {
 	@Override
 	public void action() {
 		
-		// TODO: timeout
-
 		if (this.phase == 0) {
 			
 			ACLMessage mapMsg = pong.createReply();
@@ -76,7 +74,6 @@ public class SharePartialMapBehaviour extends SimpleBehaviour {
 
 	@Override
 	public boolean done() {
-		// TODO Auto-generated method stub
 		return ackReceivedOrTimedOut;
 	}
 }
