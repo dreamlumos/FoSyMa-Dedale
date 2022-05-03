@@ -18,6 +18,8 @@ public class CheckForPongBehaviour extends SimpleBehaviour {
 
 	@Override
 	public void action() {
+		System.out.println("Agent "+this.myAgent.getLocalName()+" is checking for pong.");
+
 		// The agent checks if he received a pong from a teammate. 	
 		MessageTemplate msgTemplate = MessageTemplate.and(
 				MessageTemplate.MatchProtocol("SHARE-TOPO"),

@@ -3,14 +3,12 @@ package eu.su.mas.dedaleEtu.mas.agents.official;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Objects;
 
 import eu.su.mas.dedale.env.EntityCharacteristics;
 import eu.su.mas.dedale.mas.AbstractDedaleAgent;
 import eu.su.mas.dedale.mas.agent.behaviours.startMyBehaviours;
 import eu.su.mas.dedaleEtu.mas.behaviours.official.CheckForPingBehaviour;
 import eu.su.mas.dedaleEtu.mas.behaviours.official.CheckForPongBehaviour;
-import eu.su.mas.dedaleEtu.mas.behaviours.official.ExploCoopFullMapBehaviour;
 import eu.su.mas.dedaleEtu.mas.behaviours.official.ObserveEnvBehaviour;
 import eu.su.mas.dedaleEtu.mas.behaviours.official.PingBehaviour;
 import eu.su.mas.dedaleEtu.mas.behaviours.official.ReceiveMapBehaviour;
@@ -19,10 +17,10 @@ import eu.su.mas.dedaleEtu.mas.knowledge.FullMapRepresentation;
 import jade.core.AID;
 import jade.core.behaviours.Behaviour;
 import jade.core.behaviours.FSMBehaviour;
-import jade.core.behaviours.SequentialBehaviour;
 import jade.domain.AMSService;
 import jade.domain.FIPAAgentManagement.AMSAgentDescription;
 import jade.domain.FIPAAgentManagement.SearchConstraints;
+import javafx.util.Pair;
 
 /**
  * <pre>
@@ -50,8 +48,10 @@ public class ExploreDFSAgent extends AbstractDedaleAgent {
 	private EntityCharacteristics myCharacteristics;
 	private HashMap<String, ArrayList<String>> nodesToShare; // key: agent name, value: list of IDs of the nodes to be shared next time we meet this agent
 	private ArrayList<String> knownAgents;
-	private HashMap<String, EntityCharacteristics> knownAgentCharacteristics;
-	
+//	private HashMap<String, EntityCharacteristics> knownAgentCharacteristics;
+	private HashMap<String, ArrayList<Integer>> knownAgentCharacteristics;
+	private HashMap<String, Integer> goldNode; // key : nodeId of where the gold is, value : gold size
+
 	private String nextNodeId;
 	
 	private static final String ObserveEnv = "Observe Environment";
@@ -205,5 +205,71 @@ public class ExploreDFSAgent extends AbstractDedaleAgent {
 		}
 		
 		return agentsToPing;
+	}
+
+	public HashMap<String, Integer> getGoldDict(){
+		return goldNode;
+	}
+
+	public EntityCharacteristics getMyCharacteristics(){
+		return myCharacteristics;
+	}
+
+	public HashMap<String, ArrayList<Integer>> getKnownAgentCharacteristics(){
+		return knownAgentCharacteristics;
+	}
+
+	public void updateKnownCharacteristics(String agent, String msg){
+
+		String[] splitArray = msg.split(" ");
+		ArrayList<Integer> charac = new ArrayList<>();
+		for (int j = 0; j < 3; j++) {
+			charac.add(Integer.parseInt(splitArray[j])); // gold cap, dia cap, comm radius
+		}
+		this.knownAgentCharacteristics.put(agent, charac);
+	}
+
+	public Pair<String, Integer> calculateCoalition(int size, ArrayList<String> agents, HashMap<String, Integer> gold){
+		// im not using the size param bc i don't know how to compute all the combination possible of size k parmi n...
+
+		HashMap<String, Integer> goldCapDict = new HashMap<>(); // key : agents in the coal, value : gold capacity of agents
+		for(String a : agents) {
+			int cap = (this.knownAgentCharacteristics.get(a)).get(0);
+			goldCapDict.put(a, cap);
+		}
+
+		// All of this is for ONE coalition...
+		int currCoalCap = 0;
+		ArrayList<String> currCoal = new ArrayList<>(); // temp TODO need to use a combination function... tried a lib but no luck
+		for(String a : currCoal){
+			currCoalCap += goldCapDict.get(a);
+		}
+		String bestNode = "";
+		int bestGold = 0;
+		ArrayList<String> goldList = new ArrayList<>(gold.keySet());
+		for(String i : goldList){
+			if(gold.get(i) <= currCoalCap && gold.get(i)>bestGold){
+				// here to make a thoughtful choice we would need to check the position of the two different gold spots and see which is closest to currentPos
+				bestNode = i;
+				bestGold = gold.get(i);
+			}
+		}
+		return new Pair<>(bestNode, bestGold);
+	}
+
+//	public ArrayList<String> combinations(int size ArrayList<String> agents){
+//
+//	}
+
+	public String pairToString(Pair<String, Integer> coal){
+
+		String msg = coal.toString();
+
+		msg = msg.replace("[", "")
+				.replace("]", " ")
+				.replace(",", "");
+		msg += coal.toString();
+
+		return msg;
 	}
 }

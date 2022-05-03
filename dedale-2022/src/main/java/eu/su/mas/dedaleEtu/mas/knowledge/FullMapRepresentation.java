@@ -66,9 +66,9 @@ public class FullMapRepresentation implements Serializable {
 		this.g = new SingleGraph("My world vision");
 		this.g.setAttribute("ui.stylesheet", nodeStyle);
 
-		Platform.runLater(() -> {
-			openGui();
-		});
+//		Platform.runLater(() -> {
+//			openGui();
+//		});
 		//this.viewer = this.g.display();
 
 		this.nbEdges=0;
@@ -108,10 +108,8 @@ public class FullMapRepresentation implements Serializable {
 //			n.setAttribute("timestamp", lastVisitTimestamp);
 			
 		} else { // Updating known node
-			
 			n = this.g.getNode(nodeId);
 		}
-		
 		Object previousTimestamp = n.getAttribute("timestamp");
 		Object previousStenchTimestamp = n.getAttribute("stenchTimestamp");
 
@@ -125,14 +123,11 @@ public class FullMapRepresentation implements Serializable {
 				n.setAttribute("ui.class", NodeStatus.open.toString());
 			}
 		}
-		
 		for (Couple<Observation, Integer> o: lObservations){
-			
 			Observation observationType = o.getLeft();
 			Integer observationValue = o.getRight();
 			
 			switch (observationType) {
-			
 				case DIAMOND:
 				case GOLD:
 				case LOCKSTATUS:
@@ -140,19 +135,16 @@ public class FullMapRepresentation implements Serializable {
 						n.setAttribute(observationType.toString(), observationValue);
 					}
 					break;
-
 				case STENCH:
 					if (previousStenchTimestamp == null || nbVisitTimestamp > (long) previousStenchTimestamp) {
 						n.setAttribute(observationType.toString(), observationValue);
 						n.setAttribute("stenchTimestamp", nbVisitTimestamp);
 					}
 					break;
-
 				default:
 					break;
 			}
 		}
-		
 		return newNode;
 	}
 	
@@ -196,7 +188,6 @@ public class FullMapRepresentation implements Serializable {
 				newNode.setAttribute((String) attribute, oldNode.getAttribute((String) attribute));
 			}
 		}
-		// TODO: debug
 		for (String nodeId: nodesId) {
 			Node oldNode = this.g.getNode(nodeId);
 			for (Object edge : oldNode.edges().toArray()) {

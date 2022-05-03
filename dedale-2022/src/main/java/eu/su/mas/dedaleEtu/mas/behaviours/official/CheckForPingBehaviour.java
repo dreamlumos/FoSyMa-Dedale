@@ -6,6 +6,9 @@ import eu.su.mas.dedaleEtu.mas.knowledge.FullMapRepresentation;
 import jade.core.behaviours.SimpleBehaviour;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
+import org.apache.commons.math3.analysis.function.Exp;
+
+import java.util.HashMap;
 
 public class CheckForPingBehaviour extends SimpleBehaviour { // OneShotBehaviour?
 
@@ -30,19 +33,37 @@ public class CheckForPingBehaviour extends SimpleBehaviour { // OneShotBehaviour
 		
 		if (ping != null) {
 			this.pingReceived = 1;
-			
-			// byte[] pingContent = ping.getByteSequenceContent();
-			// TODO: maybe use 0 to indicate that agent 1 doesn't known agent 2, and 1 to just ping
-			
-			ACLMessage pong = ping.createReply();
-			pong.setSender(this.myAgent.getAID());
-			pong.setPerformative(ACLMessage.ACCEPT_PROPOSAL);
-			
-			//msg.setContent("1");
-			byte[] b = {1};
-			pong.setByteSequenceContent(b);
-			
-			((AbstractDedaleAgent)this.myAgent).sendMessage(pong);
+
+//			String sentBy = ping.getSender().getLocalName();
+//			boolean knownAgent = (((ExploreDFSAgent)this.myAgent).getKnownAgentCharacteristics()).containsKey(sentBy);
+//
+			boolean knownAgent = true; // Zoe : put it at TRUE to not cause any bug in case my code sucks
+
+			if(knownAgent) {
+				// byte[] pingContent = ping.getByteSequenceContent();
+				// TODO: maybe use 0 to indicate that agent 1 doesn't known agent 2, and 1 to just ping
+
+				ACLMessage pong = ping.createReply();
+				pong.setSender(this.myAgent.getAID());
+				pong.setPerformative(ACLMessage.ACCEPT_PROPOSAL);
+
+				//msg.setContent("1");
+				byte[] b = {1};
+				pong.setByteSequenceContent(b);
+
+				((AbstractDedaleAgent) this.myAgent).sendMessage(pong);
+			}
+			else{
+				ACLMessage unknown = ping.createReply();
+				unknown.setSender(this.myAgent.getAID());
+				unknown.setPerformative(ACLMessage.UNKNOWN);
+
+				//msg.setContent("1");
+				byte[] b = {1};
+				unknown.setByteSequenceContent(b);
+
+				((AbstractDedaleAgent) this.myAgent).sendMessage(unknown);
+			}
 			
 		} else {
 			this.pingReceived = 0;
