@@ -53,7 +53,7 @@ public class SharePartialMapBehaviour extends SimpleBehaviour {
 	
 			((AbstractDedaleAgent)this.myAgent).sendMessage(mapMsg);
 			this.timeoutDate = System.currentTimeMillis() + 1000; // 1s timeout
-			
+			this.phase = 1;
 		} else if (this.phase == 1) {
 		
 			// Wait for ack 	

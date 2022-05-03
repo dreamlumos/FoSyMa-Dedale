@@ -12,11 +12,14 @@ import eu.su.mas.dedaleEtu.mas.behaviours.official.*;
 import eu.su.mas.dedaleEtu.mas.knowledge.FullMapRepresentation;
 import jade.core.AID;
 import jade.core.behaviours.Behaviour;
+import jade.core.behaviours.DataStore;
 import jade.core.behaviours.FSMBehaviour;
 import jade.domain.AMSService;
 import jade.domain.FIPAAgentManagement.AMSAgentDescription;
 import jade.domain.FIPAAgentManagement.SearchConstraints;
 import javafx.util.Pair;
+import org.glassfish.pfl.basic.fsm.FSM;
+
 
 /**
  * <pre>
@@ -39,7 +42,7 @@ import javafx.util.Pair;
 public class ExploreDFSAgent extends AbstractDedaleAgent {
 
 	private static final long serialVersionUID = -7969469610241668140L;
-	
+
 	private FullMapRepresentation myMap; 
 	private EntityCharacteristics myCharacteristics;
 	private HashMap<String, ArrayList<String>> nodesToShare; // key: agent name, value: list of IDs of the nodes to be shared next time we meet this agent
@@ -58,6 +61,7 @@ public class ExploreDFSAgent extends AbstractDedaleAgent {
 	private static final String CheckForPing = "Check Mailbox for Ping";
 	private static final String ReceiveMap = "Receive Map";
 	private static final String ReceiveCharacteristics = "ReceiveCharacteristics";
+	private static final String FSMPingTest = "z";
 	private List<Behaviour> listBehavTemp;
 	
 	
@@ -133,14 +137,15 @@ public class ExploreDFSAgent extends AbstractDedaleAgent {
 		FSMPingPong.registerTransition(CheckForPing, ReceiveCharacteristics, 2);
 		FSMPingPong.registerDefaultTransition(ReceiveCharacteristics, ReceiveMap);
 
-		lb.add(FSMPingPong);
+//		lb.add(FSMPingPong);
 		
 		FSMBehaviour FSMExploCollect = new FSMBehaviour(this);
-	
+//		FSMExploCollect.registerState(FSMPingPong, FSMPingTest);
 		FSMExploCollect.registerFirstState(new ObserveEnvBehaviour(this), ObserveEnv);
 		FSMExploCollect.registerState(new StepBehaviour(this), Step);
 		FSMExploCollect.registerState(new PingBehaviour(this), Ping);
-		FSMExploCollect.registerState(new CheckForPongUnknown(this), CheckForPong);
+		FSMExploCollect.registerState(new CheckForPongBehaviour(this), CheckForPong);
+//		FSMExploCollect.registerState(new CheckForPongUnknown(this), CheckForPong);
 		//fsm.registerState(new CollectTreasureBehaviour(), CollectTreasure);
 		//fsm.registerLastState(new ?(), ?);
 		
@@ -149,8 +154,8 @@ public class ExploreDFSAgent extends AbstractDedaleAgent {
 		FSMExploCollect.registerDefaultTransition(Ping, CheckForPong);
 		FSMExploCollect.registerDefaultTransition(CheckForPong, ObserveEnv);
 //		FSMExploCollect.registerTransition(CheckForPong, ObserveEnv, 1);
-		FSMExploCollect.registerTransition(CheckForPong, ObserveEnv, 1);
-		FSMExploCollect.registerTransition(CheckForPong, CheckForPong, 2); //if unknown, call shareChar then wait for a pong !!
+//		FSMExploCollect.registerTransition(CheckForPong, ObserveEnv, 1);
+//		FSMExploCollect.registerTransition(CheckForPong, CheckForPong, 2); //if unknown, call shareChar then wait for a pong !!
 //		fsm.registerTransition(B, B, 2) ; //Cond 2
 //		fsm.registerTransition(B, C, 1) ; //Cond 1
 		
