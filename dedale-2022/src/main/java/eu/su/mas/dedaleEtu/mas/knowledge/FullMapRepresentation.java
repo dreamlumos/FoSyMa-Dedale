@@ -55,25 +55,25 @@ public class FullMapRepresentation implements Serializable {
 	private Graph g; //data structure non serializable
 	private Viewer viewer; //ref to the display,  non serializable
 	private Integer nbEdges; //used to generate the edges ids
-	private boolean fullMap;
 
 	private SerializableSimpleGraph<String, HashMap<String, Object>> sg; //used as a temporary dataStructure during migration
 
-
+	private HashMap<String, Integer> goldDict = new HashMap<String, Integer>(); // key: amount of gold, value: nodeId
+	private HashMap<String, Integer> diamondDict = new HashMap<String, Integer>(); // key: amount of diamond, value: nodeId
+	
 	public FullMapRepresentation(boolean fullMap) {
 		//System.setProperty("org.graphstream.ui.renderer","org.graphstream.ui.j2dviewer.J2DGraphRenderer");
 		System.setProperty("org.graphstream.ui", "javafx");
 		this.g = new SingleGraph("My world vision");
 		this.g.setAttribute("ui.stylesheet", nodeStyle);
-		this.fullMap = fullMap;
-		if(fullMap) {
+		if (fullMap) { // not partial map
 			Platform.runLater(() -> {
 				openGui();
 			});
 		}
 		//this.viewer = this.g.display();
 
-		this.nbEdges=0;
+		this.nbEdges = 0;
 	}
 
 	/**
@@ -130,7 +130,17 @@ public class FullMapRepresentation implements Serializable {
 			
 			switch (observationType) {
 				case DIAMOND:
+					if (previousTimestamp == null || lastVisitTimestamp > (long) previousTimestamp) {
+						n.setAttribute(observationType.toString(), observationValue);
+					}
+					this.diamondDict.put(nodeId, observationValue);
+					break;
 				case GOLD:
+					if (previousTimestamp == null || lastVisitTimestamp > (long) previousTimestamp) {
+						n.setAttribute(observationType.toString(), observationValue);
+					}
+					this.goldDict.put(nodeId, observationValue);
+					break;
 				case LOCKSTATUS:
 					if (previousTimestamp == null || lastVisitTimestamp > (long) previousTimestamp) {
 						n.setAttribute(observationType.toString(), observationValue);
@@ -413,7 +423,12 @@ public class FullMapRepresentation implements Serializable {
 				.findAny()).isPresent();
 	}
 
-
-
+	public HashMap<String, Integer> getDiamondDict(){
+		return diamondDict;
+	}
+	
+	public HashMap<String, Integer> getGoldDict(){
+		return goldDict;
+	}
 
 }

@@ -48,8 +48,7 @@ public class ExploreDFSAgent extends AbstractDedaleAgent {
 	private HashMap<String, ArrayList<String>> nodesToShare; // key: agent name, value: list of IDs of the nodes to be shared next time we meet this agent
 	private ArrayList<String> knownAgents;
 //	private HashMap<String, EntityCharacteristics> knownAgentCharacteristics;
-	private HashMap<String, ArrayList<Integer>> knownAgentCharacteristics = new HashMap<>();
-	private HashMap<String, Integer> goldNode; // key : nodeId of where the gold is, value : gold size
+	private HashMap<String, ArrayList<Integer>> knownAgentCharacteristics = new HashMap<>(); // gold cap, dia cap, comm radius
 
 	private String nextNodeId;
 	
@@ -221,13 +220,21 @@ public class ExploreDFSAgent extends AbstractDedaleAgent {
 	}
 
 	public HashMap<String, Integer> getGoldDict(){
-		return goldNode;
+		return this.myMap.getGoldDict();
 	}
 
+	public HashMap<String, Integer> getDiamondDict(){
+		return this.myMap.getDiamondDict();
+	}
+	
 	public EntityCharacteristics getMyCharacteristics(){
 		return myCharacteristics;
 	}
 
+	public ArrayList<String> getKnownAgents(){
+		return knownAgents;
+	}
+	
 	public HashMap<String, ArrayList<Integer>> getKnownAgentCharacteristics(){
 		return knownAgentCharacteristics;
 	}
