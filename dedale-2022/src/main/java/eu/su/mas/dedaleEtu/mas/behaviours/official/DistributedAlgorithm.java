@@ -33,7 +33,7 @@ public class DistributedAlgorithm extends SimpleBehaviour {
 //        this.pong = pong;
         this.phase = 0;
         this.agentsCoalition = agentsCoal;
-        this.coalSize = (int)(Math.random() * (this.agentsCoalition.size())); //Zoe : TODO how to make sure they don't overlap...
+        this.coalSize = (int)(Math.random() * (this.agentsCoalition.size())); //Zoe : how to make sure they don't overlap...
     }
 
     @Override
@@ -50,7 +50,7 @@ public class DistributedAlgorithm extends SimpleBehaviour {
         }
 
         HashMap<String, Integer> gold = ((ExploreDFSAgent)this.myAgent).getGoldDict();
-//        ArrayList<Integer> gold = new ArrayList<>(); // temp Zoe : TODO implement a gold and diamond list
+//        ArrayList<Integer> gold = new ArrayList<>(); // temp Zoe : implement a gold and diamond list
         // Zoe : like HashMap<Integer, *pointer to the spot/nodeId> ?
 
         Pair<String, Integer> bestCoal = ((ExploreDFSAgent)this.myAgent).calculateCoalition(coalSize, agentsCoalition, gold);

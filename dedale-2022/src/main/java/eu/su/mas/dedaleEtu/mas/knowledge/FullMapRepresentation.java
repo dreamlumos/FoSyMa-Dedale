@@ -30,8 +30,6 @@ import javafx.application.Platform;
  * @author zdkg
  */
 
-// difficulty being needing to code a function in FullMapRepresentation to extract a list of nodes and edges given a list
-
 public class FullMapRepresentation implements Serializable {
 
 	/**
@@ -58,9 +56,9 @@ public class FullMapRepresentation implements Serializable {
 
 	private SerializableSimpleGraph<String, HashMap<String, Object>> sg; //used as a temporary dataStructure during migration
 
-	private HashMap<String, Integer> goldDict = new HashMap<String, Integer>(); // key: amount of gold, value: nodeId
-	private HashMap<String, Integer> diamondDict = new HashMap<String, Integer>(); // key: amount of diamond, value: nodeId
-	
+	private HashMap<String, Integer> goldDict = new HashMap<String, Integer>(); // key: nodeId, value: amount of gold
+	private HashMap<String, Integer> diamondDict = new HashMap<String, Integer>(); // key: nodeId, value: amount of diamond
+
 	public FullMapRepresentation(boolean fullMap) {
 		//System.setProperty("org.graphstream.ui.renderer","org.graphstream.ui.j2dviewer.J2DGraphRenderer");
 		System.setProperty("org.graphstream.ui", "javafx");
