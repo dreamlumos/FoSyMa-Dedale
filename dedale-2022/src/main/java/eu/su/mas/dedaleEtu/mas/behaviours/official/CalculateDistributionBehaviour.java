@@ -35,6 +35,7 @@ public class CalculateDistributionBehaviour extends SimpleBehaviour {
 		}
 		
 		// Generating all possible coalitions
+		// A coalition here refers to the group of agents that will be in charge of collecting a certain type of treasure
 		ArrayList<List<String>> goldCoalitions = new ArrayList<List<String>>(); // diamondCoalitions will be inferred as the complement of goldCoalitions
 		HashMap<String, ArrayList<Integer>> knownAgentCharacteristics = ((ExploreDFSAgent) this.myAgent).getKnownAgentCharacteristics();
 		Set<String> knownAgents = knownAgentCharacteristics.keySet();
@@ -48,8 +49,8 @@ public class CalculateDistributionBehaviour extends SimpleBehaviour {
 		
 		// Calculating the best combination of gold and diamond coalitions
 		int bestValue = 0;
-		List<String> bestGoldCoalition;
-		List<String> bestDiamondCoalition;
+		List<String> bestGoldCoalition = new ArrayList<String>();
+		List<String> bestDiamondCoalition = new ArrayList<String>();
 		for (List<String> goldCoalition: goldCoalitions) {
 			// Obtaining the diamond coalition (complement of the gold coalition)
 			List<String> diamondCoalition = new ArrayList<String>(knownAgents);
@@ -72,6 +73,13 @@ public class CalculateDistributionBehaviour extends SimpleBehaviour {
 		
 		// Generating best possible distribution of gold
 		// TODO
+		List<List<List<String>>> goldPartitions = partitions(bestGoldCoalition);
+		List<List<List<String>>> diamondPartitions = partitions(bestDiamondCoalition);
+		
+		for (List<List<String>> partition: goldPartitions) {
+			//TODO
+		}
+
 				
 	}
 	
