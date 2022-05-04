@@ -17,6 +17,7 @@ import jade.core.behaviours.FSMBehaviour;
 import jade.domain.AMSService;
 import jade.domain.FIPAAgentManagement.AMSAgentDescription;
 import jade.domain.FIPAAgentManagement.SearchConstraints;
+import jade.lang.acl.ACLMessage;
 import javafx.util.Pair;
 import org.glassfish.pfl.basic.fsm.FSM;
 
@@ -49,18 +50,21 @@ public class ExploreDFSAgent extends AbstractDedaleAgent {
 	private ArrayList<String> knownAgents;
 //	private HashMap<String, EntityCharacteristics> knownAgentCharacteristics;
 	private HashMap<String, ArrayList<Integer>> knownAgentCharacteristics = new HashMap<>(); // gold cap, dia cap, comm radius
-
+	private ACLMessage currentPong = null;
 	private String nextNodeId;
-	
+
 	private static final String ObserveEnv = "Observe Environment";
 	private static final String Step = "Step";
 	private static final String Ping = "Ping";
 	private static final String CheckForPong = "CheckForPong";
 	
 	private static final String CheckForPing = "Check Mailbox for Ping";
+	private static final String SharPartialMap = "SharPartialMap";
 	private static final String ReceiveMap = "Receive Map";
 	private static final String ReceiveCharacteristics = "ReceiveCharacteristics";
-	private static final String FSMPingTest = "z";
+	private static final String ShareCharacteristics = "ShareCharacteristics";
+
+//	private static final String FSMPingTest = "z";
 	private List<Behaviour> listBehavTemp;
 	
 	
@@ -136,32 +140,33 @@ public class ExploreDFSAgent extends AbstractDedaleAgent {
 		FSMPingPong.registerTransition(CheckForPing, ReceiveCharacteristics, 2);
 		FSMPingPong.registerDefaultTransition(ReceiveCharacteristics, ReceiveMap);
 
-//		lb.add(FSMPingPong);
+		lb.add(FSMPingPong);
 		
 		FSMBehaviour FSMExploCollect = new FSMBehaviour(this);
 //		FSMExploCollect.registerState(FSMPingPong, FSMPingTest);
 		FSMExploCollect.registerFirstState(new ObserveEnvBehaviour(this), ObserveEnv);
 		FSMExploCollect.registerState(new StepBehaviour(this), Step);
 		FSMExploCollect.registerState(new PingBehaviour(this), Ping);
-		FSMExploCollect.registerState(new CheckForPongBehaviour(this), CheckForPong);
-//		FSMExploCollect.registerState(new CheckForPongUnknown(this), CheckForPong);
-		//fsm.registerState(new CollectTreasureBehaviour(), CollectTreasure);
+//		FSMExploCollect.registerState(new CheckForPongBehaviour(this), CheckForPong);
+		FSMExploCollect.registerState(new SharePartialMapBehaviour(this, this.currentPong), SharPartialMap);
+		FSMExploCollect.registerState(new CheckForPongUnknown(this), CheckForPong);
+		FSMExploCollect.registerState(new ShareCharacteristics(this, this.currentPong), ShareCharacteristics);
 		//fsm.registerLastState(new ?(), ?);
 		
 		FSMExploCollect.registerDefaultTransition(ObserveEnv, Step);
 		FSMExploCollect.registerDefaultTransition(Step, Ping);
 		FSMExploCollect.registerDefaultTransition(Ping, CheckForPong);
 		FSMExploCollect.registerDefaultTransition(CheckForPong, ObserveEnv);
-//		FSMExploCollect.registerTransition(CheckForPong, ObserveEnv, 1);
-//		FSMExploCollect.registerTransition(CheckForPong, ObserveEnv, 1);
-//		FSMExploCollect.registerTransition(CheckForPong, CheckForPong, 2); //if unknown, call shareChar then wait for a pong !!
-//		fsm.registerTransition(B, B, 2) ; //Cond 2
-//		fsm.registerTransition(B, C, 1) ; //Cond 1
-		
+		FSMExploCollect.registerTransition(CheckForPong, SharPartialMap, 1);
+		FSMExploCollect.registerDefaultTransition(SharPartialMap, ObserveEnv); // Zoe: not sure on this !!
+		FSMExploCollect.registerTransition(CheckForPong, ShareCharacteristics, 2);
+		FSMExploCollect.registerTransition(ShareCharacteristics, CheckForPong, 1);
+
 		lb.add(FSMExploCollect);
-		listBehavTemp = lb;
-		String s = FSMExploCollect.stringifyTransitionTable();
-		System.out.println(s);
+
+//		listBehavTemp = lb;
+//		String s = FSMExploCollect.stringifyTransitionTable();
+//		System.out.println(s);
 		
 		/***
 		 * MANDATORY TO ALLOW YOUR AGENT TO BE DEPLOYED CORRECTLY
@@ -300,5 +305,9 @@ public class ExploreDFSAgent extends AbstractDedaleAgent {
 			s.append("; ");
 		}
 		return s.toString();
+	}
+
+	public void setCurrentPong(ACLMessage currentPong) {
+		this.currentPong = currentPong;
 	}
 }

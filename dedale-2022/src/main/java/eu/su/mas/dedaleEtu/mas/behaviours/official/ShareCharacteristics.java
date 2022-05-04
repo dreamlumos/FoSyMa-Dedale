@@ -27,6 +27,10 @@ public class ShareCharacteristics extends SimpleBehaviour {
         super(agent);
         this.unknown = unknown;
         this.phase = 0;
+        if(this.unknown == null){
+            this.phase = 2;
+        }
+
     }
 
     @Override
@@ -74,5 +78,10 @@ public class ShareCharacteristics extends SimpleBehaviour {
     @Override
     public boolean done() {
         return true;
+    }
+
+    @Override
+    public int onEnd() {
+        return 1;
     }
 }

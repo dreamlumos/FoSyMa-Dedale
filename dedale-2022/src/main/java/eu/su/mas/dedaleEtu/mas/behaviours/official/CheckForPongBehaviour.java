@@ -34,6 +34,7 @@ public class CheckForPongBehaviour extends SimpleBehaviour {
 			
 			// Sharing of the map in a separate behaviour which is added to the pool
 //			this.myAgent.addBehaviour(new SharePartialMapBehaviour(this.myAgent, pong));
+			((ExploreDFSAgent)this.myAgent).setCurrentPong(pong);
 //			String s = ((ExploreDFSAgent)(this.myAgent)).getListBehavTemp();
 //			System.out.println(s);
 			

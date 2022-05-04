@@ -12,7 +12,7 @@ public class CheckForPongUnknown extends SimpleBehaviour {
 
     private boolean pongReceived;
     private boolean unknownReceived;
-    private int res;
+    private int res = 0;
 
     public CheckForPongUnknown(Agent a) {
         super(a);
@@ -34,7 +34,8 @@ public class CheckForPongUnknown extends SimpleBehaviour {
             res = 1;
 
             // Sharing of the map in a separate behaviour which is added to the pool
-            this.myAgent.addBehaviour(new SharePartialMapBehaviour(this.myAgent, pong));
+//            this.myAgent.addBehaviour(new SharePartialMapBehaviour(this.myAgent, pong));
+            ((ExploreDFSAgent)this.myAgent).setCurrentPong(pong);
 
         } else {
             this.pongReceived = false;
@@ -51,9 +52,11 @@ public class CheckForPongUnknown extends SimpleBehaviour {
             res = 2;
 
             // Sharing of the characteristics in a separate behaviour which is added to the pool
-            this.myAgent.addBehaviour(new ShareCharacteristics(this.myAgent, unknown));
-            String s = ((ExploreDFSAgent)(this.myAgent)).getListBehavTemp();
-            System.out.println(s);
+            ((ExploreDFSAgent)this.myAgent).setCurrentPong(unknown);
+
+//            this.myAgent.addBehaviour(new ShareCharacteristics(this.myAgent, unknown));
+//            String s = ((ExploreDFSAgent)(this.myAgent)).getListBehavTemp();
+//            System.out.println(s);
         } else {
             this.unknownReceived = false;
         }
