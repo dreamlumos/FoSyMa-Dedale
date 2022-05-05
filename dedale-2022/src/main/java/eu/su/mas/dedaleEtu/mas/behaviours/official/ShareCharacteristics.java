@@ -56,7 +56,7 @@ public class ShareCharacteristics extends SimpleBehaviour {
 
 //        } else if (this.phase == 1) { // Zoe : wait where is this.phase being modified?
 //
-//            // TODO Zoe : maybe here i should directly add a checkForPongBehaviour to my agent? instead of recoding it?
+//            // Zoe : maybe here i should directly add a checkForPongBehaviour to my agent? instead of recoding it?
 //            // Wait for pong
 //            MessageTemplate msgTemplate = MessageTemplate.and(
 //                    MessageTemplate.MatchProtocol("SHARE-TOPO"),

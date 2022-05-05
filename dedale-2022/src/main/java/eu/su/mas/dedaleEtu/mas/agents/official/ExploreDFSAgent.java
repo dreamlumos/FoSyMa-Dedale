@@ -1,5 +1,6 @@
 package eu.su.mas.dedaleEtu.mas.agents.official;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -40,6 +41,21 @@ import org.glassfish.pfl.basic.fsm.FSM;
  *  
  */
 
+
+// TODO one of the things we haven't done is actually manage things when we send out multiple pings
+// TODO empty the mailbox?
+// TODO : in the nodeToShare dict, only add the nodes that we are visiting for the first time MAYBE ?
+// TODO: if agent 1 finishes exploration and calculates the plan, then meets agent 2 that hasn't finished exploring, agent 1 send the plan to agent 2 along with the map?
+// TODO : handle interlocking 5 tries and go away
+// TODO add the block() method thing to check pong and ping
+// TODO fix the getPartialMap() error with addNode
+// TODO plan for situations where the wumpus has moved gold (or for some reason an agent has already picked up some gold/all the gold)
+
+// TODO find out how we can check whether move worked (in StepBehaviour)
+
+// TODO find out how to end the agents
+
+
 public class ExploreDFSAgent extends AbstractDedaleAgent {
 
 	private static final long serialVersionUID = -7969469610241668140L;
@@ -52,10 +68,14 @@ public class ExploreDFSAgent extends AbstractDedaleAgent {
 	private HashMap<String, ArrayList<Integer>> knownAgentCharacteristics = new HashMap<>(); // gold cap, dia cap, comm radius
 	private ACLMessage currentPong = null;
 	private String nextNodeId;
+
+	private String type = null;
+	private HashMap<String, Integer> currTreasureToPick = null; // <nodeId, expected treasure value> // biggest cap first
 	
-	HashMap<String, List<String>> treasureAttribution = new HashMap<>();
-	List<String> goldAgents = null;
-	List<String> diamondAgents = null;
+	private HashMap<String, List<String>> treasureAttribution = new HashMap<>();
+	private List<String> goldAgents = null;
+	private List<String> diamondAgents = null;
+
 
 	private static final String ObserveEnv = "Observe Environment";
 	private static final String Step = "Step";
@@ -94,6 +114,12 @@ public class ExploreDFSAgent extends AbstractDedaleAgent {
 			String entityCharFile = (String) args[2];
 			myCharacteristics = (EntityCharacteristics) AbstractDedaleAgent.loadEntityCaracteristics(getLocalName(), entityCharFile)[0];
 		}
+		ArrayList<Integer> values = new ArrayList<>();
+		values.add(myCharacteristics.getGoldCapacity());
+		values.add(myCharacteristics.getDiamondCapacity());
+		values.add(myCharacteristics.getCommunicationReach());
+		knownAgentCharacteristics.put(this.getLocalName(), values);
+
 
 		// Getting the list of all agents on the platform
 		AMSAgentDescription[] agentsDescriptionCatalog = null;
@@ -174,12 +200,14 @@ public class ExploreDFSAgent extends AbstractDedaleAgent {
 		// 3. (Attempt to) pick up treasure
 		// 4. Update our knowledge (treasure values and agent capacities) - not sure how we can do this, might need a strategy to visit all treasure nodes but if the treasure nodes are far this would be disastrous
 		// 5. Go back to Calculate Distribution if backpack capacity not maxed and there is still remaining treasure (taking into consideration the agent types)	
+
 		FSMExploCollect.registerTransition(Step, CalculateDistribution, 1);
 		FSMExploCollect.registerDefaultTransition(CalculateDistribution, Step);
+
 		// FSMExploCollect.registerTransition(CalculateDistribution, End, 1); // Idk if we need an end behaviour, idk how we call the function doDelete() on the agents once we're done
 
 		
-		// TODO: might need states/transitions where we deal with cases like moving but failing, trying to picl up treasure but the treasure not being there
+		// TODO: might need states/transitions where we deal with cases like moving but failing, trying to pick up treasure but the treasure not being there
 		
 		
 		lb.add(FSMExploCollect);
@@ -274,49 +302,49 @@ public class ExploreDFSAgent extends AbstractDedaleAgent {
 		this.knownAgentCharacteristics.put(agent, charac);
 	}
 
-	public Pair<String, Integer> calculateCoalition(int size, ArrayList<String> agents, HashMap<String, Integer> gold){
-		// im not using the size param bc i don't know how to compute all the combination possible of size k parmi n...
-
-		HashMap<String, Integer> goldCapDict = new HashMap<>(); // key : agents in the coal, value : gold capacity of agents
-		for(String a : agents) {
-			int cap = (this.knownAgentCharacteristics.get(a)).get(0);
-			goldCapDict.put(a, cap);
-		}
-
-		// All of this is for ONE coalition...
-		int currCoalCap = 0;
-		ArrayList<String> currCoal = new ArrayList<>(); // temp TODO need to use a combination function... tried a lib but no luck
-		for(String a : currCoal){
-			currCoalCap += goldCapDict.get(a);
-		}
-		String bestNode = "";
-		int bestGold = 0;
-		ArrayList<String> goldList = new ArrayList<>(gold.keySet());
-		for(String i : goldList){
-			if(gold.get(i) <= currCoalCap && gold.get(i)>bestGold){
-				// here to make a thoughtful choice we would need to check the position of the two different gold spots and see which is closest to currentPos
-				bestNode = i;
-				bestGold = gold.get(i);
-			}
-		}
-		return new Pair<>(bestNode, bestGold);
-	}
-
-//	public ArrayList<String> combinations(int size ArrayList<String> agents){
+//	public Pair<String, Integer> calculateCoalition(int size, ArrayList<String> agents, HashMap<String, Integer> gold){
+//		// im not using the size param bc i don't know how to compute all the combination possible of size k parmi n...
 //
+//		HashMap<String, Integer> goldCapDict = new HashMap<>(); // key : agents in the coal, value : gold capacity of agents
+//		for(String a : agents) {
+//			int cap = (this.knownAgentCharacteristics.get(a)).get(0);
+//			goldCapDict.put(a, cap);
+//		}
+//
+//		// All of this is for ONE coalition...
+//		int currCoalCap = 0;
+//		ArrayList<String> currCoal = new ArrayList<>(); // temp TODO need to use a combination function... tried a lib but no luck
+//		for(String a : currCoal){
+//			currCoalCap += goldCapDict.get(a);
+//		}
+//		String bestNode = "";
+//		int bestGold = 0;
+//		ArrayList<String> goldList = new ArrayList<>(gold.keySet());
+//		for(String i : goldList){
+//			if(gold.get(i) <= currCoalCap && gold.get(i)>bestGold){
+//				// here to make a thoughtful choice we would need to check the position of the two different gold spots and see which is closest to currentPos
+//				bestNode = i;
+//				bestGold = gold.get(i);
+//			}
+//		}
+//		return new Pair<>(bestNode, bestGold);
 //	}
-
-	public String pairToString(Pair<String, Integer> coal){
-
-		String msg = coal.toString();
-
-		msg = msg.replace("[", "")
-				.replace("]", " ")
-				.replace(",", "");
-		msg += coal.toString();
-
-		return msg;
-	}
+//
+////	public ArrayList<String> combinations(int size ArrayList<String> agents){
+////
+////	}
+//
+//	public String pairToString(Pair<String, Integer> coal){
+//
+//		String msg = coal.toString();
+//
+//		msg = msg.replace("[", "")
+//				.replace("]", " ")
+//				.replace(",", "");
+//		msg += coal.toString();
+//
+//		return msg;
+//	}
 
 	public String getListBehavTemp(){
 		StringBuilder s = new StringBuilder();
@@ -325,6 +353,24 @@ public class ExploreDFSAgent extends AbstractDedaleAgent {
 			s.append("; ");
 		}
 		return s.toString();
+	}
+
+	public void setCurrTreasureToPick(HashMap<String, Integer> toPick){
+		this.currTreasureToPick = toPick;
+	}
+
+	public HashMap<String, Integer> getCurrTreasureToPick(){
+		return this.currTreasureToPick;
+	}
+
+	public void setType(String type){
+		if(this.type == null) {
+			this.type = type;
+		}
+	}
+
+	public String getType(){
+		return this.type;
 	}
 
 	public void setCurrentPong(ACLMessage currentPong) {

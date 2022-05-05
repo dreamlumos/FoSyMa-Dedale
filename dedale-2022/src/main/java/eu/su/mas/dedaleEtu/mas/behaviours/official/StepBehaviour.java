@@ -8,6 +8,7 @@ import jade.core.behaviours.SimpleBehaviour;
 public class StepBehaviour extends SimpleBehaviour {
 
 	private static final long serialVersionUID = -7075642787451313299L;
+	private int mapExplored = 0;
 		
 	public StepBehaviour(ExploreDFSAgent agent) {
 		super(agent);
@@ -15,9 +16,13 @@ public class StepBehaviour extends SimpleBehaviour {
 	
 	@Override
 	public void action() {
-		String myPosition = ((AbstractDedaleAgent) this.myAgent).getCurrentPosition();
-		String nextNodeId = ((ExploreDFSAgent) myAgent).getNextNodeId();
-		
+
+		// check if map is wholly explored
+
+		if(mapExplored == 0) {
+			String myPosition = ((AbstractDedaleAgent) this.myAgent).getCurrentPosition();
+			String nextNodeId = ((ExploreDFSAgent) myAgent).getNextNodeId();
+
 //		if (myPosition == null) { 
 //			System.out.println("help map not initialised yet");
 //		} else {
@@ -37,10 +42,13 @@ public class StepBehaviour extends SimpleBehaviour {
 //					//System.out.println("nextNode notNUll - "+this.myAgent.getLocalName()+"-- list= "+this.myMap.getOpenNodes()+"\n -- nextNode: "+nextNode);
 //				}
 //			}
-			System.out.println("Agent "+this.myAgent.getLocalName()+" is moving to "+nextNodeId);
-			((AbstractDedaleAgent)this.myAgent).moveTo(nextNodeId);
+			System.out.println("Agent " + this.myAgent.getLocalName() + " is moving to " + nextNodeId);
+			((AbstractDedaleAgent) this.myAgent).moveTo(nextNodeId);
 //		}
+		}
+		else if(mapExplored == 1){ // we switch to the collect phase
 
+		}
 	}
 
 	@Override
@@ -48,6 +56,10 @@ public class StepBehaviour extends SimpleBehaviour {
 		return true;
 	}
 
-	
-	
+	@Override
+	public int onEnd() {
+		return mapExplored;
+	}
+
+
 }
