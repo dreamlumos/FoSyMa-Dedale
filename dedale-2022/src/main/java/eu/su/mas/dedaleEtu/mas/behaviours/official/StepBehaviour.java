@@ -2,13 +2,20 @@ package eu.su.mas.dedaleEtu.mas.behaviours.official;
 
 import eu.su.mas.dedale.mas.AbstractDedaleAgent;
 import eu.su.mas.dedaleEtu.mas.agents.official.ExploreDFSAgent;
-import eu.su.mas.dedaleEtu.mas.knowledge.FullMapRepresentation;
 import jade.core.behaviours.SimpleBehaviour;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Objects;
 
 public class StepBehaviour extends SimpleBehaviour {
 
 	private static final long serialVersionUID = -7075642787451313299L;
-	private int mapExplored = 0;
+	private int mapExploredOrTimedOut = 0;
+	private long timeOutDate = 10; // random number, need to code it
+	private String nodeToPick = null;
+	private List<String> shortestPathToPick = new ArrayList<>();
 		
 	public StepBehaviour(ExploreDFSAgent agent) {
 		super(agent);
@@ -17,9 +24,19 @@ public class StepBehaviour extends SimpleBehaviour {
 	@Override
 	public void action() {
 
-		// check if map is wholly explored
+		// check if map is wholly explored OR the time is up
+		if(!(((ExploreDFSAgent)this.myAgent).getMap().hasOpenNode())){
+			mapExploredOrTimedOut = 1;
+		}
+		if(System.currentTimeMillis() > timeOutDate){
+			mapExploredOrTimedOut = 1;
+		}
 
-		if(mapExplored == 0) {
+		if(((ExploreDFSAgent)this.myAgent).getCurrTreasureToPick() != null){
+			mapExploredOrTimedOut = 2;
+		}
+
+		if(mapExploredOrTimedOut == 0) {
 			String myPosition = ((AbstractDedaleAgent) this.myAgent).getCurrentPosition();
 			String nextNodeId = ((ExploreDFSAgent) myAgent).getNextNodeId();
 
@@ -46,7 +63,24 @@ public class StepBehaviour extends SimpleBehaviour {
 			((AbstractDedaleAgent) this.myAgent).moveTo(nextNodeId);
 //		}
 		}
-		else if(mapExplored == 1){ // we switch to the collect phase
+		else if(mapExploredOrTimedOut == 2){ // we switch to the collect phase
+			if(shortestPathToPick.isEmpty()) {
+				String myPosition = ((AbstractDedaleAgent) this.myAgent).getCurrentPosition();
+				if (nodeToPick == null) {
+				// HashMap<String, Integer> copy = ((ExploreDFSAgent)this.myAgent).getCurrTreasureToPick();
+					nodeToPick = ((ExploreDFSAgent) this.myAgent).getCurrTreasureToPick().getKey();
+					shortestPathToPick = ((ExploreDFSAgent) this.myAgent).getMap().getShortestPath(myPosition, nodeToPick);
+				}
+				else{
+					if(Objects.equals(myPosition, nodeToPick)){
+						mapExploredOrTimedOut = 3; // agent arrived at destination, starts collectBehaviour
+					}
+				}
+			}else {
+				String nextNodeId = shortestPathToPick.remove(0);
+				System.out.println("Agent " + this.myAgent.getLocalName() + " is moving to " + nextNodeId);
+				((AbstractDedaleAgent) this.myAgent).moveTo(nextNodeId);
+			}
 
 		}
 	}
@@ -58,7 +92,7 @@ public class StepBehaviour extends SimpleBehaviour {
 
 	@Override
 	public int onEnd() {
-		return mapExplored;
+		return mapExploredOrTimedOut;
 	}
 
 

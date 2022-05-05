@@ -41,7 +41,8 @@ import org.glassfish.pfl.basic.fsm.FSM;
  *  
  */
 
-
+// TODO change the permutations keySet() iteration thing
+// TODO add timeout to start the collect behaviour
 // TODO one of the things we haven't done is actually manage things when we send out multiple pings
 // TODO empty the mailbox?
 // TODO : in the nodeToShare dict, only add the nodes that we are visiting for the first time MAYBE ?
@@ -70,8 +71,10 @@ public class ExploreDFSAgent extends AbstractDedaleAgent {
 	private String nextNodeId;
 
 	private String type = null;
-	private HashMap<String, Integer> currTreasureToPick = null; // <nodeId, expected treasure value> // biggest cap first
-	
+//	private HashMap<String, Integer> currTreasureToPick = null; // <nodeId, expected treasure value> // biggest cap first
+	private Pair<String, Integer> currTreasureToPick = null; // <nodeId, expected treasure value> // biggest cap first
+
+
 	private HashMap<String, List<String>> treasureAttribution = new HashMap<>();
 	private List<String> goldAgents = null;
 	private List<String> diamondAgents = null;
@@ -88,6 +91,8 @@ public class ExploreDFSAgent extends AbstractDedaleAgent {
 	private static final String ReceiveCharacteristics = "Receive Characteristics";
 	private static final String ShareCharacteristics = "Share Characteristics";
 	private static final String CalculateDistribution = "Calculate Distribution";
+	private static final String CollectTreasure = " Collect Treasure";
+
 
 //	private static final String FSMPingTest = "z";
 	private List<Behaviour> listBehavTemp;
@@ -182,6 +187,7 @@ public class ExploreDFSAgent extends AbstractDedaleAgent {
 		FSMExploCollect.registerState(new SharePartialMapBehaviour(this, this.currentPong), SharPartialMap);
 		FSMExploCollect.registerState(new CheckForPongUnknown(this), CheckForPong);
 		FSMExploCollect.registerState(new ShareCharacteristics(this, this.currentPong), ShareCharacteristics);
+		FSMExploCollect.registerState(new CollectAssignedTreasure(this, this.currTreasureToPick), CollectTreasure);
 		//fsm.registerLastState(new ?(), ?);
 		
 		FSMExploCollect.registerDefaultTransition(ObserveEnv, Step);
@@ -193,7 +199,7 @@ public class ExploreDFSAgent extends AbstractDedaleAgent {
 		FSMExploCollect.registerTransition(CheckForPong, ShareCharacteristics, 2);
 		FSMExploCollect.registerTransition(ShareCharacteristics, CheckForPong, 1);
 
-		// In treasure collecting phase, 
+		// In treasure collecting phase,
 		// 0. Inside step, if we finished visiting the map (no more open nodes) or time is out, we don't make a step but instead return a specific onEnd value to indicate that we need to move into CalculateDistributionBehaviour
 		// 1. Calculate Distribution
 		// 2. Move towards treasure (could probably use StepBehaviour) 
@@ -202,6 +208,8 @@ public class ExploreDFSAgent extends AbstractDedaleAgent {
 		// 5. Go back to Calculate Distribution if backpack capacity not maxed and there is still remaining treasure (taking into consideration the agent types)	
 
 		FSMExploCollect.registerTransition(Step, CalculateDistribution, 1);
+		FSMExploCollect.registerTransition(Step, Step, 2);
+		FSMExploCollect.registerTransition(Step, CollectTreasure, 3);
 		FSMExploCollect.registerDefaultTransition(CalculateDistribution, Step);
 
 		// FSMExploCollect.registerTransition(CalculateDistribution, End, 1); // Idk if we need an end behaviour, idk how we call the function doDelete() on the agents once we're done
@@ -355,11 +363,11 @@ public class ExploreDFSAgent extends AbstractDedaleAgent {
 		return s.toString();
 	}
 
-	public void setCurrTreasureToPick(HashMap<String, Integer> toPick){
+	public void setCurrTreasureToPick(Pair<String, Integer> toPick){
 		this.currTreasureToPick = toPick;
 	}
 
-	public HashMap<String, Integer> getCurrTreasureToPick(){
+	public Pair<String, Integer> getCurrTreasureToPick(){
 		return this.currTreasureToPick;
 	}
 

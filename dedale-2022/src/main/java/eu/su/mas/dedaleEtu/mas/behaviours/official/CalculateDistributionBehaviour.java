@@ -2,6 +2,7 @@ package eu.su.mas.dedaleEtu.mas.behaviours.official;
 
 import java.util.*;
 
+import javafx.util.Pair;
 import org.paukov.combinatorics3.Generator;
 
 import eu.su.mas.dedaleEtu.mas.agents.official.ExploreDFSAgent;
@@ -127,8 +128,7 @@ public class CalculateDistributionBehaviour extends SimpleBehaviour {
 						int ownCap = knownAgentCharacteristics.get(this.myAgent.getLocalName()).get(0);
 
 						int nodeValue = valueToPick(currGroup, total, ownCap, 0);
-						HashMap<String, Integer> toPick = new HashMap<>();
-						toPick.put(nodeId,nodeValue);
+						Pair<String, Integer> toPick = new Pair<>(nodeId, nodeValue);
 						((ExploreDFSAgent)this.myAgent).setCurrTreasureToPick(toPick);
 					}
 					treasureAttributions.put(nodeId, currGroup);
@@ -172,8 +172,7 @@ public class CalculateDistributionBehaviour extends SimpleBehaviour {
 						int ownCap = knownAgentCharacteristics.get(this.myAgent.getLocalName()).get(1);
 
 					int nodeValue = valueToPick(currGroup, total, ownCap, 1);
-					HashMap<String, Integer> toPick = new HashMap<>();
-					toPick.put(nodeId,nodeValue);
+					Pair<String, Integer> toPick = new Pair<>(nodeId,nodeValue);
 					((ExploreDFSAgent)this.myAgent).setCurrTreasureToPick(toPick);
 					}
 					treasureAttributions.put(nodeId, currGroup);
