@@ -1,6 +1,7 @@
 package eu.su.mas.dedaleEtu.mas.behaviours.official;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import javafx.util.Pair;
 import org.paukov.combinatorics3.Generator;
@@ -135,6 +136,65 @@ public class CalculateDistributionBehaviour extends SimpleBehaviour {
 				}
 				((ExploreDFSAgent) this.myAgent).setTreasureAttributions(treasureAttributions);
 				this.computed = true;
+
+				// update the goldDict for next round
+				HashMap<String, Integer> newGoldDict = new HashMap<>();
+				for(String nodeId: goldDict.keySet()){
+					if(treasureAttributions.containsKey(nodeId)){
+						int newValue = goldDict.get(nodeId);
+						for(String v: treasureAttributions.get(nodeId)){
+							newValue -= knownAgentCharacteristics.get(v).get(0);
+						}
+						if(newValue < 0){
+							newValue = 0;
+						}
+						newGoldDict.put(nodeId, newValue);
+					}else{
+						newGoldDict.put(nodeId, goldDict.get(nodeId));
+					}
+				}
+				((ExploreDFSAgent)this.myAgent).setGoldDict(newGoldDict);
+
+				// update knownAgentsCharacteristics
+				HashMap<String, ArrayList<Integer>> newKnownAgentCharacteristics = new HashMap<>();
+				for(String nodeId: goldDict.keySet()) {
+					if (treasureAttributions.containsKey(nodeId)) {
+						HashMap<Integer, List<String>> sortedAgents = new HashMap<>();
+						for (String v : treasureAttributions.get(nodeId)) {
+							int val = knownAgentCharacteristics.get(v).get(0);
+							if(sortedAgents.containsKey(val)){
+								List<String> agents = sortedAgents.get(val);
+								agents.add(v);
+								sortedAgents.put(val, agents);
+							}
+							ArrayList<String> agents = new ArrayList<>();
+							agents.add(v);
+							sortedAgents.put(val, agents);
+						}
+						List<Integer> sorted = new ArrayList<>(sortedAgents.keySet());
+						sorted.sort(Collections.reverseOrder()); // should be in descending order
+						int currGold = goldDict.get(nodeId);
+						for(Integer i: sorted){
+							for(String s: sortedAgents.get(i)) {
+								if(currGold <= 0){
+									currGold = 0;
+								}
+								List<Integer> knownValues = knownAgentCharacteristics.get(s);
+								int newGoldVal = knownValues.get(0) - currGold;
+								currGold -= i;
+								ArrayList<Integer> newChars = new ArrayList<>();
+								newChars.add(newGoldVal);
+								newChars.add(knownValues.get(1));
+								newChars.add(knownValues.get(2));
+
+								newKnownAgentCharacteristics.put(s, newChars);
+							}
+
+						}
+					}
+				}
+				((ExploreDFSAgent)this.myAgent).setKnownAgentCharacteristics(newKnownAgentCharacteristics);
+
 				break;
 //		for (List<List<String>> partition: goldPartitions) {
 //
@@ -180,6 +240,22 @@ public class CalculateDistributionBehaviour extends SimpleBehaviour {
 
 				((ExploreDFSAgent) this.myAgent).setTreasureAttributions(treasureAttributions);
 				this.computed = true;
+
+				// update the diamondDict for next round
+				HashMap<String, Integer> newDiamondDict = new HashMap<>();
+				for(String nodeId: diamondDict.keySet()){
+					if(treasureAttributions.containsKey(nodeId)){
+						int newValue = diamondDict.get(nodeId);
+						for(String v: treasureAttributions.get(nodeId)){
+							newValue -= knownAgentCharacteristics.get(v).get(0);
+						}
+						newDiamondDict.put(nodeId, newValue);
+					}else{
+						newDiamondDict.put(nodeId, diamondDict.get(nodeId));
+					}
+				}
+				((ExploreDFSAgent)this.myAgent).setDiamondDict(newDiamondDict);
+
 				break;
 
 			default:

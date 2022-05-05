@@ -33,7 +33,12 @@ public class CollectAssignedTreasure extends SimpleBehaviour {
                     List<Couple<Observation, Integer>> lobs = obs.getRight();
                     for(Couple<Observation, Integer> o: lobs){
                         if(Objects.equals(o.getLeft().getName(), ((ExploreDFSAgent) this.myAgent).getType())){
-                            ((ExploreDFSAgent) this.myAgent).openLock(o.getLeft()); // openLock
+                            boolean isOpen = ((ExploreDFSAgent) this.myAgent).openLock(o.getLeft()); // openLock
+                            if(isOpen){
+                                if(Objects.equals(o.getRight(), toPick.getValue())){ // amount is less or equal to expected amount
+                                    ((AbstractDedaleAgent)this.myAgent).pick(); // agent picks up the treasure
+                                }
+                            }
                         }
                     }
                 }

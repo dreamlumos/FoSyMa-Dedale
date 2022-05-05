@@ -429,4 +429,12 @@ public class FullMapRepresentation implements Serializable {
 		return goldDict;
 	}
 
+	public void setDiamondDict(HashMap<String, Integer> diamondDict){
+		this.diamondDict = diamondDict;
+	}
+
+	public void setGoldDict(HashMap<String, Integer> goldDict){
+		this.goldDict = goldDict;
+	}
+
 }

@@ -282,6 +282,14 @@ public class ExploreDFSAgent extends AbstractDedaleAgent {
 		return this.myMap.getGoldDict();
 	}
 
+	public void setGoldDict(HashMap<String, Integer> goldDict){
+		this.myMap.setGoldDict(goldDict);
+	}
+
+	public void setDiamondDict(HashMap<String, Integer> diamondDict){
+		this.myMap.setDiamondDict(diamondDict);
+	}
+
 	public HashMap<String, Integer> getDiamondDict(){
 		return this.myMap.getDiamondDict();
 	}
@@ -306,6 +314,10 @@ public class ExploreDFSAgent extends AbstractDedaleAgent {
 			charac.add(Integer.parseInt(splitArray[j])); // gold cap, dia cap, comm radius
 		}
 		this.knownAgentCharacteristics.put(agent, charac);
+	}
+
+	public void setKnownAgentCharacteristics(HashMap<String, ArrayList<Integer>> newKnown){
+		this.knownAgentCharacteristics = newKnown;
 	}
 
 //	public Pair<String, Integer> calculateCoalition(int size, ArrayList<String> agents, HashMap<String, Integer> gold){
