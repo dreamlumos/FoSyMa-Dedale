@@ -15,16 +15,19 @@ public class ReceiveMapBehaviour extends SimpleBehaviour {
 	private static final long serialVersionUID = -1122887021789014975L;
 	
 	private int mapReceived;
+    private long timeoutDate;
+    private boolean timedOut;
 	
 	public ReceiveMapBehaviour(ExploreDFSAgent agent) {
 		super(agent);
+        this.timeoutDate = System.currentTimeMillis() + 500;
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public void action() {
 
-		System.out.println("Agent "+this.myAgent.getLocalName()+" is receiving a map.");
+		System.out.println("Agent "+this.myAgent.getLocalName()+" is waiting for a map.");
 
 		// The agent checks if he received a map from a teammate.
 		MessageTemplate msgTemplate = MessageTemplate.and(
@@ -34,6 +37,8 @@ public class ReceiveMapBehaviour extends SimpleBehaviour {
 		ACLMessage mapMsg = this.myAgent.receive(msgTemplate);
 		
 		if (mapMsg != null) {
+			System.out.println("Agent "+this.myAgent.getLocalName()+" has received a map.");
+
 			this.mapReceived = 1;
 
 			SerializableSimpleGraph<String, HashMap<String, Object>> sgreceived = null;
@@ -56,12 +61,17 @@ public class ReceiveMapBehaviour extends SimpleBehaviour {
 			
 		} else {
 			this.mapReceived = 0;
+			//block();
+			
+			if (System.currentTimeMillis() > this.timeoutDate) {
+				this.timedOut = true;
+			}
 		}
 	}
 
 	@Override
 	public boolean done() {
-		if (this.mapReceived == 1) { // Kiara: idk if this is necessary, have to test how it works with FSM
+		if (this.mapReceived == 1 || this.timedOut) { // Kiara: idk if this is necessary, have to test how it works with FSM
 			return true;
 		}
 		return false;

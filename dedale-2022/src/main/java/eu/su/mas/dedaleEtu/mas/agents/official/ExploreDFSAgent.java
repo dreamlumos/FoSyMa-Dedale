@@ -86,15 +86,13 @@ public class ExploreDFSAgent extends AbstractDedaleAgent {
 	private static final String CheckForPong = "Check For Pong";
 	
 	private static final String CheckForPing = "Check Mailbox for Ping";
-	private static final String SharPartialMap = "Share Partial Map";
+	private static final String SharePartialMap = "Share Partial Map";
 	private static final String ReceiveMap = "Receive Map";
 	private static final String ReceiveCharacteristics = "Receive Characteristics";
 	private static final String ShareCharacteristics = "Share Characteristics";
 	private static final String CalculateDistribution = "Calculate Distribution";
 	private static final String CollectTreasure = " Collect Treasure";
 
-
-//	private static final String FSMPingTest = "z";
 	private List<Behaviour> listBehavTemp;
 	
 	
@@ -179,23 +177,22 @@ public class ExploreDFSAgent extends AbstractDedaleAgent {
 		lb.add(FSMPingPong);
 		
 		FSMBehaviour FSMExploCollect = new FSMBehaviour(this);
-//		FSMExploCollect.registerState(FSMPingPong, FSMPingTest);
 		FSMExploCollect.registerFirstState(new ObserveEnvBehaviour(this), ObserveEnv);
 		FSMExploCollect.registerState(new StepBehaviour(this), Step);
 		FSMExploCollect.registerState(new PingBehaviour(this), Ping);
 //		FSMExploCollect.registerState(new CheckForPongBehaviour(this), CheckForPong);
-		FSMExploCollect.registerState(new SharePartialMapBehaviour(this, this.currentPong), SharPartialMap);
+		FSMExploCollect.registerState(new SharePartialMapBehaviour(this, this.currentPong), SharePartialMap);
 		FSMExploCollect.registerState(new CheckForPongUnknown(this), CheckForPong);
 		FSMExploCollect.registerState(new ShareCharacteristics(this, this.currentPong), ShareCharacteristics);
-		FSMExploCollect.registerState(new CollectAssignedTreasure(this, this.currTreasureToPick), CollectTreasure);
+		//FSMExploCollect.registerState(new CollectAssignedTreasure(this, this.currTreasureToPick), CollectTreasure);
 		//fsm.registerLastState(new ?(), ?);
 		
 		FSMExploCollect.registerDefaultTransition(ObserveEnv, Step);
 		FSMExploCollect.registerDefaultTransition(Step, Ping);
 		FSMExploCollect.registerDefaultTransition(Ping, CheckForPong);
 		FSMExploCollect.registerDefaultTransition(CheckForPong, ObserveEnv);
-		FSMExploCollect.registerTransition(CheckForPong, SharPartialMap, 1);
-		FSMExploCollect.registerDefaultTransition(SharPartialMap, ObserveEnv); // Zoe: not sure on this !!
+		FSMExploCollect.registerTransition(CheckForPong, SharePartialMap, 1);
+		FSMExploCollect.registerDefaultTransition(SharePartialMap, ObserveEnv); // Zoe: not sure on this !!
 		FSMExploCollect.registerTransition(CheckForPong, ShareCharacteristics, 2);
 		FSMExploCollect.registerTransition(ShareCharacteristics, CheckForPong, 1);
 
@@ -221,9 +218,9 @@ public class ExploreDFSAgent extends AbstractDedaleAgent {
 		
 		lb.add(FSMExploCollect);
 
-//		listBehavTemp = lb;
-//		String s = FSMExploCollect.stringifyTransitionTable();
-//		System.out.println(s);
+		listBehavTemp = lb;
+		String s = FSMExploCollect.stringifyTransitionTable();
+		System.out.println(s);
 		
 		/***
 		 * MANDATORY TO ALLOW YOUR AGENT TO BE DEPLOYED CORRECTLY

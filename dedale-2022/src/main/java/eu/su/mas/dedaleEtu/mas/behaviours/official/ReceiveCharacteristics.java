@@ -15,15 +15,20 @@ public class ReceiveCharacteristics extends SimpleBehaviour {
     private static final long serialVersionUID = -1122887021789014975L;
 
     private int infoReceived;
+    private long timeoutDate;
+    private boolean timedOut;
 
     public ReceiveCharacteristics(ExploreDFSAgent agent) {
         super(agent);
+        this.timeoutDate = System.currentTimeMillis() + 500;
     }
 
     @SuppressWarnings("unchecked")
     @Override
     public void action() {
 
+    	System.out.println("ReceiveChar");
+    	
         // The agent checks if he received characteristics from a teammate.
 
         MessageTemplate msgTemplate = MessageTemplate.and(
@@ -32,6 +37,7 @@ public class ReceiveCharacteristics extends SimpleBehaviour {
         ACLMessage infoMsg = this.myAgent.receive(msgTemplate);
 
         if (infoMsg != null) {
+        	System.out.println("char received");
             this.infoReceived = 1;
 
             ((ExploreDFSAgent) this.myAgent).updateKnownCharacteristics(infoMsg.getSender().getLocalName(), infoMsg.getContent());
@@ -49,12 +55,15 @@ public class ReceiveCharacteristics extends SimpleBehaviour {
 
         } else {
             this.infoReceived = 0;
+            if (System.currentTimeMillis() > this.timeoutDate) {
+            	this.timedOut = true;
+            }
         }
     }
 
     @Override
     public boolean done() {
-        if (this.infoReceived == 1) { // Kiara: idk if this is necessary, have to test how it works with FSM
+        if (this.infoReceived == 1 || this.timedOut) { // Kiara: idk if this is necessary, have to test how it works with FSM
             return true;
         }
         return false;

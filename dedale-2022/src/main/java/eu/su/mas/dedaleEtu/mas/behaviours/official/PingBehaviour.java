@@ -36,20 +36,4 @@ public class PingBehaviour extends OneShotBehaviour { // ProposeInitiator?
 		((AbstractDedaleAgent)this.myAgent).sendMessage(ping);
 				
 	}
-}
-
-
-//1: ping (wait for pong for X seconds)
-//2: pong (wait for response for X seconds)
-//1: 
-//	if 2 known:
-//		send map (wait for ack for X seconds)
-//		2: ack
-//	if 2 unknown:
-//		please send me your info (timeout)
-//		2: sends info
-//		1: send map (and update info received)
-//		2: ack
-//		send my info
-//		send map
-		
+}		

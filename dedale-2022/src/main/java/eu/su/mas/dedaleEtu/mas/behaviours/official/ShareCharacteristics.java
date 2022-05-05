@@ -36,6 +36,8 @@ public class ShareCharacteristics extends SimpleBehaviour {
     @Override
     public void action() {
 
+    	System.out.println("ShareChar");
+    	
         if (this.phase == 0) {
 
             ACLMessage infoMsg = unknown.createReply();

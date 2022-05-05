@@ -41,6 +41,7 @@ public class CheckForPongBehaviour extends SimpleBehaviour {
 		} else {
 			this.pongReceived = false;
 			this.received = 0;
+			block();
 		}
 		
 	}

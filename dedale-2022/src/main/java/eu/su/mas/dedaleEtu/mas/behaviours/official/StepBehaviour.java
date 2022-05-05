@@ -1,5 +1,6 @@
 package eu.su.mas.dedaleEtu.mas.behaviours.official;
 
+import eu.su.mas.dedale.env.Observation;
 import eu.su.mas.dedale.mas.AbstractDedaleAgent;
 import eu.su.mas.dedaleEtu.mas.agents.official.ExploreDFSAgent;
 import jade.core.behaviours.SimpleBehaviour;
@@ -9,13 +10,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 
+import dataStructures.tuple.Couple;
+
 public class StepBehaviour extends SimpleBehaviour {
 
 	private static final long serialVersionUID = -7075642787451313299L;
-	private int mapExploredOrTimedOut = 0;
+	private int phase = 0; // 0: exploration phase, 1: time to start collecting, 2: moving to treasure, 3: return to calculations, 4: blocked
 	private long timeOutDate;
 	private String nodeToPick = null;
 	private List<String> shortestPathToPick = new ArrayList<>();
+	private int unsuccessfulMoves = 0;
 		
 	public StepBehaviour(ExploreDFSAgent agent) {
 		super(agent);
@@ -26,18 +30,18 @@ public class StepBehaviour extends SimpleBehaviour {
 	public void action() {
 
 		// check if map is wholly explored OR the time is up
-		if(!(((ExploreDFSAgent)this.myAgent).getMap().hasOpenNode())){
-			mapExploredOrTimedOut = 1;
+		if (!(((ExploreDFSAgent)this.myAgent).getMap().hasOpenNode())){
+			phase = 1;
 		}
-		if(System.currentTimeMillis() > timeOutDate){
-			mapExploredOrTimedOut = 1;
+		if (System.currentTimeMillis() > timeOutDate){
+			phase = 1;
+		}
+		if (((ExploreDFSAgent)this.myAgent).getCurrTreasureToPick() != null){
+			phase = 2;
 		}
 
-		if(((ExploreDFSAgent)this.myAgent).getCurrTreasureToPick() != null){
-			mapExploredOrTimedOut = 2;
-		}
-
-		if(mapExploredOrTimedOut == 0) {
+		boolean moveSuccessful = false;
+		if (phase == 0) {
 			String myPosition = ((AbstractDedaleAgent) this.myAgent).getCurrentPosition();
 			String nextNodeId = ((ExploreDFSAgent) myAgent).getNextNodeId();
 
@@ -61,28 +65,41 @@ public class StepBehaviour extends SimpleBehaviour {
 //				}
 //			}
 			System.out.println("Agent " + this.myAgent.getLocalName() + " is moving to " + nextNodeId);
-			((AbstractDedaleAgent) this.myAgent).moveTo(nextNodeId);
+			moveSuccessful = ((AbstractDedaleAgent) this.myAgent).moveTo(nextNodeId);
 //		}
-		}
-		else if(mapExploredOrTimedOut == 2){ // we switch to the collect phase
-			if(shortestPathToPick.isEmpty()) {
+		} else if (phase == 2) { // we switch to the collect phase
+			if (shortestPathToPick.isEmpty()) {
 				String myPosition = ((AbstractDedaleAgent) this.myAgent).getCurrentPosition();
 				if (nodeToPick == null) {
 				// HashMap<String, Integer> copy = ((ExploreDFSAgent)this.myAgent).getCurrTreasureToPick();
 					nodeToPick = ((ExploreDFSAgent) this.myAgent).getCurrTreasureToPick().getKey();
 					shortestPathToPick = ((ExploreDFSAgent) this.myAgent).getMap().getShortestPath(myPosition, nodeToPick);
-				}
-				else{
-					if(Objects.equals(myPosition, nodeToPick)){
-						mapExploredOrTimedOut = 3; // agent arrived at destination, starts collectBehaviour
+				} else {
+					if (Objects.equals(myPosition, nodeToPick)) {
+						phase = 3; // agent arrived at destination, starts collectBehaviour
 					}
 				}
-			}else {
+			} else {
 				String nextNodeId = shortestPathToPick.remove(0);
 				System.out.println("Agent " + this.myAgent.getLocalName() + " is moving to " + nextNodeId);
 				((AbstractDedaleAgent) this.myAgent).moveTo(nextNodeId);
 			}
+		} else if (phase == 4) {
+			List<Couple<String,List<Couple<Observation,Integer>>>> lobs = ((AbstractDedaleAgent) this.myAgent).observe();
+			String nextNodeId = lobs.get(0).getLeft();
 
+			System.out.println("Agent " + this.myAgent.getLocalName() + " is moving randomly to " + nextNodeId);
+			((AbstractDedaleAgent) this.myAgent).moveTo(nextNodeId);
+			
+		}
+		
+		if (!moveSuccessful) {
+			this.unsuccessfulMoves++;
+			if (this.unsuccessfulMoves > 5) {
+				this.phase = 4;
+			}
+		} else {
+			this.unsuccessfulMoves = 0;
 		}
 	}
 
@@ -93,7 +110,7 @@ public class StepBehaviour extends SimpleBehaviour {
 
 	@Override
 	public int onEnd() {
-		return mapExploredOrTimedOut;
+		return phase;
 	}
 
 

@@ -23,7 +23,9 @@ public class CheckForPingBehaviour extends SimpleBehaviour { // OneShotBehaviour
 	@Override
 	public void action() {
 		
-		System.out.println("Agent "+this.myAgent.getLocalName()+" is checking for ping.");
+		ExploreDFSAgent myAgent = (ExploreDFSAgent)this.myAgent;
+		
+		System.out.println("Agent "+myAgent.getLocalName()+" is checking for ping.");
 
 		// The agent checks if he received a ping from a teammate. 	
 		MessageTemplate msgTemplate = MessageTemplate.and(
@@ -32,47 +34,48 @@ public class CheckForPingBehaviour extends SimpleBehaviour { // OneShotBehaviour
 //				MessageTemplate.MatchConversationId();
 
 
-		ACLMessage ping = this.myAgent.receive(msgTemplate);
+		ACLMessage ping = myAgent.receive(msgTemplate);
 		if (ping != null) {
 			this.pingReceived = 1;
 
 			String sentBy = ping.getSender().getLocalName();
 			boolean knownAgent = false;
 
-			if(((ExploreDFSAgent)this.myAgent).getKnownAgentCharacteristics() != null){
-				knownAgent = (((ExploreDFSAgent)this.myAgent).getKnownAgentCharacteristics()).containsKey(sentBy);
+			if (myAgent.getKnownAgentCharacteristics() != null){
+				knownAgent = myAgent.getKnownAgentCharacteristics().containsKey(sentBy);
 			} // is null when launched, could try catch
 
 //			boolean knownAgent = true; // Zoe : put it at TRUE to not cause any bug in case my code sucks
 
-			if(knownAgent) {
+			if (knownAgent) {
 				// byte[] pingContent = ping.getByteSequenceContent();
 
 				ACLMessage pong = ping.createReply();
-				pong.setSender(this.myAgent.getAID());
+				pong.setSender(myAgent.getAID());
 				pong.setPerformative(ACLMessage.ACCEPT_PROPOSAL);
 
 				//msg.setContent("1");
 				byte[] b = {1};
 				pong.setByteSequenceContent(b);
 
-				((AbstractDedaleAgent) this.myAgent).sendMessage(pong);
+				myAgent.sendMessage(pong);
 			}
-			else{ // myAgent doesn't have any information about the sender
+			else { // myAgent doesn't have any information about the sender
 				this.pingReceived = 2;
 				ACLMessage unknown = ping.createReply();
-				unknown.setSender(this.myAgent.getAID());
+				unknown.setSender(myAgent.getAID());
 				unknown.setPerformative(ACLMessage.UNKNOWN);
 
 				//msg.setContent("1");
 				byte[] b = {1};
 				unknown.setByteSequenceContent(b);
 
-				((AbstractDedaleAgent) this.myAgent).sendMessage(unknown);
+				myAgent.sendMessage(unknown);
 			}
 			
 		} else {
 			this.pingReceived = 0;
+			block();
 		}
 	}
 

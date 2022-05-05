@@ -12,6 +12,8 @@ public class CheckForPongUnknown extends SimpleBehaviour {
 
     private boolean pongReceived;
     private boolean unknownReceived;
+    private boolean timedOut;
+    private long timeoutDate = -1;
     private int res = 0;
 
     public CheckForPongUnknown(Agent a) {
@@ -21,6 +23,10 @@ public class CheckForPongUnknown extends SimpleBehaviour {
 
     @Override
     public void action() {
+    	if (this.timeoutDate == -1) {
+    		this.timeoutDate = System.currentTimeMillis() + 500;
+    	}
+    	
         System.out.println("Agent "+this.myAgent.getLocalName()+" is checking for pong or unknown.");
 
         // The agent checks if he received a pong from a teammate.
@@ -30,6 +36,8 @@ public class CheckForPongUnknown extends SimpleBehaviour {
         ACLMessage pong = this.myAgent.receive(msgTemplate);
 
         if (pong != null) {
+        	System.out.println("test1");
+
             this.pongReceived = true;
             res = 1;
 
@@ -38,6 +46,8 @@ public class CheckForPongUnknown extends SimpleBehaviour {
             ((ExploreDFSAgent)this.myAgent).setCurrentPong(pong);
 
         } else {
+        	System.out.println("test2");
+
             this.pongReceived = false;
         }
 
@@ -48,6 +58,8 @@ public class CheckForPongUnknown extends SimpleBehaviour {
         ACLMessage unknown = this.myAgent.receive(msgTemplateUnknown);
 
         if (unknown != null) {
+        	System.out.println("test3");
+
             this.unknownReceived = true;
             res = 2;
 
@@ -58,17 +70,34 @@ public class CheckForPongUnknown extends SimpleBehaviour {
 //            String s = ((ExploreDFSAgent)(this.myAgent)).getListBehavTemp();
 //            System.out.println(s);
         } else {
+        	System.out.println("test4");
+
             this.unknownReceived = false;
+            if (System.currentTimeMillis() > this.timeoutDate) {
+            	System.out.println(System.currentTimeMillis());
+            	System.out.println(this.timeoutDate);
+            	System.out.println("test5");
+            	
+            	this.res = 0;
+            	this.timedOut = true;
+            } else {
+            	System.out.println("test6");
+            	this.timedOut = false;
+            }
+            //block();
         }
 
     }
     @Override
     public boolean done() {
-        return pongReceived || unknownReceived;
+    	System.out.println(pongReceived || unknownReceived || timedOut);
+        return pongReceived || unknownReceived || timedOut;
     }
 
     @Override
     public int onEnd() {
+    	System.out.println(res);
+    	reset();
         return res; //return 1;
     }
 }
