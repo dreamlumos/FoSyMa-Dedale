@@ -52,17 +52,22 @@ public class ExploreDFSAgent extends AbstractDedaleAgent {
 	private HashMap<String, ArrayList<Integer>> knownAgentCharacteristics = new HashMap<>(); // gold cap, dia cap, comm radius
 	private ACLMessage currentPong = null;
 	private String nextNodeId;
+	
+	HashMap<String, List<String>> treasureAttribution = new HashMap<>();
+	List<String> goldAgents = null;
+	List<String> diamondAgents = null;
 
 	private static final String ObserveEnv = "Observe Environment";
 	private static final String Step = "Step";
 	private static final String Ping = "Ping";
-	private static final String CheckForPong = "CheckForPong";
+	private static final String CheckForPong = "Check For Pong";
 	
 	private static final String CheckForPing = "Check Mailbox for Ping";
-	private static final String SharPartialMap = "SharPartialMap";
+	private static final String SharPartialMap = "Share Partial Map";
 	private static final String ReceiveMap = "Receive Map";
-	private static final String ReceiveCharacteristics = "ReceiveCharacteristics";
-	private static final String ShareCharacteristics = "ShareCharacteristics";
+	private static final String ReceiveCharacteristics = "Receive Characteristics";
+	private static final String ShareCharacteristics = "Share Characteristics";
+	private static final String CalculateDistribution = "Calculate Distribution";
 
 //	private static final String FSMPingTest = "z";
 	private List<Behaviour> listBehavTemp;
@@ -162,6 +167,21 @@ public class ExploreDFSAgent extends AbstractDedaleAgent {
 		FSMExploCollect.registerTransition(CheckForPong, ShareCharacteristics, 2);
 		FSMExploCollect.registerTransition(ShareCharacteristics, CheckForPong, 1);
 
+		// In treasure collecting phase, 
+		// 0. Inside step, if we finished visiting the map (no more open nodes) or time is out, we don't make a step but instead return a specific onEnd value to indicate that we need to move into CalculateDistributionBehaviour
+		// 1. Calculate Distribution
+		// 2. Move towards treasure (could probably use StepBehaviour) 
+		// 3. (Attempt to) pick up treasure
+		// 4. Update our knowledge (treasure values and agent capacities) - not sure how we can do this, might need a strategy to visit all treasure nodes but if the treasure nodes are far this would be disastrous
+		// 5. Go back to Calculate Distribution if backpack capacity not maxed and there is still remaining treasure (taking into consideration the agent types)	
+		FSMExploCollect.registerTransition(Step, CalculateDistribution, 1);
+		FSMExploCollect.registerDefaultTransition(CalculateDistribution, Step);
+		// FSMExploCollect.registerTransition(CalculateDistribution, End, 1); // Idk if we need an end behaviour, idk how we call the function doDelete() on the agents once we're done
+
+		
+		// TODO: might need states/transitions where we deal with cases like moving but failing, trying to picl up treasure but the treasure not being there
+		
+		
 		lb.add(FSMExploCollect);
 
 //		listBehavTemp = lb;
@@ -309,5 +329,25 @@ public class ExploreDFSAgent extends AbstractDedaleAgent {
 
 	public void setCurrentPong(ACLMessage currentPong) {
 		this.currentPong = currentPong;
+	}
+	
+	public void setTreasureAttributions(HashMap<String, List<String>> treasureAttribution) {
+		this.treasureAttribution = treasureAttribution;
+	}
+	
+	public List<String> getGoldAgents() {
+		return this.goldAgents;
+	}
+	
+	public void setGoldAgents(List<String> goldAgents) {
+		this.goldAgents = goldAgents;
+	}
+	
+	public List<String> getDiamondAgents() {
+		return this.diamondAgents;
+	}
+	
+	public void setDiamondAgents(List<String> diamondAgents) {
+		this.diamondAgents = diamondAgents;
 	}
 }
