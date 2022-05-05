@@ -13,12 +13,13 @@ public class StepBehaviour extends SimpleBehaviour {
 
 	private static final long serialVersionUID = -7075642787451313299L;
 	private int mapExploredOrTimedOut = 0;
-	private long timeOutDate = 10; // random number, need to code it
+	private long timeOutDate;
 	private String nodeToPick = null;
 	private List<String> shortestPathToPick = new ArrayList<>();
 		
 	public StepBehaviour(ExploreDFSAgent agent) {
 		super(agent);
+		timeOutDate = System.currentTimeMillis() + 180000;
 	}
 	
 	@Override

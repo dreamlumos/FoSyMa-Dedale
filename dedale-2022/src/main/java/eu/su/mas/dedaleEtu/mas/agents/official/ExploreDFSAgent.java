@@ -42,19 +42,19 @@ import org.glassfish.pfl.basic.fsm.FSM;
  */
 
 // TODO change the permutations keySet() iteration thing
-// TODO add timeout to start the collect behaviour
+// TODO fix the getPartialMap() error with addNode
+// TODO verify all the timeOut
+// TODO find out how we can check whether move worked (in StepBehaviour)
+// TODO : handle interlocking 5 tries and go away
+
+// TODO add the block() method thing to check pong and ping
+// TODO plan for situations where the wumpus has moved gold (or for some reason an agent has already picked up some gold/all the gold)
 // TODO one of the things we haven't done is actually manage things when we send out multiple pings
-// TODO empty the mailbox?
 // TODO : in the nodeToShare dict, only add the nodes that we are visiting for the first time MAYBE ?
 // TODO: if agent 1 finishes exploration and calculates the plan, then meets agent 2 that hasn't finished exploring, agent 1 send the plan to agent 2 along with the map?
-// TODO : handle interlocking 5 tries and go away
-// TODO add the block() method thing to check pong and ping
-// TODO fix the getPartialMap() error with addNode
-// TODO plan for situations where the wumpus has moved gold (or for some reason an agent has already picked up some gold/all the gold)
-
-// TODO find out how we can check whether move worked (in StepBehaviour)
 
 // TODO find out how to end the agents
+// TODO empty the mailbox?
 
 
 public class ExploreDFSAgent extends AbstractDedaleAgent {
@@ -210,7 +210,8 @@ public class ExploreDFSAgent extends AbstractDedaleAgent {
 		FSMExploCollect.registerTransition(Step, CalculateDistribution, 1);
 		FSMExploCollect.registerTransition(Step, Step, 2);
 		FSMExploCollect.registerTransition(Step, CollectTreasure, 3);
-		FSMExploCollect.registerDefaultTransition(CalculateDistribution, Step);
+		FSMExploCollect.registerTransition(CalculateDistribution, Step, 0);
+//		FSMExploCollect.registerTransition(CalculateDistribution, FinalState, 1);
 
 		// FSMExploCollect.registerTransition(CalculateDistribution, End, 1); // Idk if we need an end behaviour, idk how we call the function doDelete() on the agents once we're done
 
