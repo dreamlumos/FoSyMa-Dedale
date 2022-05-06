@@ -26,6 +26,7 @@ public class CalculateDistributionBehaviour extends SimpleBehaviour {
 
 	@Override
 	public void action() {
+		System.out.println("THIS IS CalculateDistribution BEHAVIOUR");
 
 		HashMap<String, Integer> goldDict = ((ExploreDFSAgent) this.myAgent).getGoldDict();
 		HashMap<String, Integer> diamondDict = ((ExploreDFSAgent) this.myAgent).getDiamondDict();
@@ -33,8 +34,10 @@ public class CalculateDistributionBehaviour extends SimpleBehaviour {
 		int totalGold = 0;
 		int totalDiamond = 0;
 		for (Integer goldAmount : goldDict.values()) {
+//			System.out.println("Computing the gold amount");
 			totalGold += goldAmount;
 		}
+		System.out.println("Total gold : " + totalGold);
 		for (Integer diamondAmount : diamondDict.values()) {
 			totalDiamond += diamondAmount;
 		}
@@ -44,20 +47,32 @@ public class CalculateDistributionBehaviour extends SimpleBehaviour {
 
 		knownAgentCharacteristics = ((ExploreDFSAgent) this.myAgent).getKnownAgentCharacteristics();
 
-		if (goldAgents != null && diamondAgents != null) {
+		if (goldAgents != null || diamondAgents != null){
+
 			int totalGoldCapacity = 0;
-			for (String agent : goldAgents) {
-				totalGoldCapacity += knownAgentCharacteristics.get(agent).get(0);
-			}
 			int totalDiamondCapacity = 0;
-			for (String agent : diamondAgents) {
-				totalDiamondCapacity += knownAgentCharacteristics.get(agent).get(1);
+			if(goldAgents != null) {
+				System.out.println("But we go here tho?");
+				System.out.println("Length : " + goldAgents.size());
+				for (String agent : goldAgents) {
+					totalGoldCapacity += knownAgentCharacteristics.get(agent).get(0);
+					System.out.println("Agent chars : " + knownAgentCharacteristics.get(agent));
+				}
+				System.out.println("Total Gold Cap : " + totalGoldCapacity);
+			}
+			if(diamondAgents != null){
+
+				for (String agent : diamondAgents) {
+					totalDiamondCapacity += knownAgentCharacteristics.get(agent).get(1);
+				}
 			}
 
 			if ((totalGold <= 0 || totalGoldCapacity <= 0) && (totalDiamond <= 0 || totalDiamondCapacity <= 0)) {
+				System.out.println("Are we passing here?");
 				this.collectingPhaseOver = 1;
 				return;
 			}
+
 		} else {
 
 			// Generating all possible coalitions
@@ -65,7 +80,7 @@ public class CalculateDistributionBehaviour extends SimpleBehaviour {
 			ArrayList<List<String>> goldCoalitions = new ArrayList<List<String>>(); // diamondCoalitions will be inferred as the complement of goldCoalitions
 			Set<String> knownAgents = knownAgentCharacteristics.keySet();
 			int nbAgents = knownAgents.size();
-			for (int i = 1; i < nbAgents; i++) {
+			for (int i = 0; i < nbAgents; i++) {
 				Generator.combination(knownAgents)
 						.simple(i)
 						.stream()
@@ -379,11 +394,13 @@ public class CalculateDistributionBehaviour extends SimpleBehaviour {
 
 	@Override
 	public boolean done() {
+		System.out.println("computed : " + this.computed);
 		return this.computed;
 	}
 	
 	@Override
 	public int onEnd() {
+		System.out.println("oneEnd : " + this.collectingPhaseOver);
 		return collectingPhaseOver;
 	}
 }

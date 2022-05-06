@@ -28,6 +28,7 @@ public class StepBehaviour extends SimpleBehaviour {
 	
 	@Override
 	public void action() {
+		System.out.println("THIS IS STEP BEHAVIOUR");
 
 		// check if map is wholly explored OR the time is up
 		if (!(((ExploreDFSAgent)this.myAgent).getMap().hasOpenNode())){
@@ -39,11 +40,11 @@ public class StepBehaviour extends SimpleBehaviour {
 		if (((ExploreDFSAgent)this.myAgent).getCurrTreasureToPick() != null){
 			phase = 2;
 		}
-
+		String nextNodeId = null;
 		boolean moveSuccessful = false;
 		if (phase == 0) {
 			String myPosition = ((AbstractDedaleAgent) this.myAgent).getCurrentPosition();
-			String nextNodeId = ((ExploreDFSAgent) myAgent).getNextNodeId(); // should maybe try catch a null node here?
+			nextNodeId = ((ExploreDFSAgent) myAgent).getNextNodeId(); // should maybe try catch a null node here?
 
 //		if (myPosition == null) { 
 //			System.out.println("help map not initialised yet");
@@ -66,41 +67,68 @@ public class StepBehaviour extends SimpleBehaviour {
 //			}
 			System.out.println("Agent " + this.myAgent.getLocalName() + " is moving to " + nextNodeId);
 			moveSuccessful = ((AbstractDedaleAgent) this.myAgent).moveTo(nextNodeId);
+			while(!moveSuccessful){
+				List<Couple<String,List<Couple<Observation,Integer>>>> lobs = ((AbstractDedaleAgent) this.myAgent).observe();
+				if(Objects.equals(nextNodeId, lobs.get(0).getLeft())) {
+					nextNodeId = lobs.get(1).getLeft();
+				}else{
+					nextNodeId = lobs.get(0).getLeft();
+				}
+				System.out.println("Agent " + this.myAgent.getLocalName() + " is moving randomly to " + nextNodeId);
+				moveSuccessful = ((AbstractDedaleAgent) this.myAgent).moveTo(nextNodeId);
+			}
 //		}
 		} else if (phase == 2) { // we switch to the collect phase
+			System.out.println("Step Behaviour phase 2");
 			if (shortestPathToPick.isEmpty()) {
 				String myPosition = ((AbstractDedaleAgent) this.myAgent).getCurrentPosition();
-				if (nodeToPick == null) {
-				// HashMap<String, Integer> copy = ((ExploreDFSAgent)this.myAgent).getCurrTreasureToPick();
+				if (nodeToPick == null) { // treasure to pick hasn't been decided
 					nodeToPick = ((ExploreDFSAgent) this.myAgent).getCurrTreasureToPick().getKey();
 					shortestPathToPick = ((ExploreDFSAgent) this.myAgent).getMap().getShortestPath(myPosition, nodeToPick);
-				} else {
-					if (Objects.equals(myPosition, nodeToPick)) {
+
+				} else if (Objects.equals(myPosition, nodeToPick)) {
 						phase = 3; // agent arrived at destination, starts collectBehaviour
 					}
-				}
 			} else {
-				String nextNodeId = shortestPathToPick.remove(0);
+				nextNodeId = shortestPathToPick.remove(0);
 				System.out.println("Agent " + this.myAgent.getLocalName() + " is moving to " + nextNodeId);
-				((AbstractDedaleAgent) this.myAgent).moveTo(nextNodeId);
+				moveSuccessful = ((AbstractDedaleAgent) this.myAgent).moveTo(nextNodeId);
+				while(!moveSuccessful){
+					List<Couple<String,List<Couple<Observation,Integer>>>> lobs = ((AbstractDedaleAgent) this.myAgent).observe();
+					if(Objects.equals(nextNodeId, lobs.get(0).getLeft())) {
+						nextNodeId = lobs.get(1).getLeft();
+					}else{
+						nextNodeId = lobs.get(0).getLeft();
+					}
+					System.out.println("Agent " + this.myAgent.getLocalName() + " is moving randomly to " + nextNodeId);
+					moveSuccessful = ((AbstractDedaleAgent) this.myAgent).moveTo(nextNodeId);
+					if(moveSuccessful) {
+						shortestPathToPick = ((ExploreDFSAgent) this.myAgent).getMap().getShortestPath(nextNodeId, nodeToPick);
+						if(shortestPathToPick == null){ // treasure unreachable, we skip to next collect round
+							this.phase = 3;
+						}
+					}
+				}
 			}
-		} else if (phase == 4) {
-			List<Couple<String,List<Couple<Observation,Integer>>>> lobs = ((AbstractDedaleAgent) this.myAgent).observe();
-			String nextNodeId = lobs.get(0).getLeft();
-
-			System.out.println("Agent " + this.myAgent.getLocalName() + " is moving randomly to " + nextNodeId);
-			((AbstractDedaleAgent) this.myAgent).moveTo(nextNodeId);
-			
 		}
+//		else if (phase == 4) {
+//			List<Couple<String,List<Couple<Observation,Integer>>>> lobs = ((AbstractDedaleAgent) this.myAgent).observe();
+//			nextNodeId = lobs.get(0).getLeft();
+//
+//			System.out.println("Agent " + this.myAgent.getLocalName() + " is moving randomly to " + nextNodeId);
+//			moveSuccessful = ((AbstractDedaleAgent) this.myAgent).moveTo(nextNodeId);
+//
+//		}
 		
-		if (!moveSuccessful) {
-			this.unsuccessfulMoves++;
-			if (this.unsuccessfulMoves > 5) {
-				this.phase = 4;
-			}
-		} else {
-			this.unsuccessfulMoves = 0;
-		}
+//		if (!moveSuccessful) {
+//			this.unsuccessfulMoves++;
+//			System.out.println(nextNodeId);
+//			if (this.unsuccessfulMoves > 5) {
+//				this.phase = 4;
+//			}
+//		} else {
+//			this.unsuccessfulMoves = 0;
+//		}
 	}
 
 	@Override
@@ -110,9 +138,7 @@ public class StepBehaviour extends SimpleBehaviour {
 
 	@Override
 	public int onEnd() {
-		if(phase == 1){
-			System.out.println("phase == 1");
-		}
+		System.out.println("phase = " + phase);
 		return phase;
 	}
 
