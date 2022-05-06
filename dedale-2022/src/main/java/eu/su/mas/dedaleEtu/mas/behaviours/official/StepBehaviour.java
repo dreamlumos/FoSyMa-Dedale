@@ -46,12 +46,21 @@ public class StepBehaviour extends SimpleBehaviour {
 				System.out.println("Agent " + this.myAgent.getLocalName() + " is moving to " + nextNodeId);
 				moveSuccessful = myAgent.moveTo(nextNodeId);
 				while (!moveSuccessful) {
+					System.out.println("Phase of exploration");
+					System.out.println("Agent " + this.myAgent.getLocalName() + " wants to move to " + nextNodeId + " but is blocked!");
 					List<Couple<String,List<Couple<Observation,Integer>>>> lobs = myAgent.observe();
-					if (Objects.equals(nextNodeId, lobs.get(0).getLeft())) {
-						nextNodeId = lobs.get(1).getLeft();
-					} else {
-						nextNodeId = lobs.get(0).getLeft();
+					for(Couple<String,List<Couple<Observation,Integer>>> obs: lobs){
+						System.out.println("neighbour node : " +obs.getLeft());
+						if(!(Objects.equals(obs.getLeft(), nextNodeId)) && !(Objects.equals(obs.getLeft(), myPosition))){
+							nextNodeId = obs.getLeft();
+						}
 					}
+//					if (Objects.equals(nextNodeId, lobs.get(0).getLeft())) {
+//						nextNodeId = lobs.get(1).getLeft();
+//					} else {
+//						nextNodeId = lobs.get(0).getLeft();
+//					}
+
 					System.out.println("Agent " + this.myAgent.getLocalName() + " is moving randomly to " + nextNodeId);
 					moveSuccessful = myAgent.moveTo(nextNodeId);
 				}
@@ -63,35 +72,47 @@ public class StepBehaviour extends SimpleBehaviour {
 			if (shortestPathToPick.isEmpty()) {
 				String myPosition = myAgent.getCurrentPosition();
 				if (nodeToPick == null) { // treasure to pick hasn't been decided
-					nodeToPick = myAgent.getCurrTreasureToPick().getKey();
-					shortestPathToPick = myAgent.getMap().getShortestPath(myPosition, nodeToPick);
+					if(myAgent.getCurrTreasureToPick() != null) {
+						nodeToPick = myAgent.getCurrTreasureToPick().getKey();
+						shortestPathToPick = myAgent.getMap().getShortestPath(myPosition, nodeToPick);
+					}else{
+						this.phase = 3;
+					}
 
 				} else if (Objects.equals(myPosition, nodeToPick)) {
 					phase = 3; // agent arrived at destination, starts collectBehaviour
 				}
 			} else {
+				String myPosition = myAgent.getCurrentPosition();
 				nextNodeId = shortestPathToPick.remove(0);
+				if(shortestPathToPick.size()>0) {
+					System.out.println(shortestPathToPick.get(0));
+				}
 				System.out.println("Agent " + this.myAgent.getLocalName() + " is moving to " + nextNodeId);
 				moveSuccessful = myAgent.moveTo(nextNodeId);
 				while (!moveSuccessful) {
+					System.out.println("Phase of collect");
+					System.out.println("Agent " + this.myAgent.getLocalName() + " wants to move to " + nextNodeId + " but is blocked!");
 					List<Couple<String,List<Couple<Observation,Integer>>>> lobs = myAgent.observe();
-					if (Objects.equals(nextNodeId, lobs.get(0).getLeft())) {
-						nextNodeId = lobs.get(1).getLeft();
-					} else {
-						nextNodeId = lobs.get(0).getLeft();
+//					if (Objects.equals(nextNodeId, lobs.get(0).getLeft())) {
+					for(Couple<String,List<Couple<Observation,Integer>>> obs: lobs){
+						System.out.println("neighbour node : " +obs.getLeft());
+						if(!(Objects.equals(obs.getLeft(), nextNodeId)) && !(Objects.equals(obs.getLeft(), myPosition))){
+							nextNodeId = obs.getLeft();
+						}
 					}
 					System.out.println("Agent " + this.myAgent.getLocalName() + " is moving randomly to " + nextNodeId);
 					moveSuccessful = myAgent.moveTo(nextNodeId);
 					if (moveSuccessful) {
 						shortestPathToPick = myAgent.getMap().getShortestPath(nextNodeId, nodeToPick);
 						if (shortestPathToPick == null) { // treasure unreachable, we skip to next collect round
-							this.phase = 3;
+							this.phase = 1;
 						}
 					}
 				}
 			}
 		} else if (phase == 3) {
-			phase = 2;
+			phase = 1;
 		}
 //		else if (phase == 4) {
 //			List<Couple<String,List<Couple<Observation,Integer>>>> lobs = ((AbstractDedaleAgent) this.myAgent).observe();

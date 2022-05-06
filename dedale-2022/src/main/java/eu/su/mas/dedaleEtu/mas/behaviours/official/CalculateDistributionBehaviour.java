@@ -53,8 +53,8 @@ public class CalculateDistributionBehaviour extends SimpleBehaviour {
 
 			int totalGoldCapacity = 0;
 			int totalDiamondCapacity = 0;
+
 			if (goldAgents != null) {
-				System.out.println("But we go here tho?");
 				System.out.println("Length : " + goldAgents.size());
 				for (String agent: goldAgents) {
 					totalGoldCapacity += knownAgentCharacteristics.get(agent).get(0);
@@ -80,7 +80,7 @@ public class CalculateDistributionBehaviour extends SimpleBehaviour {
 			// Generating all possible coalitions
 			// A coalition here refers to the group of agents that will be in charge of collecting a certain type of treasure
 			ArrayList<List<String>> goldCoalitions = new ArrayList<List<String>>(); // diamondCoalitions will be inferred as the complement of goldCoalitions
-			Set<String> knownAgents = knownAgentCharacteristics.keySet();
+			List<String> knownAgents = new ArrayList<>(knownAgentCharacteristics.keySet());
 			int nbAgents = knownAgents.size();
 			for (int i = 1; i < nbAgents+1; i++) {
 				Generator.combination(knownAgents)
@@ -108,9 +108,11 @@ public class CalculateDistributionBehaviour extends SimpleBehaviour {
 				int diamondCapacity = 0;
 				for (String agent: diamondCoalition) {
 					diamondCapacity += knownAgentCharacteristics.get(agent).get(1);
+					System.out.println("diamondCapacity: "+diamondCapacity);
 				}
 				int totalTreasure = Math.min(goldCapacity, totalGold) + Math.min(diamondCapacity, totalDiamond);
 				System.out.println("totalTreasure: " + totalTreasure);
+
 				if (totalTreasure > bestValue) {
 					bestGoldCoalition = goldCoalition;
 					bestDiamondCoalition = diamondCoalition;
@@ -403,6 +405,9 @@ public class CalculateDistributionBehaviour extends SimpleBehaviour {
 						}
 						List<Integer> knownValues = knownAgentCharacteristics.get(s);
 						int newGoldVal = knownValues.get(0) - currGold;
+						if(newGoldVal < 0){
+							newGoldVal = 0;
+						}
 						currGold -= i;
 						ArrayList<Integer> newChars = new ArrayList<>();
 						newChars.add(newGoldVal);

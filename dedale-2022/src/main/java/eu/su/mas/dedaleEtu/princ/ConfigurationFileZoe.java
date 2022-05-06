@@ -113,7 +113,7 @@ public final class ConfigurationFileZoe {
     /**
      * Size of the generated environment, mandatory
      */
-    public static Integer ENVIRONMENT_SIZE=5;
+    public static Integer ENVIRONMENT_SIZE=3;
     // Parameters required for some generators (see dedale.gitlab.io)
     public static Integer OPTIONAL_ADDITIONAL_ENVGENERATOR_PARAM1=1;//used by the BARABASI_ALBERT generator to know the number of childs
     public static Integer[] GENERATOR_PARAMETERS= {ENVIRONMENT_SIZE,OPTIONAL_ADDITIONAL_ENVGENERATOR_PARAM1};
@@ -135,7 +135,7 @@ public final class ConfigurationFileZoe {
 
     public static boolean ACTIVE_WELL=false;
     public static boolean ACTIVE_GOLD=true;
-    public static boolean ACTIVE_DIAMOND=false;
+    public static boolean ACTIVE_DIAMOND=true;
 
     /************************************
      ************************************

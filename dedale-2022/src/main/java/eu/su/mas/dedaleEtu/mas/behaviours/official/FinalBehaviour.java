@@ -13,6 +13,6 @@ public class FinalBehaviour extends OneShotBehaviour {
 	
 	@Override
 	public void action() {		
-		this.myAgent.doDelete();
+//		this.myAgent.doDelete();
 	}
 }

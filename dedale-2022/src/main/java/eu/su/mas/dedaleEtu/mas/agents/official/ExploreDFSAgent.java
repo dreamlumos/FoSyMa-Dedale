@@ -203,6 +203,7 @@ public class ExploreDFSAgent extends AbstractDedaleAgent {
 		//FSMExploCollect.registerTransition(CalculateDistribution, ObserveEnv, 1);
 		FSMExploCollect.registerTransition(CalculateDistribution, Final, 1);
 		FSMExploCollect.registerDefaultTransition(CollectTreasure, Step);
+//		FSMExploCollect.registerDefaultTransition(CollectTreasure, CalculateDistribution);
 
 		// FSMExploCollect.registerTransition(CalculateDistribution, End, 1); // Idk if we need an end behaviour, idk how we call the function doDelete() on the agents once we're done
 
