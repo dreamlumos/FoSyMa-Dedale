@@ -1,7 +1,6 @@
 package eu.su.mas.dedaleEtu.mas.behaviours.official;
 
 import eu.su.mas.dedale.env.Observation;
-import eu.su.mas.dedale.mas.AbstractDedaleAgent;
 import eu.su.mas.dedaleEtu.mas.agents.official.ExploreDFSAgent;
 import jade.core.behaviours.SimpleBehaviour;
 
@@ -91,6 +90,8 @@ public class StepBehaviour extends SimpleBehaviour {
 					}
 				}
 			}
+		} else if (phase == 3) {
+			phase = 2;
 		}
 //		else if (phase == 4) {
 //			List<Couple<String,List<Couple<Observation,Integer>>>> lobs = ((AbstractDedaleAgent) this.myAgent).observe();
@@ -122,6 +123,4 @@ public class StepBehaviour extends SimpleBehaviour {
 		System.out.println("StepBehaviour onEnd phase : " + phase);
 		return phase;
 	}
-
-
 }

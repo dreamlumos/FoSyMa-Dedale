@@ -90,17 +90,10 @@ public class ExploreDFSAgent extends AbstractDedaleAgent {
 	private static final String ShareCharacteristics = "Share Characteristics";
 	private static final String CalculateDistribution = "Calculate Distribution";
 	private static final String CollectTreasure = " Collect Treasure";
+	private static final String Final = "Final";
 
 	private List<Behaviour> listBehavTemp;
 	
-	
-	/**
-	 * This method is automatically called when "agent".start() is executed.
-	 * Consider that Agent is launched for the first time. 
-	 * 			1) set the agent attributes 
-	 *	 		2) add the behaviours
-	 *          
-	 */
 	protected void setup(){
 
 		super.setup();
@@ -140,7 +133,6 @@ public class ExploreDFSAgent extends AbstractDedaleAgent {
 			String agentName = agentID.getLocalName();
 			if (!unnecessaryAgentsList.contains(agentName)) {
 					agentsNames.add(agentName);
-//				}
 			}
 		}
 		
@@ -156,7 +148,7 @@ public class ExploreDFSAgent extends AbstractDedaleAgent {
 		
 		/************************************************
 		 * 
-		 * ADD the behaviours of the Dummy Moving Agent
+		 * ADD the behaviours of the Agent
 		 * 
 		 ************************************************/
 		
@@ -184,7 +176,7 @@ public class ExploreDFSAgent extends AbstractDedaleAgent {
 		FSMExploCollect.registerState(new ShareCharacteristics(this, this.currentPong), ShareCharacteristics);
 		FSMExploCollect.registerState(new CollectAssignedTreasure(this), CollectTreasure);
 		FSMExploCollect.registerState(new CalculateDistributionBehaviour(this), CalculateDistribution);
-		//fsm.registerLastState(new ?(), ?);
+		FSMExploCollect.registerLastState(new FinalBehaviour(this), Final);
 		
 		FSMExploCollect.registerDefaultTransition(ObserveEnv, Step);
 		FSMExploCollect.registerDefaultTransition(Step, Ping);
@@ -209,7 +201,8 @@ public class ExploreDFSAgent extends AbstractDedaleAgent {
 		FSMExploCollect.registerTransition(Step, CollectTreasure, 3);
 		FSMExploCollect.registerTransition(CalculateDistribution, Step, 0);
 		//FSMExploCollect.registerTransition(CalculateDistribution, ObserveEnv, 1);
-//		FSMExploCollect.registerTransition(CalculateDistribution, FinalState, 1);
+		FSMExploCollect.registerTransition(CalculateDistribution, Final, 1);
+		FSMExploCollect.registerDefaultTransition(CollectTreasure, Step);
 
 		// FSMExploCollect.registerTransition(CalculateDistribution, End, 1); // Idk if we need an end behaviour, idk how we call the function doDelete() on the agents once we're done
 

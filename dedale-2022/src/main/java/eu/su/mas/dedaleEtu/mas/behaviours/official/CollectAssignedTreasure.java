@@ -29,9 +29,8 @@ public class CollectAssignedTreasure extends SimpleBehaviour {
     	Pair<String, Integer> toPick = this.myAgent.getCurrTreasureToPick();
     	String toPickNodeId = toPick.getKey();
         if (Objects.equals(toPickNodeId, this.myAgent.getCurrentPosition())) { // checking we are at the right position
-
-        	// Retrieve the current position and the list of observations
-    		String myPosition = this.myAgent.getCurrentPosition();
+        	System.out.println("test");
+        	// Retrieve the list of observations at current position
     		List<Couple<String,List<Couple<Observation,Integer>>>> lobs = this.myAgent.observe();
     		List<Couple<Observation,Integer>> lObservations = lobs.get(0).getRight(); //list of observations associated to the currentPosition        	
         	
@@ -39,9 +38,10 @@ public class CollectAssignedTreasure extends SimpleBehaviour {
                 if (Objects.equals(o.getLeft().getName(), this.myAgent.getType())) {
                     boolean isOpen = this.myAgent.openLock(o.getLeft()); // openLock
                     if (isOpen){
-                        if (Objects.equals(o.getRight(), toPick.getValue())) { // if the amount is less or equal to expected amount
+                        if (o.getRight() <= toPick.getValue()) { // if the amount is less or equal to expected amount
                             int amountPicked = myAgent.pick(); // agent picks up the treasure
                             System.out.println("Amount picked: "+amountPicked);
+                            this.myAgent.setCurrTreasureToPick(null);
                         }
                     }
                 }
