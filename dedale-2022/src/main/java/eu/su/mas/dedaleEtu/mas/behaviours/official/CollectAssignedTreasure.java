@@ -1,58 +1,57 @@
 package eu.su.mas.dedaleEtu.mas.behaviours.official;
 
-import dataStructures.serializableGraph.SerializableNode;
 import dataStructures.tuple.Couple;
 import eu.su.mas.dedale.env.Observation;
-import eu.su.mas.dedale.mas.AbstractDedaleAgent;
 import eu.su.mas.dedaleEtu.mas.agents.official.ExploreDFSAgent;
 import jade.core.Agent;
-import jade.core.Node;
 import jade.core.behaviours.SimpleBehaviour;
 import javafx.util.Pair;
-import org.graphstream.ui.javafx.util.AttributeUtils;
-
 import java.util.List;
 import java.util.Objects;
 
 public class CollectAssignedTreasure extends SimpleBehaviour {
 
     private static final long serialVersionUID = 1122887021789013975L;
+    
+    private ExploreDFSAgent myAgent;
         // if treasure value bigger than expected, wait? try again? wait? etc
 
-    public CollectAssignedTreasure(Agent agent, Pair<String, Integer> toPick){
-        String nodeId = toPick.getKey();
-        if(Objects.equals(nodeId, ((AbstractDedaleAgent) this.myAgent).getCurrentPosition())){
-            // openLock
-            // check the amount of treasure against the max value
-            // if less, then pick
-//            Node node = ((ExploreDFSAgent) this.myAgent).getMap().g.getNode(nodeId);
-//            ((AbstractDedaleAgent) this.myAgent).openLock(((SerializableNode)node).getAttribute());
-            List<Couple<String, List<Couple<Observation, Integer>>>> observations = ((AbstractDedaleAgent) this.myAgent).observe();
-            for(Couple<String, List<Couple<Observation, Integer>>> obs: observations){
-                if(Objects.equals(obs.getLeft(), nodeId)){
-                    List<Couple<Observation, Integer>> lobs = obs.getRight();
-                    for(Couple<Observation, Integer> o: lobs){
-                        if(Objects.equals(o.getLeft().getName(), ((ExploreDFSAgent) this.myAgent).getType())){
-                            boolean isOpen = ((ExploreDFSAgent) this.myAgent).openLock(o.getLeft()); // openLock
-                            if(isOpen){
-                                if(Objects.equals(o.getRight(), toPick.getValue())){ // amount is less or equal to expected amount
-                                    ((AbstractDedaleAgent)this.myAgent).pick(); // agent picks up the treasure
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
+    public CollectAssignedTreasure(Agent agent){
+        super(agent);
+        this.myAgent = (ExploreDFSAgent) agent;
     }
 
     @Override
     public void action() {
+    	
+    	System.out.println("Agent "+this.myAgent.getLocalName()+" is picking up treasure.");
+    	
+    	Pair<String, Integer> toPick = this.myAgent.getCurrTreasureToPick();
+    	String toPickNodeId = toPick.getKey();
+        if (Objects.equals(toPickNodeId, this.myAgent.getCurrentPosition())) { // checking we are at the right position
 
+        	// Retrieve the current position and the list of observations
+    		String myPosition = this.myAgent.getCurrentPosition();
+    		List<Couple<String,List<Couple<Observation,Integer>>>> lobs = this.myAgent.observe();
+    		List<Couple<Observation,Integer>> lObservations = lobs.get(0).getRight(); //list of observations associated to the currentPosition        	
+        	
+            for (Couple<Observation, Integer> o: lObservations) {
+                if (Objects.equals(o.getLeft().getName(), this.myAgent.getType())) {
+                    boolean isOpen = this.myAgent.openLock(o.getLeft()); // openLock
+                    if (isOpen){
+                        if (Objects.equals(o.getRight(), toPick.getValue())) { // if the amount is less or equal to expected amount
+                            int amountPicked = myAgent.pick(); // agent picks up the treasure
+                            System.out.println("Amount picked: "+amountPicked);
+                        }
+                    }
+                }
+            }
+            
+        }
     }
 
     @Override
     public boolean done() {
-        return false;
+        return true;
     }
 }

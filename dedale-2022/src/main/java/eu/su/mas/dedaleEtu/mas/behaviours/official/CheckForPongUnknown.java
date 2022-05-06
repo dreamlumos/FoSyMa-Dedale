@@ -20,7 +20,6 @@ public class CheckForPongUnknown extends SimpleBehaviour {
         super(a);
     }
 
-
     @Override
     public void action() {
     	if (this.timeoutDate == -1) {
@@ -36,7 +35,7 @@ public class CheckForPongUnknown extends SimpleBehaviour {
         ACLMessage pong = this.myAgent.receive(msgTemplate);
 
         if (pong != null) {
-        	System.out.println("test1");
+//        	System.out.println("test1");
 
             this.pongReceived = true;
             res = 1;
@@ -46,7 +45,7 @@ public class CheckForPongUnknown extends SimpleBehaviour {
             ((ExploreDFSAgent)this.myAgent).setCurrentPong(pong);
 
         } else {
-        	System.out.println("test2");
+//        	System.out.println("test2");
 
             this.pongReceived = false;
         }
@@ -58,7 +57,7 @@ public class CheckForPongUnknown extends SimpleBehaviour {
         ACLMessage unknown = this.myAgent.receive(msgTemplateUnknown);
 
         if (unknown != null) {
-        	System.out.println("test3");
+//        	System.out.println("test3");
 
             this.unknownReceived = true;
             res = 2;
@@ -70,34 +69,29 @@ public class CheckForPongUnknown extends SimpleBehaviour {
 //            String s = ((ExploreDFSAgent)(this.myAgent)).getListBehavTemp();
 //            System.out.println(s);
         } else {
-        	System.out.println("test4");
+//        	System.out.println("test4");
 
             this.unknownReceived = false;
             if (System.currentTimeMillis() > this.timeoutDate) {
-            	System.out.println(System.currentTimeMillis());
-            	System.out.println(this.timeoutDate);
-            	System.out.println("test5");
+//            	System.out.println("test5");
             	
             	this.res = 0;
             	this.timedOut = true;
             } else {
-            	System.out.println("test6");
+//            	System.out.println("test6");
             	this.timedOut = false;
             }
-            //block();
         }
-
     }
+    
     @Override
     public boolean done() {
-    	System.out.println(pongReceived || unknownReceived || timedOut);
         return pongReceived || unknownReceived || timedOut;
     }
 
     @Override
     public int onEnd() {
-    	System.out.println(res);
     	reset();
-        return res; //return 1;
+        return res;
     }
 }

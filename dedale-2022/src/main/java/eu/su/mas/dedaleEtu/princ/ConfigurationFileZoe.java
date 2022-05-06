@@ -148,10 +148,9 @@ public final class ConfigurationFileZoe {
      * Must'nt be null as it describes the native agents' capabilities
      */
     //public static String INSTANCE_CONFIGURATION_ENTITIES=null;
-//    public static String INSTANCE_CONFIGURATION_ENTITIES="resources/testAndHope";
     //public static String INSTANCE_CONFIGURATION_ENTITIES="resources/agentExplo";
     //public static String INSTANCE_CONFIGURATION_ENTITIES="resources/agentExplo-2";
-    public static String INSTANCE_CONFIGURATION_ENTITIES="resources/agentExploCoop-2";
+//    public static String INSTANCE_CONFIGURATION_ENTITIES="resources/agentExploCoop-2";
     //public static String INSTANCE_CONFIGURATION_ENTITIES="resources/agentExploCoop-2.json";
     //public static String INSTANCE_CONFIGURATION_ENTITIES="resources/agentKeyboardControlled";
     //public static String INSTANCE_CONFIGURATION_ENTITIES="resources/hunt/map2020-entitiesTree";
@@ -164,7 +163,7 @@ public final class ConfigurationFileZoe {
     //public static String INSTANCE_CONFIGURATION_ENTITIES="resources/mapInterlocking2-entities";
     //public static String INSTANCE_CONFIGURATION_ENTITIES=null;
 
-
+    public static String INSTANCE_CONFIGURATION_ENTITIES="resources/agentCollectCoop-2";
 
     //public static String INSTANCE_CONFIGURATION_ENTITIES="src/test/java/resources/map2018-agentExplo";
     //public static String INSTANCE_CONFIGURATION_ENTITIES="src/test/java/resources/agentExploSolo";
