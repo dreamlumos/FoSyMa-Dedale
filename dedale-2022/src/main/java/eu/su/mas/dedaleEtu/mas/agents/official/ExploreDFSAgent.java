@@ -46,6 +46,7 @@ import org.glassfish.pfl.basic.fsm.FSM;
 // TODO verify all the timeOut
 // TODO find out how we can check whether move worked (in StepBehaviour)
 // TODO : handle interlocking 5 tries and go away
+// TODO check if they jump around to non neighbour nodes
 
 // TODO add the block() method thing to check pong and ping
 // TODO plan for situations where the wumpus has moved gold (or for some reason an agent has already picked up some gold/all the gold)
@@ -178,19 +179,21 @@ public class ExploreDFSAgent extends AbstractDedaleAgent {
 		
 		FSMBehaviour FSMExploCollect = new FSMBehaviour(this);
 		FSMExploCollect.registerFirstState(new ObserveEnvBehaviour(this), ObserveEnv);
-		FSMExploCollect.registerState(new StepBehaviour(this), Step);
 		FSMExploCollect.registerState(new PingBehaviour(this), Ping);
+		FSMExploCollect.registerState(new StepBehaviour(this), Step);
 //		FSMExploCollect.registerState(new CheckForPongBehaviour(this), CheckForPong);
 		FSMExploCollect.registerState(new SharePartialMapBehaviour(this, this.currentPong), SharePartialMap);
 		FSMExploCollect.registerState(new CheckForPongUnknown(this), CheckForPong);
 		FSMExploCollect.registerState(new ShareCharacteristics(this, this.currentPong), ShareCharacteristics);
-		//FSMExploCollect.registerState(new CollectAssignedTreasure(this, this.currTreasureToPick), CollectTreasure);
+//		FSMExploCollect.registerState(new CollectAssignedTreasure(this, this.currTreasureToPick), CollectTreasure);
+		FSMExploCollect.registerState(new CalculateDistributionBehaviour(this), CalculateDistribution);
 		//fsm.registerLastState(new ?(), ?);
 		
 		FSMExploCollect.registerDefaultTransition(ObserveEnv, Step);
 		FSMExploCollect.registerDefaultTransition(Step, Ping);
 		FSMExploCollect.registerDefaultTransition(Ping, CheckForPong);
 		FSMExploCollect.registerDefaultTransition(CheckForPong, ObserveEnv);
+//		FSMExploCollect.registerTransition(Step, Ping, 0);
 		FSMExploCollect.registerTransition(CheckForPong, SharePartialMap, 1);
 		FSMExploCollect.registerDefaultTransition(SharePartialMap, ObserveEnv); // Zoe: not sure on this !!
 		FSMExploCollect.registerTransition(CheckForPong, ShareCharacteristics, 2);
@@ -208,6 +211,7 @@ public class ExploreDFSAgent extends AbstractDedaleAgent {
 		FSMExploCollect.registerTransition(Step, Step, 2);
 		FSMExploCollect.registerTransition(Step, CollectTreasure, 3);
 		FSMExploCollect.registerTransition(CalculateDistribution, Step, 0);
+		FSMExploCollect.registerTransition(CalculateDistribution, ObserveEnv, 1);
 //		FSMExploCollect.registerTransition(CalculateDistribution, FinalState, 1);
 
 		// FSMExploCollect.registerTransition(CalculateDistribution, End, 1); // Idk if we need an end behaviour, idk how we call the function doDelete() on the agents once we're done

@@ -43,7 +43,7 @@ public class StepBehaviour extends SimpleBehaviour {
 		boolean moveSuccessful = false;
 		if (phase == 0) {
 			String myPosition = ((AbstractDedaleAgent) this.myAgent).getCurrentPosition();
-			String nextNodeId = ((ExploreDFSAgent) myAgent).getNextNodeId();
+			String nextNodeId = ((ExploreDFSAgent) myAgent).getNextNodeId(); // should maybe try catch a null node here?
 
 //		if (myPosition == null) { 
 //			System.out.println("help map not initialised yet");
@@ -110,6 +110,9 @@ public class StepBehaviour extends SimpleBehaviour {
 
 	@Override
 	public int onEnd() {
+		if(phase == 1){
+			System.out.println("phase == 1");
+		}
 		return phase;
 	}
 
