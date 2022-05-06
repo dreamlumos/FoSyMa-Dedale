@@ -1,11 +1,8 @@
 package eu.su.mas.dedaleEtu.mas.agents.official;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Objects;
-
 import eu.su.mas.dedale.env.EntityCharacteristics;
 import eu.su.mas.dedale.mas.AbstractDedaleAgent;
 import eu.su.mas.dedale.mas.agent.behaviours.startMyBehaviours;
@@ -14,14 +11,12 @@ import eu.su.mas.dedaleEtu.mas.behaviours.official.*;
 import eu.su.mas.dedaleEtu.mas.knowledge.FullMapRepresentation;
 import jade.core.AID;
 import jade.core.behaviours.Behaviour;
-import jade.core.behaviours.DataStore;
 import jade.core.behaviours.FSMBehaviour;
 import jade.domain.AMSService;
 import jade.domain.FIPAAgentManagement.AMSAgentDescription;
 import jade.domain.FIPAAgentManagement.SearchConstraints;
 import jade.lang.acl.ACLMessage;
 import javafx.util.Pair;
-import org.glassfish.pfl.basic.fsm.FSM;
 
 
 /**
@@ -43,18 +38,12 @@ import org.glassfish.pfl.basic.fsm.FSM;
  */
 
 // TODO fix the getPartialMap() error with addNode
-// TODO verify all the timeOut
-// TODO : handle interlocking 5 tries and go away
 // TODO check if they jump around to non neighbour nodes
 
 // TODO plan for situations where the wumpus has moved gold (or for some reason an agent has already picked up some gold/all the gold)
 // TODO one of the things we haven't done is actually manage things when we send out multiple pings
-// TODO : in the nodeToShare dict, only add the nodes that we are visiting for the first time MAYBE ?
-// TODO: if agent 1 finishes exploration and calculates the plan, then meets agent 2 that hasn't finished exploring, agent 1 send the plan to agent 2 along with the map?
-
-// TODO find out how to end the agents
-// TODO empty the mailbox?
-
+// TODO in the nodeToShare dict, only add the nodes that we are visiting for the first time MAYBE ?
+// TODO if agent 1 finishes exploration and calculates the plan, then meets agent 2 that hasn't finished exploring, agent 1 send the plan to agent 2 along with the map?
 
 public class ExploreDFSAgent extends AbstractDedaleAgent {
 
