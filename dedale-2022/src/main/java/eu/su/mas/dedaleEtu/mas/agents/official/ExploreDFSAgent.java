@@ -9,6 +9,7 @@ import java.util.Objects;
 import eu.su.mas.dedale.env.EntityCharacteristics;
 import eu.su.mas.dedale.mas.AbstractDedaleAgent;
 import eu.su.mas.dedale.mas.agent.behaviours.startMyBehaviours;
+import eu.su.mas.dedaleEtu.mas.behaviours.RandomWalkBehaviour;
 import eu.su.mas.dedaleEtu.mas.behaviours.official.*;
 import eu.su.mas.dedaleEtu.mas.knowledge.FullMapRepresentation;
 import jade.core.AID;
@@ -67,6 +68,7 @@ public class ExploreDFSAgent extends AbstractDedaleAgent {
 	private HashMap<String, ArrayList<Integer>> knownAgentCharacteristics = new HashMap<>(); // gold cap, dia cap, comm radius
 	private ACLMessage currentPong = null;
 	private String nextNodeId;
+	private int unsuccessfulMovesExplo;
 
 	private String type = null;
 //	private HashMap<String, Integer> currTreasureToPick = null; // <nodeId, expected treasure value> // biggest cap first
@@ -90,7 +92,9 @@ public class ExploreDFSAgent extends AbstractDedaleAgent {
 	private static final String ShareCharacteristics = "Share Characteristics";
 	private static final String CalculateDistribution = "Calculate Distribution";
 	private static final String CollectTreasure = " Collect Treasure";
-	private static final String Final = "Final";
+//	private static final String Final = "Final";
+	private static final String RandomWalkWait = "Random Walk Wait";
+	private static final String RandomWalkFinal = "Random Walk Final";
 
 	private List<Behaviour> listBehavTemp;
 	
@@ -135,6 +139,8 @@ public class ExploreDFSAgent extends AbstractDedaleAgent {
 					agentsNames.add(agentName);
 			}
 		}
+
+		unsuccessfulMovesExplo = 0;
 		
 		// Initialising dictionary containing the list of nodes to be shared with each agent		
 		this.nodesToShare = new HashMap<String, ArrayList<String>>();
@@ -176,7 +182,10 @@ public class ExploreDFSAgent extends AbstractDedaleAgent {
 		FSMExploCollect.registerState(new ShareCharacteristics(this, this.currentPong), ShareCharacteristics);
 		FSMExploCollect.registerState(new CollectAssignedTreasure(this), CollectTreasure);
 		FSMExploCollect.registerState(new CalculateDistributionBehaviour(this), CalculateDistribution);
-		FSMExploCollect.registerLastState(new FinalBehaviour(this), Final);
+		FSMExploCollect.registerState(new RandomWalkWait(this), RandomWalkWait);
+		FSMExploCollect.registerLastState(new RandomWalkBehaviour(this), RandomWalkFinal);
+
+//		FSMExploCollect.registerLastState(new FinalBehaviour(this), Final);
 		
 		FSMExploCollect.registerDefaultTransition(ObserveEnv, Step);
 		FSMExploCollect.registerDefaultTransition(Step, Ping);
@@ -201,8 +210,12 @@ public class ExploreDFSAgent extends AbstractDedaleAgent {
 		FSMExploCollect.registerTransition(Step, CollectTreasure, 3);
 		FSMExploCollect.registerTransition(CalculateDistribution, Step, 0);
 		//FSMExploCollect.registerTransition(CalculateDistribution, ObserveEnv, 1);
-		FSMExploCollect.registerTransition(CalculateDistribution, Final, 1);
+//		FSMExploCollect.registerTransition(CalculateDistribution, Final, 1);
+		FSMExploCollect.registerTransition(CalculateDistribution, RandomWalkFinal, 1);
 		FSMExploCollect.registerDefaultTransition(CollectTreasure, Step);
+		FSMExploCollect.registerTransition(CollectTreasure, RandomWalkWait, 1);
+		FSMExploCollect.registerDefaultTransition(RandomWalkWait, CollectTreasure);
+
 //		FSMExploCollect.registerDefaultTransition(CollectTreasure, CalculateDistribution);
 
 		// FSMExploCollect.registerTransition(CalculateDistribution, End, 1); // Idk if we need an end behaviour, idk how we call the function doDelete() on the agents once we're done
@@ -414,5 +427,15 @@ public class ExploreDFSAgent extends AbstractDedaleAgent {
 	
 	public void setDiamondAgents(List<String> diamondAgents) {
 		this.diamondAgents = diamondAgents;
+	}
+
+	public int getUnsuccessfulMovesExplo(){
+		return this.unsuccessfulMovesExplo;
+	}
+	public void updateUnsuccessfulMovesExplo(int newMove){
+		this.unsuccessfulMovesExplo += newMove;
+	}
+	public void setUnsuccessfulMovesExplo(){
+		this.unsuccessfulMovesExplo = 0;
 	}
 }

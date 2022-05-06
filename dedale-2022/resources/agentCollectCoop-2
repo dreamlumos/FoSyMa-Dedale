@@ -1,3 +1,5 @@
 mapname:map2018MultiTypes
-agentCollect:1stAgent:3:free:52:12:0:1:1
-agentCollect:2ndAgent:3:free:14:46:0:1:1
+agentCollect:1stAgent:3:free:52:12:0:40:40
+agentCollect:2ndAgent:3:free:14:46:0:40:40
+agentCollect:3rdAgent:3:free:89:87:0:40:40
+agentCollect:4thAgent:3:free:9:35:0:40:40

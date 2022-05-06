@@ -8,6 +8,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 import org.graphstream.algorithm.Dijkstra;
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.EdgeRejectedException;
@@ -254,6 +256,26 @@ public class FullMapRepresentation implements Serializable {
 		//3) Compute shorterPath
 
 		return getShortestPath(myPosition,closest.get().getLeft());
+	}
+
+	public List<String> getShortestPathToNextClosestOpenNode(String myPosition) {
+		//1) Get all openNodes
+		List<String> opennodes=getOpenNodes();
+
+		//2) select the closest one
+		List<Couple<String,Integer>> lc=
+				opennodes.stream()
+						.map(on -> (getShortestPath(myPosition,on)!=null)? new Couple<String, Integer>(on,getShortestPath(myPosition,on).size()): new Couple<String, Integer>(on,Integer.MAX_VALUE))//some nodes my be unreachable if the agents do not share at least one common node.
+						.collect(Collectors.toList());
+		Stream<Couple<String, Integer>> myStream = lc.stream().sorted(Comparator.comparing(Couple::getRight));
+//		Optional<Couple<String,Integer>> closest=lc.stream().min(Comparator.comparing(Couple::getRight));
+		List<Couple<String, Integer>> myList = myStream.collect(Collectors.toList());
+		myList.remove(0); // removing the blocked node
+//		Optional<Couple<String,Integer>> nextClosest=lc.stream().min(Comparator.comparing(Couple::getRight));
+		Couple<String, Integer> nextClosest = myList.get(0);
+		//3) Compute shorterPath
+
+		return getShortestPath(myPosition,nextClosest.getLeft());
 	}
 
 	public List<String> getOpenNodes(){

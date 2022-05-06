@@ -28,7 +28,7 @@ public class ObserveEnvBehaviour extends SimpleBehaviour {
 		}
 
 		try {
-			this.myAgent.doWait(1000); // Just added here so we can see what the agent is doing
+			this.myAgent.doWait(100); // Just added here so we can see what the agent is doing
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -63,10 +63,15 @@ public class ObserveEnvBehaviour extends SimpleBehaviour {
 		// Update next position
 
 		if((((ExploreDFSAgent)this.myAgent).getMap().hasOpenNode())) {
-			if (nextNodeId == null) {
-				//no directly accessible openNode
-				//chose one, compute the path and take the first step.
-				nextNodeId = map.getShortestPathToClosestOpenNode(myPosition).get(0);
+			if (((ExploreDFSAgent) this.myAgent).getUnsuccessfulMovesExplo() > 4) {
+				nextNodeId = map.getShortestPathToNextClosestOpenNode(myPosition).get(0);
+				((ExploreDFSAgent) this.myAgent).setUnsuccessfulMovesExplo();
+			} else {
+				if (nextNodeId == null) {
+					//no directly accessible openNode
+					//chose one, compute the path and take the first step.
+					nextNodeId = map.getShortestPathToClosestOpenNode(myPosition).get(0);
+				}
 			}
 			((ExploreDFSAgent) this.myAgent).setNextNodeId(nextNodeId);
 		}

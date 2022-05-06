@@ -18,19 +18,21 @@ public class StepBehaviour extends SimpleBehaviour {
 	private long timeOutDate;
 	private String nodeToPick = null;
 	private List<String> shortestPathToPick = new ArrayList<>();
-	private int unsuccessfulMoves = 0;
-		
+
+	private int unsuccessfulMovesCollect = 0;
+
 	public StepBehaviour(ExploreDFSAgent agent) {
 		super(agent);
-		timeOutDate = System.currentTimeMillis() + 180000;
+		timeOutDate = System.currentTimeMillis() + 60000; // 60000; // 180000;
 	}
 	
 	@Override
 	public void action() {
+
 		System.out.println("THIS IS STEP BEHAVIOUR");
 
 		ExploreDFSAgent myAgent = (ExploreDFSAgent) this.myAgent;
-
+		int unsuccessfulMovesExplo = myAgent.getUnsuccessfulMovesExplo();
 		String nextNodeId = null;
 		boolean moveSuccessful = false;
 		if (phase == 0) { // We are in the exploration phase
@@ -41,18 +43,33 @@ public class StepBehaviour extends SimpleBehaviour {
 			} else {
 			
 				String myPosition = myAgent.getCurrentPosition();
+				System.out.println("Agent " + this.myAgent.getLocalName() + " is at node " + myPosition);
 				nextNodeId = myAgent.getNextNodeId(); // should maybe try catch a null node here?
 	
 				System.out.println("Agent " + this.myAgent.getLocalName() + " is moving to " + nextNodeId);
 				moveSuccessful = myAgent.moveTo(nextNodeId);
 				while (!moveSuccessful) {
-					System.out.println("Phase of exploration");
+//					unsuccessfulMovesExplo ++;
+					myAgent.updateUnsuccessfulMovesExplo(1);
+					if(myAgent.getUnsuccessfulMovesExplo() > 4){
+
+						break;
+					}
+					System.out.println("Phase of exploration for " + this.myAgent.getLocalName());
+					System.out.println("Agent " + this.myAgent.getLocalName() + " is at node " + myPosition);
 					System.out.println("Agent " + this.myAgent.getLocalName() + " wants to move to " + nextNodeId + " but is blocked!");
 					List<Couple<String,List<Couple<Observation,Integer>>>> lobs = myAgent.observe();
 					for(Couple<String,List<Couple<Observation,Integer>>> obs: lobs){
 						System.out.println("neighbour node : " +obs.getLeft());
-						if(!(Objects.equals(obs.getLeft(), nextNodeId)) && !(Objects.equals(obs.getLeft(), myPosition))){
-							nextNodeId = obs.getLeft();
+						if(!Objects.equals(obs.getLeft(), nextNodeId)){
+							if(!Objects.equals(obs.getLeft(), myPosition)) {
+								System.out.println("");
+								System.out.println(myPosition);
+								System.out.println(obs.getLeft());
+								System.out.println(nextNodeId);
+								nextNodeId = obs.getLeft();
+								break;
+							}
 						}
 					}
 //					if (Objects.equals(nextNodeId, lobs.get(0).getLeft())) {
@@ -67,8 +84,8 @@ public class StepBehaviour extends SimpleBehaviour {
 			}
 		} else if (phase == 1) {
 			phase = 2; // We switch to the collecting phase
-		} else if (phase == 2) { 
-			System.out.println("StepBehaviour: Collecting phase");
+		} else if (phase == 2) {
+			System.out.println("StepBehaviour: Collecting phase for " + this.myAgent.getLocalName());
 			if (shortestPathToPick.isEmpty()) {
 				String myPosition = myAgent.getCurrentPosition();
 				if (nodeToPick == null) { // treasure to pick hasn't been decided
@@ -78,12 +95,13 @@ public class StepBehaviour extends SimpleBehaviour {
 					}else{
 						this.phase = 3;
 					}
-
 				} else if (Objects.equals(myPosition, nodeToPick)) {
 					phase = 3; // agent arrived at destination, starts collectBehaviour
 				}
 			} else {
 				String myPosition = myAgent.getCurrentPosition();
+				System.out.println("Agent " + this.myAgent.getLocalName() + " is at node " + myPosition);
+				String goalNode = shortestPathToPick.get(shortestPathToPick.size()-1);
 				nextNodeId = shortestPathToPick.remove(0);
 				if(shortestPathToPick.size()>0) {
 					System.out.println(shortestPathToPick.get(0));
@@ -91,14 +109,57 @@ public class StepBehaviour extends SimpleBehaviour {
 				System.out.println("Agent " + this.myAgent.getLocalName() + " is moving to " + nextNodeId);
 				moveSuccessful = myAgent.moveTo(nextNodeId);
 				while (!moveSuccessful) {
-					System.out.println("Phase of collect");
+					if(unsuccessfulMovesCollect > 4){
+						// recompute a new treasure node to reach
+						switch(((ExploreDFSAgent) this.myAgent).getType()){
+							case "Gold":
+								HashMap<String, Integer> oldGoldDict = ((ExploreDFSAgent) this.myAgent).getMap().getGoldDict();
+								HashMap<String, Integer> newGoldDict = new HashMap<>();
+								List<String> goldNodes = new ArrayList<>(oldGoldDict.keySet());
+								for(String n: goldNodes){
+									if(!Objects.equals(n, nextNodeId)){
+										newGoldDict.put(n, oldGoldDict.get(n)); // we remove the blocked node from the list of treasure nodes
+									}
+								}
+								((ExploreDFSAgent) this.myAgent).setGoldDict(newGoldDict);
+								break;
+							case "Diamond":
+								HashMap<String, Integer> oldDiaDict = ((ExploreDFSAgent) this.myAgent).getMap().getDiamondDict();
+								HashMap<String, Integer> newDiaDict = new HashMap<>();
+								List<String> diaNodes = new ArrayList<>(oldDiaDict.keySet());
+								for(String n: diaNodes){
+									if(!Objects.equals(n, nextNodeId) || !Objects.equals(n, goalNode)){
+										newDiaDict.put(n, oldDiaDict.get(n)); // we remove the blocked node from the list of treasure nodes
+									}
+								}
+								((ExploreDFSAgent) this.myAgent).setDiamondDict(newDiaDict);
+								break;
+							default:
+								break;
+						}
+						this.phase = 1; // re-compute a treasure path
+						break;
+					}
+					unsuccessfulMovesCollect ++;
+					System.out.println("Phase of collect for " + this.myAgent.getLocalName());
+					System.out.println("Agent " + this.myAgent.getLocalName() + " is at node " + myPosition);
 					System.out.println("Agent " + this.myAgent.getLocalName() + " wants to move to " + nextNodeId + " but is blocked!");
 					List<Couple<String,List<Couple<Observation,Integer>>>> lobs = myAgent.observe();
 //					if (Objects.equals(nextNodeId, lobs.get(0).getLeft())) {
 					for(Couple<String,List<Couple<Observation,Integer>>> obs: lobs){
 						System.out.println("neighbour node : " +obs.getLeft());
-						if(!(Objects.equals(obs.getLeft(), nextNodeId)) && !(Objects.equals(obs.getLeft(), myPosition))){
-							nextNodeId = obs.getLeft();
+//						if(!(Objects.equals(obs.getLeft(), nextNodeId)) && !(Objects.equals(obs.getLeft(), myPosition))){
+//							nextNodeId = obs.getLeft();
+//						}
+						if(!Objects.equals(obs.getLeft(), nextNodeId)){
+							if(!Objects.equals(obs.getLeft(), myPosition)) {
+								System.out.println("");
+								System.out.println(myPosition);
+								System.out.println(obs.getLeft());
+								System.out.println(nextNodeId);
+								nextNodeId = obs.getLeft();
+								break;
+							}
 						}
 					}
 					System.out.println("Agent " + this.myAgent.getLocalName() + " is moving randomly to " + nextNodeId);
@@ -110,6 +171,7 @@ public class StepBehaviour extends SimpleBehaviour {
 						}
 					}
 				}
+
 			}
 		} else if (phase == 3) {
 			phase = 1;
