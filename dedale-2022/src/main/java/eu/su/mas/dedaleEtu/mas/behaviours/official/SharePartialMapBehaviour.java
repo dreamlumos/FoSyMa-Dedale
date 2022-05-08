@@ -31,6 +31,7 @@ public class SharePartialMapBehaviour extends SimpleBehaviour {
 		if(this.pong == null) { // Zoe: not sure if it's necessary, but just in case the transition happens even tho checkForPong didn't return 1
 			this.phase = 2;
 		}
+		ackReceivedOrTimedOut = false;
 	}
 	
 	@Override

@@ -59,6 +59,7 @@ public class CheckForPingBehaviour extends SimpleBehaviour { // OneShotBehaviour
 				pong.setByteSequenceContent(b);
 
 				myAgent.sendMessage(pong);
+				System.out.println(this.myAgent.getLocalName()+" is sending a pong to "+ping.getSender().getLocalName());
 			}
 			else { // myAgent doesn't have any information about the sender
 				this.pingReceived = 2;
@@ -71,6 +72,7 @@ public class CheckForPingBehaviour extends SimpleBehaviour { // OneShotBehaviour
 				unknown.setByteSequenceContent(b);
 
 				myAgent.sendMessage(unknown);
+				System.out.println(this.myAgent.getLocalName()+" is sending a 'Unknown' to "+ping.getSender().getLocalName());
 			}
 			
 		} else {

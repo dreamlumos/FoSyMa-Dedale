@@ -141,11 +141,13 @@ public class ExploreDFSAgent extends AbstractDedaleAgent {
 		FSMPingPong.registerState(new ReceiveMapBehaviour(this), ReceiveMap);
 		FSMPingPong.registerState(new ReceiveCharacteristics(this), ReceiveCharacteristics);
 		
-		FSMPingPong.registerDefaultTransition(CheckForPing, CheckForPing); //K: if it works as I expect, this line is useless, and the default could just be CFPing -> ReceiveMap
+		//FSMPingPong.registerDefaultTransition(CheckForPing, CheckForPing); //K: if it works as I expect, this line is useless, and the default could just be CFPing -> ReceiveMap
 		FSMPingPong.registerTransition(CheckForPing, ReceiveMap, 1);
-		FSMPingPong.registerDefaultTransition(ReceiveMap, CheckForPing);
 		FSMPingPong.registerTransition(CheckForPing, ReceiveCharacteristics, 2);
-		FSMPingPong.registerDefaultTransition(ReceiveCharacteristics, ReceiveMap);
+		FSMPingPong.registerTransition(ReceiveCharacteristics, CheckForPing, 0);
+		FSMPingPong.registerTransition(ReceiveCharacteristics, ReceiveMap, 1);
+		FSMPingPong.registerDefaultTransition(ReceiveMap, CheckForPing);
+
 
 		lb.add(FSMPingPong);
 		
@@ -153,7 +155,6 @@ public class ExploreDFSAgent extends AbstractDedaleAgent {
 		FSMExploCollect.registerFirstState(new ObserveEnvBehaviour(this), ObserveEnv);
 		FSMExploCollect.registerState(new PingBehaviour(this), Ping);
 		FSMExploCollect.registerState(new StepBehaviour(this), Step);
-//		FSMExploCollect.registerState(new CheckForPongBehaviour(this), CheckForPong);
 		FSMExploCollect.registerState(new SharePartialMapBehaviour(this, this.currentPong), SharePartialMap);
 		FSMExploCollect.registerState(new CheckForPongUnknown(this), CheckForPong);
 		FSMExploCollect.registerState(new ShareCharacteristics(this, this.currentPong), ShareCharacteristics);
@@ -166,13 +167,16 @@ public class ExploreDFSAgent extends AbstractDedaleAgent {
 		
 		FSMExploCollect.registerDefaultTransition(ObserveEnv, Step);
 		FSMExploCollect.registerDefaultTransition(Step, Ping);
-		FSMExploCollect.registerDefaultTransition(Ping, CheckForPong);
-		FSMExploCollect.registerDefaultTransition(CheckForPong, ObserveEnv);
 //		FSMExploCollect.registerTransition(Step, Ping, 0);
+		FSMExploCollect.registerDefaultTransition(Ping, CheckForPong);
+		
+		FSMExploCollect.registerTransition(CheckForPong, ObserveEnv, 0);
 		FSMExploCollect.registerTransition(CheckForPong, SharePartialMap, 1);
-		FSMExploCollect.registerDefaultTransition(SharePartialMap, ObserveEnv); // Zoe: not sure on this !!
 		FSMExploCollect.registerTransition(CheckForPong, ShareCharacteristics, 2);
+
 		FSMExploCollect.registerTransition(ShareCharacteristics, CheckForPong, 1);
+		
+		FSMExploCollect.registerDefaultTransition(SharePartialMap, ObserveEnv);
 
 		// In treasure collecting phase,
 		// 0. Inside step, if we finished visiting the map (no more open nodes) or time is out, we don't make a step but instead return a specific onEnd value to indicate that we need to move into CalculateDistributionBehaviour
