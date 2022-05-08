@@ -26,14 +26,13 @@ public class CollectAssignedTreasure extends SimpleBehaviour {
 
     @Override
     public void action() {
-        System.out.println("Agent "+this.myAgent.getLocalName()+" is going to attempt to pick up treasure.");
+        System.out.println("[CollectAssignedTreasure] Agent "+this.myAgent.getLocalName()+" is going to attempt to pick up treasure.");
     	if(this.myAgent.getCurrTreasureToPick() != null) {
             Pair<String, Integer> toPick = this.myAgent.getCurrTreasureToPick();
             String toPickNodeId = toPick.getKey();
-            System.out.println("Agent "+this.myAgent.getLocalName()+" is going to pick up treasure at " + toPickNodeId + ".");
+            System.out.println("[CollectAssignedTreasure] Agent "+this.myAgent.getLocalName()+" is going to pick up treasure at " + toPickNodeId + ".");
 
             if (Objects.equals(toPickNodeId, this.myAgent.getCurrentPosition())) { // checking we are at the right position
-                System.out.println("test");
                 // Retrieve the list of observations at current position
                 List<Couple<String, List<Couple<Observation, Integer>>>> lobs = this.myAgent.observe();
                 List<Couple<Observation, Integer>> lObservations = lobs.get(0).getRight(); //list of observations associated to the currentPosition
@@ -42,14 +41,14 @@ public class CollectAssignedTreasure extends SimpleBehaviour {
                     if (Objects.equals(o.getLeft().getName(), this.myAgent.getType())) {
                         boolean isOpen = this.myAgent.openLock(o.getLeft()); // openLock
                         if (isOpen) {
-                            System.out.println("The lock is open.");
+                            //System.out.println("The lock is open.");
                             if (o.getRight() <= toPick.getValue()) { // if the amount is less or equal to expected amount
                                 try {
                                     int amountPicked = myAgent.pick(); // agent picks up the treasure
-                                    System.out.println("Amount of " + this.myAgent.getType() + " picked by " + this.myAgent.getLocalName() + " : " + amountPicked);
+                                    System.out.println("[CollectAssignedTreasure] Amount of " + this.myAgent.getType() + " picked by " + this.myAgent.getLocalName() + " : " + amountPicked);
                                 }catch(Exception e){
                                     e.printStackTrace();
-                                    System.out.println(this.myAgent.getLocalName() + " failed to pick " + toPick.getValue() + " of " + this.myAgent.getType() + " at " + toPickNodeId);
+                                    System.out.println("[CollectAssignedTreasure] "+this.myAgent.getLocalName() + " failed to pick " + toPick.getValue() + " of " + this.myAgent.getType() + " at " + toPickNodeId);
                                 }
                                 this.myAgent.setCurrTreasureToPick(null);
                             }else{

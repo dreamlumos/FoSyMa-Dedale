@@ -318,27 +318,27 @@ public class PrincipalZoe {
 
         agentList.add(ag);
 
-        //2) Give the name of your agent, MUST be the same as the one given in the entities file.
-        agentName="3rdAgent";
-
-        //3) If you want to give specific parameters to your agent, add them here
-        Object [] entityParametersExplo3={ConfigurationFileZoe.INSTANCE_CONFIGURATION_ENTITIES};
-
-        //4) Give the class name of your agent to let the system instantiate it
-        ag=createNewDedaleAgent(c, agentName, ExploreDFSAgent.class.getName(), entityParametersExplo3);//ExploreSoloAgent
-
-        agentList.add(ag);
-
-        //2) Give the name of your agent, MUST be the same as the one given in the entities file.
-        agentName="4thAgent";
-
-        //3) If you want to give specific parameters to your agent, add them here
-        Object [] entityParametersExplo4={ConfigurationFileZoe.INSTANCE_CONFIGURATION_ENTITIES};
-
-        //4) Give the class name of your agent to let the system instantiate it
-        ag=createNewDedaleAgent(c, agentName, ExploreDFSAgent.class.getName(), entityParametersExplo4);//ExploreSoloAgent
-
-        agentList.add(ag);
+//        //2) Give the name of your agent, MUST be the same as the one given in the entities file.
+//        agentName="3rdAgent";
+//
+//        //3) If you want to give specific parameters to your agent, add them here
+//        Object [] entityParametersExplo3={ConfigurationFileZoe.INSTANCE_CONFIGURATION_ENTITIES};
+//
+//        //4) Give the class name of your agent to let the system instantiate it
+//        ag=createNewDedaleAgent(c, agentName, ExploreDFSAgent.class.getName(), entityParametersExplo3);//ExploreSoloAgent
+//
+//        agentList.add(ag);
+//
+//        //2) Give the name of your agent, MUST be the same as the one given in the entities file.
+//        agentName="4thAgent";
+//
+//        //3) If you want to give specific parameters to your agent, add them here
+//        Object [] entityParametersExplo4={ConfigurationFileZoe.INSTANCE_CONFIGURATION_ENTITIES};
+//
+//        //4) Give the class name of your agent to let the system instantiate it
+//        ag=createNewDedaleAgent(c, agentName, ExploreDFSAgent.class.getName(), entityParametersExplo4);//ExploreSoloAgent
+//
+//        agentList.add(ag);
 
         /*********
          * User controlled agent (with N(ext) and O(k))

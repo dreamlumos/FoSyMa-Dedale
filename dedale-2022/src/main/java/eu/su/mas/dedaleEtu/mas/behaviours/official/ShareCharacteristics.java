@@ -36,7 +36,7 @@ public class ShareCharacteristics extends SimpleBehaviour {
     @Override
     public void action() {
 
-    	System.out.println("ShareChar");
+    	System.out.println(this.myAgent.getLocalName()+" is sharing its characteristics.");
     	
         if (this.phase == 0) {
 

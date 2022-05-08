@@ -18,7 +18,7 @@ public class ObserveEnvBehaviour extends SimpleBehaviour {
 	
 	@Override
 	public void action() {
-		System.out.println("observe env!");
+		//System.out.println(this.myAgent.getLocalName()+" observe env!");
 
 		FullMapRepresentation map = ((ExploreDFSAgent) this.myAgent).getMap();
 		
@@ -28,7 +28,7 @@ public class ObserveEnvBehaviour extends SimpleBehaviour {
 		}
 
 		try {
-			this.myAgent.doWait(100); // Just added here so we can see what the agent is doing
+			this.myAgent.doWait(1000); // Just added here so we can see what the agent is doing
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

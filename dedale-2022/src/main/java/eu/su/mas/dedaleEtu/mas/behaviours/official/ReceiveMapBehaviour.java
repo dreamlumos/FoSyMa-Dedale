@@ -27,7 +27,7 @@ public class ReceiveMapBehaviour extends SimpleBehaviour {
 	@Override
 	public void action() {
 
-		System.out.println("Agent "+this.myAgent.getLocalName()+" is waiting for a map.");
+		System.out.println("[ReceiveMapBehaviour] Agent "+this.myAgent.getLocalName()+" is waiting for a map.");
 
 		// The agent checks if he received a map from a teammate.
 		MessageTemplate msgTemplate = MessageTemplate.and(
@@ -37,7 +37,7 @@ public class ReceiveMapBehaviour extends SimpleBehaviour {
 		ACLMessage mapMsg = this.myAgent.receive(msgTemplate);
 		
 		if (mapMsg != null) {
-			System.out.println("Agent "+this.myAgent.getLocalName()+" has received a map.");
+			System.out.println("[ReceiveMapBehaviour] Agent "+this.myAgent.getLocalName()+" has received a map.");
 
 			this.mapReceived = 1;
 
@@ -58,6 +58,7 @@ public class ReceiveMapBehaviour extends SimpleBehaviour {
 			mapReceivedAck.setByteSequenceContent(b);
 			
 			((AbstractDedaleAgent)this.myAgent).sendMessage(mapReceivedAck);
+			System.out.println("[ReceiveMapBehaviour] Agent "+this.myAgent.getLocalName()+" is sending an ack.");
 			
 		} else {
 			this.mapReceived = 0;

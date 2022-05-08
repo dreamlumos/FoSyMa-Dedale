@@ -21,24 +21,12 @@ import javafx.util.Pair;
 
 /**
  * <pre>
- * ExploreCoop agent. 
- * Basic example of how to "collaboratively" explore the map
- *  - It explore the map using a DFS algorithm and blindly tries to share the topology with the agents within reach.
- *  - The shortestPath computation is not optimized
- *  - Agents do not coordinate themselves on the node(s) to visit, thus progressively creating a single file. It's bad.
- *  - The agent sends all its map, periodically, forever. Its bad x3.
- *  - You should give him the list of agents'name to send its map to in parameter when creating the agent.
- *   Object [] entityParameters={"Name1","Name2};
- *   ag=createNewDedaleAgent(c, agentName, ExploreCoopAgent.class.getName(), entityParameters);
- *  
- * It stops when all nodes have been visited.
  * 
  *  </pre>
  *  
  */
 
 // TODO fix the getPartialMap() error with addNode
-// TODO check if they jump around to non neighbour nodes
 
 // TODO plan for situations where the wumpus has moved gold (or for some reason an agent has already picked up some gold/all the gold)
 // TODO one of the things we haven't done is actually manage things when we send out multiple pings
@@ -81,9 +69,9 @@ public class ExploreDFSAgent extends AbstractDedaleAgent {
 	private static final String ShareCharacteristics = "Share Characteristics";
 	private static final String CalculateDistribution = "Calculate Distribution";
 	private static final String CollectTreasure = " Collect Treasure";
-//	private static final String Final = "Final";
+	private static final String Final = "Final";
 	private static final String RandomWalkWait = "Random Walk Wait";
-	private static final String RandomWalkFinal = "Random Walk Final";
+	//private static final String RandomWalkFinal = "Random Walk Final";
 
 	private List<Behaviour> listBehavTemp;
 	
@@ -116,7 +104,7 @@ public class ExploreDFSAgent extends AbstractDedaleAgent {
 			c.setMaxResults(Long.valueOf("-1")); // copied from example in slides, but not sure it is correct as it means to return a max of -1 results
 			agentsDescriptionCatalog = AMSService.search(this, new AMSAgentDescription(), c);
 		} catch (Exception e) {
-			System.out.println("Problem searching AMS: " + e);
+			System.out.println("[ExploreDFSAgent::setup] Problem searching AMS: " + e);
 			e.printStackTrace();
 		}
 		
@@ -172,9 +160,9 @@ public class ExploreDFSAgent extends AbstractDedaleAgent {
 		FSMExploCollect.registerState(new CollectAssignedTreasure(this), CollectTreasure);
 		FSMExploCollect.registerState(new CalculateDistributionBehaviour(this), CalculateDistribution);
 		FSMExploCollect.registerState(new RandomWalkWait(this), RandomWalkWait);
-		FSMExploCollect.registerLastState(new RandomWalkBehaviour(this), RandomWalkFinal);
+		//FSMExploCollect.registerLastState(new RandomWalkBehaviour(this), RandomWalkFinal);
 
-//		FSMExploCollect.registerLastState(new FinalBehaviour(this), Final);
+		FSMExploCollect.registerLastState(new FinalBehaviour(this), Final);
 		
 		FSMExploCollect.registerDefaultTransition(ObserveEnv, Step);
 		FSMExploCollect.registerDefaultTransition(Step, Ping);
@@ -199,8 +187,8 @@ public class ExploreDFSAgent extends AbstractDedaleAgent {
 		FSMExploCollect.registerTransition(Step, CollectTreasure, 3);
 		FSMExploCollect.registerTransition(CalculateDistribution, Step, 0);
 		//FSMExploCollect.registerTransition(CalculateDistribution, ObserveEnv, 1);
-//		FSMExploCollect.registerTransition(CalculateDistribution, Final, 1);
-		FSMExploCollect.registerTransition(CalculateDistribution, RandomWalkFinal, 1);
+		FSMExploCollect.registerTransition(CalculateDistribution, Final, 1);
+		//FSMExploCollect.registerTransition(CalculateDistribution, RandomWalkFinal, 1);
 		FSMExploCollect.registerDefaultTransition(CollectTreasure, Step);
 		FSMExploCollect.registerTransition(CollectTreasure, RandomWalkWait, 1);
 		FSMExploCollect.registerDefaultTransition(RandomWalkWait, CollectTreasure);
@@ -224,7 +212,7 @@ public class ExploreDFSAgent extends AbstractDedaleAgent {
 		 */
 		addBehaviour(new startMyBehaviours(this, lb));
 		
-		System.out.println("the  agent "+this.getLocalName()+ " is started");
+		System.out.println("[ExploreDFSAgent::setup] The  agent "+this.getLocalName()+ " is started");
 	}
 	
 	public void setNextNodeId(String nodeId) {
@@ -376,7 +364,7 @@ public class ExploreDFSAgent extends AbstractDedaleAgent {
 
 	public void setCurrTreasureToPick(Pair<String, Integer> toPick){
 		this.currTreasureToPick = toPick;
-		System.out.println("Current treasure to pick: "+toPick);
+		System.out.println("[ExploreDFSAgent::setCurrTreasureToPick] Current treasure to pick: "+toPick);
 	}
 
 	public Pair<String, Integer> getCurrTreasureToPick(){
@@ -384,7 +372,7 @@ public class ExploreDFSAgent extends AbstractDedaleAgent {
 	}
 
 	public void setType(String type){
-		System.out.println("Setting Agent "+this.getLocalName()+"'s treasure type: "+type);
+		System.out.println("[ExploreDFSAgent::setType] Setting Agent "+this.getLocalName()+"'s treasure type: "+type);
 		if (this.type == null) {
 			this.type = type;
 		}
@@ -426,5 +414,10 @@ public class ExploreDFSAgent extends AbstractDedaleAgent {
 	}
 	public void setUnsuccessfulMovesExplo(){
 		this.unsuccessfulMovesExplo = 0;
+	}
+	
+	@Override
+	public void takeDown() {
+		super.takeDown();
 	}
 }

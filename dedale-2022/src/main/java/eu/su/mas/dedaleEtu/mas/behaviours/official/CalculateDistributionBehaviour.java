@@ -28,7 +28,6 @@ public class CalculateDistributionBehaviour extends SimpleBehaviour {
 
 	@Override
 	public void action() {
-		System.out.println("THIS IS CalculateDistribution BEHAVIOUR");
 		
 		HashMap<String, Integer> goldDict = this.myAgent.getGoldDict();
 		HashMap<String, Integer> diamondDict = this.myAgent.getDiamondDict();
@@ -39,12 +38,12 @@ public class CalculateDistributionBehaviour extends SimpleBehaviour {
 //			System.out.println("Computing the gold amount");
 			totalGold += goldAmount;
 		}
-		System.out.println("Total gold : " + totalGold);
+		System.out.println("[CalculateDistribution] Total gold : " + totalGold);
 
 		for (Integer diamondAmount: diamondDict.values()) {
 			totalDiamond += diamondAmount;
 		}
-		System.out.println("Total diamond : " + totalDiamond);
+		System.out.println("[CalculateDistribution] Total diamond : " + totalDiamond);
 
 		List<String> goldAgents = this.myAgent.getGoldAgents();
 		List<String> diamondAgents = this.myAgent.getDiamondAgents();
@@ -57,24 +56,22 @@ public class CalculateDistributionBehaviour extends SimpleBehaviour {
 			int totalDiamondCapacity = 0;
 
 			if (goldAgents != null) {
-				System.out.println("Length : " + goldAgents.size());
 				for (String agent: goldAgents) {
 					totalGoldCapacity += knownAgentCharacteristics.get(agent).get(0);
-					//System.out.println("Agent chars : " + knownAgentCharacteristics.get(agent));
 				}
-				System.out.println("Total Gold Cap : " + totalGoldCapacity);
+				//System.out.println("[CalculateDistribution] Total Gold Cap : " + totalGoldCapacity);
 			}
 			if (diamondAgents != null){
 
 				for (String agent: diamondAgents) {
 					totalDiamondCapacity += knownAgentCharacteristics.get(agent).get(1);
 				}
-			System.out.println("Total Dia Cap : " + totalDiamondCapacity);
+			//System.out.println("[CalculateDistribution] Total Dia Cap : " + totalDiamondCapacity);
 			}
 
 			if ((totalGold <= 0 || totalGoldCapacity <= 0) && (totalDiamond <= 0 || totalDiamondCapacity <= 0)) {
 				this.collectingPhaseOver = 1;
-				System.out.println("Collecting phase is over.");
+				System.out.println("[CalculateDistribution] "+this.myAgent.getLocalName()+": Collecting phase is over.");
 				return;
 			}
 
@@ -106,15 +103,15 @@ public class CalculateDistributionBehaviour extends SimpleBehaviour {
 				int goldCapacity = 0;
 				for (String agent : goldCoalition) {
 					goldCapacity += knownAgentCharacteristics.get(agent).get(0);
-					System.out.println("goldCapacity: "+goldCapacity);
+					//System.out.println("[CalculateDistribution] goldCapacity: "+goldCapacity);
 				}
 				int diamondCapacity = 0;
 				for (String agent: diamondCoalition) {
 					diamondCapacity += knownAgentCharacteristics.get(agent).get(1);
-					System.out.println("diamondCapacity: "+diamondCapacity);
+					//System.out.println("[CalculateDistribution] diamondCapacity: "+diamondCapacity);
 				}
 				int totalTreasure = Math.min(goldCapacity, totalGold) + Math.min(diamondCapacity, totalDiamond);
-				System.out.println("totalTreasure: " + totalTreasure);
+				//System.out.println("[CalculateDistribution] totalTreasure: " + totalTreasure);
 
 				if (totalTreasure > bestValue) {
 					bestGoldCoalition = goldCoalition;
@@ -190,61 +187,9 @@ public class CalculateDistributionBehaviour extends SimpleBehaviour {
 				break;
 
 			default:
-				System.out.println("Type : " + this.myAgent.getType());
-				System.out.println("Error in setting up the treasure attribution : " + this.myAgent.getLocalName()+ " doesn't appear to have a type");
+				System.out.println("[CalculateDistribution] Type : " + this.myAgent.getType());
+				System.out.println("[CalculateDistribution] Error in setting up the treasure attribution : " + this.myAgent.getLocalName()+ " doesn't appear to have a type");
 
-
-//			for (List<List<String>> partition: goldPartitions) {
-//
-//							// For each partition, we generate the permutations
-//							List<List<List<String>>> partitionPermutations = new ArrayList<List<List<String>>>();
-//							int nbGoldNodes = goldDict.size();
-//							Generator.combination(partition)
-//						       .simple(nbGoldNodes)
-//						       .stream()
-//						       .forEach(combination -> Generator.permutation(combination)
-//						          .simple()
-//						          .forEach(partitionPermutations::add));
-//
-//							// Finding the best permutation for this particular partition
-//							int permutationValue;
-//							for (List<List<String>> permutation: partitionPermutations) {
-//								permutationValue = 0;
-//								for (Integer goldAmount: goldDict.values()) {
-//									permutationValue += goldAmount;
-//								}
-//								if (permutationValue > bestGoldValue) {
-//									bestGoldValue = permutationValue;
-//									bestGoldPartition = permutation;
-//								}
-//							}
-//						}
-				
-//		for (List<List<String>> partition: diamondPartitions) {
-//
-//			// For each partition, we generate the permutations
-//			List<List<List<String>>> partitionPermutations = new ArrayList<List<List<String>>>();
-//			int nbDiamondNodes = diamondDict.size();
-//			Generator.combination(partition)
-//		       .simple(nbDiamondNodes)
-//		       .stream()
-//		       .forEach(combination -> Generator.permutation(combination)
-//		          .simple()
-//		          .forEach(partitionPermutations::add));
-//
-//			// Finding the best permutation for this particular partition
-//			int permutationValue;
-//			for (List<List<String>> permutation: partitionPermutations) {
-//				permutationValue = 0;
-//				for (Integer diamondAmount: diamondDict.values()) {
-//					permutationValue += diamondAmount;
-//				}
-//				if (permutationValue > bestDiamondValue) {
-//					bestDiamondValue = permutationValue;
-//					bestDiamondPartition = permutation;
-//				}
-//			}
-//		}
 		}
 	}
 
@@ -333,7 +278,6 @@ public class CalculateDistributionBehaviour extends SimpleBehaviour {
 		while (p.size() < dictSize) {
 			p.add(new ArrayList<String>());
 		}
-		System.out.println("combinations:");
 		List<List<List<String>>> partitionPermutations = new ArrayList<List<List<String>>>();
 		Generator.combination(p)
 				.simple(dictSize)
@@ -452,13 +396,13 @@ public class CalculateDistributionBehaviour extends SimpleBehaviour {
 	
 	@Override
 	public boolean done() {
-		System.out.println("computed : " + this.computed);
+		System.out.println("[CalculateDistribution] Computed : " + this.computed);
 		return this.computed;
 	}
 	
 	@Override
 	public int onEnd() {
-		System.out.println("oneEnd : " + this.collectingPhaseOver);
+		System.out.println("[CalculateDistribution] onEnd : " + this.collectingPhaseOver);
 		return collectingPhaseOver;
 	}
 }

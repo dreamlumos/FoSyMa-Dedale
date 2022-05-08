@@ -27,7 +27,7 @@ public class ReceiveCharacteristics extends SimpleBehaviour {
     @Override
     public void action() {
 
-    	System.out.println("Waiting for agent characteristics.");
+    	System.out.println(this.myAgent.getLocalName()+" is waiting for agent characteristics.");
     	
         // The agent checks if he received characteristics from a teammate.
 
@@ -37,7 +37,7 @@ public class ReceiveCharacteristics extends SimpleBehaviour {
         ACLMessage infoMsg = this.myAgent.receive(msgTemplate);
 
         if (infoMsg != null) {
-        	System.out.println("Characteristics received.");
+        	System.out.println(this.myAgent.getLocalName()+": Characteristics received.");
             this.infoReceived = 1;
 
             ((ExploreDFSAgent) this.myAgent).updateKnownCharacteristics(infoMsg.getSender().getLocalName(), infoMsg.getContent());

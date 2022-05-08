@@ -19,6 +19,7 @@ public class FinalBehaviour extends OneShotBehaviour {
 		EntityCharacteristics ec = myAgent.getMyCharacteristics();
 		System.out.println(myAgent.getLocalName() + " gold capacity : " + ec.getGoldCapacity());
 		System.out.println(myAgent.getLocalName() + " diamond capacity : " + ec.getDiamondCapacity());
-//		this.myAgent.doDelete();
+		//this.myAgent.doDelete();
+		this.myAgent.takeDown();
 	}
 }

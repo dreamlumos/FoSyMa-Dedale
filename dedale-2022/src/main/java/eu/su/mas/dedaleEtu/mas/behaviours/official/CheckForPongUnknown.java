@@ -26,7 +26,7 @@ public class CheckForPongUnknown extends SimpleBehaviour {
     		this.timeoutDate = System.currentTimeMillis() + 500;
     	}
     	
-        System.out.println("Agent "+this.myAgent.getLocalName()+" is checking for pong or unknown.");
+        //System.out.println("Agent "+this.myAgent.getLocalName()+" is checking for pong or unknown.");
 
         // The agent checks if he received a pong from a teammate.
         MessageTemplate msgTemplate = MessageTemplate.and(
