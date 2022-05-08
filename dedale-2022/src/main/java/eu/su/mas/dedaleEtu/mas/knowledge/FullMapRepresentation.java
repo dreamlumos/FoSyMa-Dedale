@@ -423,16 +423,23 @@ public class FullMapRepresentation implements Serializable {
 				n1.setAttribute("Stench", n2Attributes.get("Stench"));
 				n1.setAttribute("stenchTimestamp", n2StenchTimestamp);
 			} else if (att.equals("ui.class")){
-//				System.out.println("att:"+att);
-//				System.out.println("n1Class"+n1Class);
-//				System.out.println();
 				if (NodeStatus.closed.toString().equals(n1Class) || NodeStatus.closed.toString().equals(n2Class)) {
 					n1.setAttribute(att, NodeStatus.closed.toString());
 					System.out.println("[FullMapRep::mergeNode] Node "+id+" is closed.");
 				} else {
 					n1.setAttribute(att, NodeStatus.open.toString());
 				}
-			} else if (!att.equals("stenchTimestamp")){ // att is one of [ui.label, Diamond, Gold, LockIsOpen, timestamp]
+			} else if (att.equals("Gold")) { 
+				if (n2Timestamp != null && (n1Timestamp == null || (long) n2Timestamp > (long) n1Timestamp)) {
+					n1.setAttribute(att, n2Attributes.get(att));
+				}
+				this.goldDict.put(id, (Integer) n2Attributes.get(att));
+			} else if (att.equals("Diamond")) {
+				if (n2Timestamp != null && (n1Timestamp == null || (long) n2Timestamp > (long) n1Timestamp)) {
+					n1.setAttribute(att, n2Attributes.get(att));
+				}
+				this.diamondDict.put(id, (Integer) n2Attributes.get(att));
+			} else if (!att.equals("stenchTimestamp")) { // att is one of [ui.label, LockIsOpen, timestamp]
 				if (n2Timestamp != null && (n1Timestamp == null || (long) n2Timestamp > (long) n1Timestamp)) {
 					n1.setAttribute(att, n2Attributes.get(att));
 				}

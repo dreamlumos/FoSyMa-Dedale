@@ -40,9 +40,9 @@ public class StepBehaviour extends SimpleBehaviour {
 			// Check if map is fully explored OR the time is up
 			if (!(myAgent.getMap().hasOpenNode()) || System.currentTimeMillis() > timeOutDate){
 				if (!(myAgent.getMap().hasOpenNode()) ) {
-					System.out.println("[StepBehaviour] "+myAgent.getLocalName()+"Going to phase 1 because map is fully explored.");
+					System.out.println("[StepBehaviour] "+myAgent.getLocalName()+" is going to phase 1 because map is fully explored.");
 				} else {
-					System.out.println("[StepBehaviour] "+myAgent.getLocalName()+"Going to phase 1 because time is out.");
+					System.out.println("[StepBehaviour] "+myAgent.getLocalName()+" is going to phase 1 because time is out.");
 				}
 				phase = 1; // We will now calculate the treasure distribution
 			} else {
@@ -88,6 +88,7 @@ public class StepBehaviour extends SimpleBehaviour {
 			}
 		} else if (phase == 1) {
 			phase = 2; // We switch to the collecting phase
+			System.out.println("_________________________________________");
 		} else if (phase == 2) {
 			System.out.println("[StepBehaviour] Collecting phase for " + this.myAgent.getLocalName());
 			System.out.println(myAgent.getGoldAgents());
@@ -146,18 +147,18 @@ public class StepBehaviour extends SimpleBehaviour {
 						this.phase = 1; // re-compute a treasure path
 						break;
 					}
-					unsuccessfulMovesCollect ++;
-					System.out.println("[StepBehaviour] Phase of collect for " + this.myAgent.getLocalName());
+					unsuccessfulMovesCollect++;
+//					System.out.println("[StepBehaviour] Phase of collect for " + this.myAgent.getLocalName());
 					System.out.println("[StepBehaviour] Agent " + this.myAgent.getLocalName() + " is at node " + myPosition);
 					System.out.println("[StepBehaviour] Agent " + this.myAgent.getLocalName() + " wants to move to " + nextNodeId + " but is blocked!");
 					List<Couple<String,List<Couple<Observation,Integer>>>> lobs = myAgent.observe();
 //					if (Objects.equals(nextNodeId, lobs.get(0).getLeft())) {
-					for(Couple<String,List<Couple<Observation,Integer>>> obs: lobs){
+					for (Couple<String,List<Couple<Observation,Integer>>> obs: lobs) {
 //						if(!(Objects.equals(obs.getLeft(), nextNodeId)) && !(Objects.equals(obs.getLeft(), myPosition))){
 //							nextNodeId = obs.getLeft();
 //						}
-						if(!Objects.equals(obs.getLeft(), nextNodeId)){
-							if(!Objects.equals(obs.getLeft(), myPosition)) {
+						if (!Objects.equals(obs.getLeft(), nextNodeId)) {
+							if (!Objects.equals(obs.getLeft(), myPosition)) {
 //								System.out.println("");
 //								System.out.println(myPosition);
 //								System.out.println(obs.getLeft());

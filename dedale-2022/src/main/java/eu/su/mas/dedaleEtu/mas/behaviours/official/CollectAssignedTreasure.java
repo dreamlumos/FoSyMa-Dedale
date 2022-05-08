@@ -46,12 +46,12 @@ public class CollectAssignedTreasure extends SimpleBehaviour {
                                 try {
                                     int amountPicked = myAgent.pick(); // agent picks up the treasure
                                     System.out.println("[CollectAssignedTreasure] Amount of " + this.myAgent.getType() + " picked by " + this.myAgent.getLocalName() + " : " + amountPicked);
-                                }catch(Exception e){
+                                } catch(Exception e) {
                                     e.printStackTrace();
                                     System.out.println("[CollectAssignedTreasure] "+this.myAgent.getLocalName() + " failed to pick " + toPick.getValue() + " of " + this.myAgent.getType() + " at " + toPickNodeId);
                                 }
                                 this.myAgent.setCurrTreasureToPick(null);
-                            }else{
+                            } else {
 //                                long timeOut = System.currentTimeMillis() + 300;
 //                                while
 //                                    Random r= new Random();
@@ -65,7 +65,6 @@ public class CollectAssignedTreasure extends SimpleBehaviour {
                         }
                     }
                 }
-
             }
         }
     }

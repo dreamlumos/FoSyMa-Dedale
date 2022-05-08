@@ -29,8 +29,12 @@ public class CalculateDistributionBehaviour extends SimpleBehaviour {
 	@Override
 	public void action() {
 		
+		System.out.println(this.myAgent.getLocalName()+" is calculating the best distribution.");
+		
 		HashMap<String, Integer> goldDict = this.myAgent.getGoldDict();
 		HashMap<String, Integer> diamondDict = this.myAgent.getDiamondDict();
+		System.out.println("[CalculateDistribution] Gold dict: "+goldDict);
+		System.out.println("[CalculateDistribution] Diamond dict: "+diamondDict);
 
 		int totalGold = 0;
 		int totalDiamond = 0;
@@ -56,13 +60,13 @@ public class CalculateDistributionBehaviour extends SimpleBehaviour {
 			int totalCapacity = 0;
 			int totalTreasure = 0;
 			
-			if (type == "Gold") {
+			if (type.equals("Gold")) {
 				totalTreasure = totalGold;
 				for (String agent: goldAgents) {
 					totalCapacity += knownAgentCharacteristics.get(agent).get(0);
 				}
 				System.out.println("[CalculateDistribution] Gold dict: "+goldDict);
-			} else if (type == "Diamond") {
+			} else if (type.equals("Diamond")) {
 				totalTreasure = totalDiamond;
 				for (String agent: diamondAgents) {
 					totalCapacity += knownAgentCharacteristics.get(agent).get(1);
@@ -98,23 +102,26 @@ public class CalculateDistributionBehaviour extends SimpleBehaviour {
 			List<String> bestGoldCoalition = new ArrayList<String>();
 			List<String> bestDiamondCoalition = new ArrayList<String>();
 			for (List<String> goldCoalition: goldCoalitions) {
+				System.out.println("[CalculateDistribution::action] goldCoa:"+goldCoalition);
 				// Obtaining the diamond coalition (complement of the gold coalition)
 				List<String> diamondCoalition = new ArrayList<String>(knownAgents);
 				diamondCoalition.removeAll(goldCoalition);
+				System.out.println("[CalculateDistribution::action] diamondCoa:"+diamondCoalition);
+
 
 				// Calculating total capacity for this combination of coalitions
 				int goldCapacity = 0;
 				for (String agent : goldCoalition) {
 					goldCapacity += knownAgentCharacteristics.get(agent).get(0);
-					//System.out.println("[CalculateDistribution] goldCapacity: "+goldCapacity);
+					System.out.println("[CalculateDistribution] goldCapacity: "+goldCapacity);
 				}
 				int diamondCapacity = 0;
 				for (String agent: diamondCoalition) {
 					diamondCapacity += knownAgentCharacteristics.get(agent).get(1);
-					//System.out.println("[CalculateDistribution] diamondCapacity: "+diamondCapacity);
+					System.out.println("[CalculateDistribution] diamondCapacity: "+diamondCapacity);
 				}
 				int totalTreasure = Math.min(goldCapacity, totalGold) + Math.min(diamondCapacity, totalDiamond);
-				//System.out.println("[CalculateDistribution] totalTreasure: " + totalTreasure);
+				System.out.println("[CalculateDistribution] totalTreasure: " + totalTreasure);
 
 				if (totalTreasure > bestValue) {
 					bestGoldCoalition = goldCoalition;
@@ -192,7 +199,6 @@ public class CalculateDistributionBehaviour extends SimpleBehaviour {
 			default:
 				System.out.println("[CalculateDistribution] Type : " + this.myAgent.getType());
 				System.out.println("[CalculateDistribution] Error in setting up the treasure attribution : " + this.myAgent.getLocalName()+ " doesn't appear to have a type");
-
 		}
 	}
 
@@ -330,7 +336,11 @@ public class CalculateDistributionBehaviour extends SimpleBehaviour {
 				newTreasureDict.put(nodeId, treasureDict.get(nodeId));
 			}
 		}
-		this.myAgent.setGoldDict(newTreasureDict);
+		if (type == 0) {
+			this.myAgent.setGoldDict(newTreasureDict);
+		} else if (type == 1) {
+			this.myAgent.setDiamondDict(newTreasureDict);
+		}
 
 		// update knownAgentsCharacteristics
 		HashMap<String, ArrayList<Integer>> newKnownAgentCharacteristics = new HashMap<>();
