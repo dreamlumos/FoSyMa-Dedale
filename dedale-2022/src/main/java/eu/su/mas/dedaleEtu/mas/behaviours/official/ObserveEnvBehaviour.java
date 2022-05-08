@@ -18,7 +18,7 @@ public class ObserveEnvBehaviour extends SimpleBehaviour {
 	
 	@Override
 	public void action() {
-		//System.out.println(this.myAgent.getLocalName()+" observe env!");
+		System.out.println(this.myAgent.getLocalName()+" observe env!");
 
 		FullMapRepresentation map = ((ExploreDFSAgent) this.myAgent).getMap();
 		

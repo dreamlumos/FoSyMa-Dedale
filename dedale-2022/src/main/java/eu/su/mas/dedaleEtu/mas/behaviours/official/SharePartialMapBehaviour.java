@@ -20,20 +20,17 @@ public class SharePartialMapBehaviour extends SimpleBehaviour {
 	private static final long serialVersionUID = -5609039653282110622L;
 	
 	private int phase; //Phase 0: sending map, Phase 1: waiting for ack
-	private ACLMessage pong;
 	private boolean ackReceivedOrTimedOut;
 	private long timeoutDate;
 	private boolean toReinitialise;
+	private ExploreDFSAgent myAgent;
 
-	public SharePartialMapBehaviour(Agent agent, ACLMessage pong) {
+	public SharePartialMapBehaviour(Agent agent) {
 		super(agent);
-		this.pong = pong;
 		this.phase = 0;
-		if (this.pong == null) { // Zoe: not sure if it's necessary, but just in case the transition happens even tho checkForPong didn't return 1
-			this.phase = 2;
-		}
-		toReinitialise = true;
-		ackReceivedOrTimedOut = false;
+		this.toReinitialise = true;
+		this.ackReceivedOrTimedOut = false;
+		this.myAgent = (ExploreDFSAgent) agent;
 	}
 	
 	@Override
@@ -42,13 +39,14 @@ public class SharePartialMapBehaviour extends SimpleBehaviour {
     	if (this.toReinitialise == true) {
     		this.timeoutDate = System.currentTimeMillis() + 500;
 			this.ackReceivedOrTimedOut = false;
-    		System.out.println("[ReceiveMapBehaviour] Agent "+this.myAgent.getLocalName()+" is waiting for a map.");
+			this.phase = 0;
             this.toReinitialise = false;
     	}
 
 		if (this.phase == 0) {
 			System.out.println("Agent "+this.myAgent.getLocalName()+" is sharing a map.");
 			
+			ACLMessage pong = this.myAgent.getCurrentPong();
 			ACLMessage mapMsg = pong.createReply();
 			mapMsg.setSender(this.myAgent.getAID());
 			mapMsg.setPerformative(ACLMessage.INFORM);

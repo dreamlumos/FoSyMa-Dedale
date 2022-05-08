@@ -55,6 +55,7 @@ public class ReceiveCharacteristics extends SimpleBehaviour {
             byte[] b = {1};
             pong.setByteSequenceContent(b);
 
+        	System.out.println("[ReceiveCharacteristicsBehaviour] "+this.myAgent.getLocalName()+" sends "+infoMsg.getSender().getLocalName()+" a pong!");
             this.myAgent.sendMessage(pong);
 
         } else {

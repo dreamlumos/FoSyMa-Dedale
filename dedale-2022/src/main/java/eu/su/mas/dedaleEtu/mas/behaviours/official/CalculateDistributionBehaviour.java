@@ -50,26 +50,29 @@ public class CalculateDistributionBehaviour extends SimpleBehaviour {
 
 		knownAgentCharacteristics = this.myAgent.getKnownAgentCharacteristics();
 
-		if (goldAgents != null || diamondAgents != null){ // if we have already calculated the type of each agent
-
-			int totalGoldCapacity = 0;
-			int totalDiamondCapacity = 0;
-
-			if (goldAgents != null) {
+		String type = this.myAgent.getType();
+		if (type != null){ // if we have already calculated the type of each agent
+			
+			int totalCapacity = 0;
+			int totalTreasure = 0;
+			
+			if (type == "Gold") {
+				totalTreasure = totalGold;
 				for (String agent: goldAgents) {
-					totalGoldCapacity += knownAgentCharacteristics.get(agent).get(0);
+					totalCapacity += knownAgentCharacteristics.get(agent).get(0);
 				}
-				//System.out.println("[CalculateDistribution] Total Gold Cap : " + totalGoldCapacity);
-			}
-			if (diamondAgents != null){
-
+				System.out.println("[CalculateDistribution] Gold dict: "+goldDict);
+			} else if (type == "Diamond") {
+				totalTreasure = totalDiamond;
 				for (String agent: diamondAgents) {
-					totalDiamondCapacity += knownAgentCharacteristics.get(agent).get(1);
+					totalCapacity += knownAgentCharacteristics.get(agent).get(1);
 				}
-			//System.out.println("[CalculateDistribution] Total Dia Cap : " + totalDiamondCapacity);
+				System.out.println("[CalculateDistribution] Diamond dict: "+diamondDict);
 			}
 
-			if ((totalGold <= 0 || totalGoldCapacity <= 0) && (totalDiamond <= 0 || totalDiamondCapacity <= 0)) {
+			//System.out.println("[CalculateDistribution] Total Cap : " + totalCapacity);
+
+			if ((totalTreasure <= 0 || totalCapacity <= 0)) {
 				this.collectingPhaseOver = 1;
 				System.out.println("[CalculateDistribution] "+this.myAgent.getLocalName()+": Collecting phase is over.");
 				return;
@@ -88,7 +91,7 @@ public class CalculateDistributionBehaviour extends SimpleBehaviour {
 						.stream()
 						.forEach(goldCoalitions::add);
 			}
-			System.out.println(goldCoalitions);
+//			System.out.println(goldCoalitions);
 
 			// Calculating the best combination of gold and diamond coalitions
 			int bestValue = 0;
@@ -116,6 +119,7 @@ public class CalculateDistributionBehaviour extends SimpleBehaviour {
 				if (totalTreasure > bestValue) {
 					bestGoldCoalition = goldCoalition;
 					bestDiamondCoalition = diamondCoalition;
+					bestValue = totalTreasure;
 				}
 			}
 			this.myAgent.setGoldAgents(bestGoldCoalition);
@@ -125,7 +129,6 @@ public class CalculateDistributionBehaviour extends SimpleBehaviour {
 			} else {
 				this.myAgent.setType("Diamond");
 			}
-
 		}
 
 		List<List<List<String>>> goldPartitions = partitions(this.myAgent.getGoldAgents());
@@ -305,7 +308,10 @@ public class CalculateDistributionBehaviour extends SimpleBehaviour {
 		return total;
 	}
 	
-	/* Updates the agent's knowledge with hypothetical values for the remaining treasure and other agents' remaining capacities. */
+	/* Updates the agent's knowledge with hypothetical values for the remaining treasure and other agents' remaining capacities.
+	* Type 0: gold
+	* Type 1: diamond
+	*/
 	public void updateKnowledge(HashMap<String, Integer> treasureDict, HashMap<String, List<String>> treasureAttributions, int type) {
 		
 		// update the treasureDict for next round
@@ -328,67 +334,76 @@ public class CalculateDistributionBehaviour extends SimpleBehaviour {
 
 		// update knownAgentsCharacteristics
 		HashMap<String, ArrayList<Integer>> newKnownAgentCharacteristics = new HashMap<>();
+		
+		// For each node containing treasure of this type
 		for (String nodeId: treasureDict.keySet()) {
 			if (treasureAttributions.containsKey(nodeId)) {
-				HashMap<Integer, List<String>> sortedAgents = new HashMap<>();
-				for (String v : treasureAttributions.get(nodeId)) {
-					int val = knownAgentCharacteristics.get(v).get(type);
-					if (sortedAgents.containsKey(val)) {
-						List<String> agents = sortedAgents.get(val);
-						agents.add(v);
-						sortedAgents.put(val, agents);
+				// We create a dictionary to sort the agents assigned to this node according to their capacities
+				HashMap<Integer, List<String>> sortedAgents = new HashMap<>(); // key: capacity, value: list of agents that have this capacity
+				for (String agentId : treasureAttributions.get(nodeId)) {
+					int capacity = knownAgentCharacteristics.get(agentId).get(type);
+					if (sortedAgents.containsKey(capacity)) {
+						List<String> agents = sortedAgents.get(capacity);
+						agents.add(agentId);
+						sortedAgents.put(capacity, agents);
 					}
 					ArrayList<String> agents = new ArrayList<>();
-					agents.add(v);
-					sortedAgents.put(val, agents);
+					agents.add(agentId);
+					sortedAgents.put(capacity, agents);
 				}
-				if (type == 0) {
-					List<Integer> sorted = new ArrayList<>(sortedAgents.keySet());
-					sorted.sort(Collections.reverseOrder()); // should be in descending order
-					int currGold = treasureDict.get(nodeId);
-					for (Integer i : sorted) {
+				
+//				if (type == 0) {
+					List<Integer> listOfCapacities = new ArrayList<>(sortedAgents.keySet());
+					listOfCapacities.sort(Collections.reverseOrder()); // should be in descending order
+					int currTreasure = treasureDict.get(nodeId);
+					for (Integer i : listOfCapacities) {
 						for (String s : sortedAgents.get(i)) {
-							if (currGold <= 0) {
-								currGold = 0;
+							if (currTreasure <= 0) {
+								currTreasure = 0;
 							}
 							List<Integer> knownValues = knownAgentCharacteristics.get(s);
-							int newGoldVal = knownValues.get(type) - currGold;
-							if (newGoldVal < 0) {
-								newGoldVal = 0;
+							int newTreasureVal = knownValues.get(type) - currTreasure;
+							if (newTreasureVal < 0) {
+								newTreasureVal = 0;
 							}
-							currGold -= i;
+							currTreasure -= i;
 							ArrayList<Integer> newChars = new ArrayList<>();
-							newChars.add(newGoldVal);
-							newChars.add(knownValues.get(1));
-							newChars.add(knownValues.get(2));
+							
+							if (type == 0) {
+								newChars.add(newTreasureVal);
+								newChars.add(knownValues.get(1));
+								newChars.add(knownValues.get(2));
+							} else if (type == 1) {
+								newChars.add(knownValues.get(0));
+								newChars.add(newTreasureVal);
+								newChars.add(knownValues.get(2));
+							}
 
 							newKnownAgentCharacteristics.put(s, newChars);
 						}
 					}
-				} else if (type == 1) {
-					List<Integer> sorted = new ArrayList<>(sortedAgents.keySet());
-					sorted.sort(Collections.reverseOrder()); // should be in descending order
-					int currDia = treasureDict.get(nodeId);
-					for (Integer i : sorted) {
-						for (String s : sortedAgents.get(i)) {
-							if (currDia <= 0) {
-								currDia = 0;
-							}
-							List<Integer> knownValues = knownAgentCharacteristics.get(s);
-							int newDiaVal = knownValues.get(type) - currDia;
-							if (newDiaVal < 0) {
-								newDiaVal = 0;
-							}
-							currDia -= i;
-							ArrayList<Integer> newChars = new ArrayList<>();
-							newChars.add(knownValues.get(0));
-							newChars.add(newDiaVal);
-							newChars.add(knownValues.get(2));
-
-							newKnownAgentCharacteristics.put(s, newChars);
-						}
-					}
-				}
+//				} else if (type == 1) {
+//					List<Integer> sorted = new ArrayList<>(sortedAgents.keySet());
+//					sorted.sort(Collections.reverseOrder()); // should be in descending order
+//					int currDia = treasureDict.get(nodeId);
+//					for (Integer i : sorted) {
+//						for (String s : sortedAgents.get(i)) {
+//							if (currDia <= 0) {
+//								currDia = 0;
+//							}
+//							List<Integer> knownValues = knownAgentCharacteristics.get(s);
+//							int newDiaVal = knownValues.get(type) - currDia;
+//							if (newDiaVal < 0) {
+//								newDiaVal = 0;
+//							}
+//							currDia -= i;
+//							ArrayList<Integer> newChars = new ArrayList<>();
+//							
+//
+//							newKnownAgentCharacteristics.put(s, newChars);
+//						}
+//					}
+//				}
 			}
 		}
 		this.myAgent.setKnownAgentCharacteristics(newKnownAgentCharacteristics);

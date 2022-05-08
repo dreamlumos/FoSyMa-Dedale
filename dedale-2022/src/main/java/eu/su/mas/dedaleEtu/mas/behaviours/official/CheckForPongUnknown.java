@@ -13,7 +13,7 @@ public class CheckForPongUnknown extends SimpleBehaviour {
     private boolean pongReceived;
     private boolean unknownReceived;
     private boolean timedOut;
-    private long timeoutDate = -1;
+    private long timeoutDate;
     private int res = 0; // 0: timeout, 1: pong, 2: unknown
     private boolean toReinitialise = true;
 
@@ -25,6 +25,9 @@ public class CheckForPongUnknown extends SimpleBehaviour {
     public void action() {
     	if (this.toReinitialise == true) {
     		this.timeoutDate = System.currentTimeMillis() + 500;
+    		this.timedOut = false;
+    		this.pongReceived = false;
+    		this.unknownReceived = false;
             System.out.println("Agent "+this.myAgent.getLocalName()+" is checking for pong or unknown.");
             this.toReinitialise = false;
     	}
@@ -42,9 +45,9 @@ public class CheckForPongUnknown extends SimpleBehaviour {
             res = 1;
             this.toReinitialise = true;
 
-            // Sharing of the map in a separate behaviour which is added to the pool
-//            this.myAgent.addBehaviour(new SharePartialMapBehaviour(this.myAgent, pong));
             ((ExploreDFSAgent)this.myAgent).setCurrentPong(pong);
+            System.out.println(this.myAgent.getLocalName()+" received a pong from "+pong.getSender().getLocalName());
+            return;
 
         } else {
 //        	System.out.println("test2");
@@ -65,12 +68,9 @@ public class CheckForPongUnknown extends SimpleBehaviour {
             res = 2;
             this.toReinitialise = true;
 
-            // Sharing of the characteristics in a separate behaviour which is added to the pool
             ((ExploreDFSAgent)this.myAgent).setCurrentPong(unknown);
+            System.out.println(this.myAgent.getLocalName()+" received an 'unknown' message from "+unknown.getSender().getLocalName());
 
-//            this.myAgent.addBehaviour(new ShareCharacteristics(this.myAgent, unknown));
-//            String s = ((ExploreDFSAgent)(this.myAgent)).getListBehavTemp();
-//            System.out.println(s);
         } else {
 //        	System.out.println("test4");
 

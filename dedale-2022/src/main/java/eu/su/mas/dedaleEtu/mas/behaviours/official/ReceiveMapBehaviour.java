@@ -17,11 +17,11 @@ public class ReceiveMapBehaviour extends SimpleBehaviour {
 	private int mapReceived;
     private long timeoutDate;
     private boolean timedOut;
-    private boolean toReinitialise = true;
+    private boolean toReinitialise;
 	
 	public ReceiveMapBehaviour(ExploreDFSAgent agent) {
 		super(agent);
-        this.timeoutDate = System.currentTimeMillis() + 500;
+		this.toReinitialise = true;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -44,6 +44,7 @@ public class ReceiveMapBehaviour extends SimpleBehaviour {
 		ACLMessage mapMsg = this.myAgent.receive(msgTemplate);
 		
 		if (mapMsg != null) {
+			// Receiving map
 			System.out.println("[ReceiveMapBehaviour] Agent "+this.myAgent.getLocalName()+" has received a map.");
 
 			this.mapReceived = 1;
@@ -55,8 +56,10 @@ public class ReceiveMapBehaviour extends SimpleBehaviour {
 			} catch (UnreadableException e) {
 				e.printStackTrace();
 			}
+			System.out.println("[ReceiveMapBehaviour] Agent "+this.myAgent.getLocalName()+" is merging maps.");
 			((ExploreDFSAgent) this.myAgent).getMap().mergeMap(sgreceived);
 			
+			// Sending ack
 			ACLMessage mapReceivedAck = mapMsg.createReply();
 			mapReceivedAck.setSender(this.myAgent.getAID());
 			mapReceivedAck.setPerformative(ACLMessage.CONFIRM);
@@ -72,6 +75,7 @@ public class ReceiveMapBehaviour extends SimpleBehaviour {
 			this.mapReceived = 0;
 			
 			if (System.currentTimeMillis() > this.timeoutDate) {
+				System.out.println(this.myAgent.getLocalName()+"RMB timedout");
 				this.timedOut = true;
 	            this.toReinitialise = true;
 			}

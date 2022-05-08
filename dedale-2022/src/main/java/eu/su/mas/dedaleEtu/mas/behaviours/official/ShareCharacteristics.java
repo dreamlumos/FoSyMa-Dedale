@@ -47,8 +47,4 @@ public class ShareCharacteristics extends SimpleBehaviour {
         return true;
     }
 
-    @Override
-    public int onEnd() {
-        return 1;
-    }
 }

@@ -1,5 +1,6 @@
 package eu.su.mas.dedaleEtu.mas.knowledge;
 
+import java.awt.SystemTray;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -87,10 +88,7 @@ public class FullMapRepresentation implements Serializable {
 	 * - the node itself (nbVisitTimestamp = -1), 
 	 * - a neighbour (lastVisitTimestamp = -1).
 	 */
-	public synchronized boolean addNode(String nodeId, 
-									List<Couple<Observation, Integer>> lObservations, 
-									long lastVisitTimestamp, 
-									long nbVisitTimestamp){
+	public synchronized boolean addNode(String nodeId, List<Couple<Observation, Integer>> lObservations, long lastVisitTimestamp, long nbVisitTimestamp){
 		
 		boolean newNode = false;
 		Node n;
@@ -181,34 +179,47 @@ public class FullMapRepresentation implements Serializable {
 	/**
 	 * Compute the Map to send from ag1's map and a list of nodes.
 	 *
-	 * @param nodesId list of id of the open nodes from ag2
+	 * @param nodesToShare list of id of the nodes to be shared to ag2
 	 * @return part of ag1's Map to be sent to ag2 to update ag2's Map
 	 */
-
-	public FullMapRepresentation getPartialMap(ArrayList<String> nodesId) {
+	public FullMapRepresentation getPartialMap(ArrayList<String> nodesToShare) {
 		FullMapRepresentation partialMap = new FullMapRepresentation(false);
-		if (nodesId == null) {
+		if (nodesToShare == null) {
 			return partialMap;
 		}
-		ArrayList<String> nodes = new ArrayList<String>();
-		for (String nodeId: nodesId) {
+		ArrayList<String> nodesToBeSent = new ArrayList<String>();
+		for (String nodeId: nodesToShare) {
 			Node oldNode = this.g.getNode(nodeId);
 			Node newNode = partialMap.g.addNode(nodeId);
-			nodes.add(nodeId);
+			nodesToBeSent.add(nodeId);
 			for (Object attribute : oldNode.attributeKeys().toArray()) {
 				newNode.setAttribute((String) attribute, oldNode.getAttribute((String) attribute));
 			}
 		}
-		for (String nodeId: nodesId) {
-			Node oldNode = this.g.getNode(nodeId);
-			for (Object edge : oldNode.edges().toArray()) {
-				String edgeId = ((Edge) edge).getId();
-				Edge oldEdge = this.g.getEdge(edgeId);
-				String node0 = oldEdge.getNode0().getId();
-				String node1 = oldEdge.getNode1().getId();
-				if (nodes.contains(node0) && nodes.contains(node1)) {
-					partialMap.addEdge(node0, node1);
+		for (String nodeId: nodesToShare) {
+			Node n = this.g.getNode(nodeId);
+			for (Object edge: n.edges().toArray()) {
+//				String edgeId = ((Edge) edge).getId();
+//				Edge oldEdge = this.g.getEdge(edgeId);
+				String node0 = ((Edge) edge).getNode0().getId();
+				String node1 = ((Edge) edge).getNode1().getId();
+				if (!nodesToBeSent.contains(node0)) {
+					Node oldNode = this.g.getNode(node0);
+					Node newNode = partialMap.g.addNode(node0);
+					nodesToBeSent.add(node0);
+					for (Object attribute : oldNode.attributeKeys().toArray()) {
+						newNode.setAttribute((String) attribute, oldNode.getAttribute((String) attribute));
+					}
 				}
+				if (!nodesToBeSent.contains(node1)) {
+					Node oldNode = this.g.getNode(node1);
+					Node newNode = partialMap.g.addNode(node1);
+					nodesToBeSent.add(node1);
+					for (Object attribute : oldNode.attributeKeys().toArray()) {
+						newNode.setAttribute((String) attribute, oldNode.getAttribute((String) attribute));
+					}
+				}
+				partialMap.addEdge(node0, node1);
 			}
 		}
 		return partialMap;
@@ -377,6 +388,7 @@ public class FullMapRepresentation implements Serializable {
 
 		g.display();
 	}
+	
 	/* takes most recent nodes*/
 	public void mergeNode(SerializableNode<String, HashMap<String, Object>> n2) {
 		
@@ -389,12 +401,17 @@ public class FullMapRepresentation implements Serializable {
 		Node n1 = this.g.getNode(id);
 		if (n1 == null) {
 			n1 = this.g.addNode(id);
+			System.out.println("[FullMapRep::mergeNode] Adding node "+id+" to receiving agent's map.");
+		} else {
+			System.out.println("[FullMapRep::mergeNode] Node "+id+" is already in the receiving agent's map.");
 		}
 		
 		Object n1Timestamp = n1.getAttribute("timestamp");
 		Object n1StenchTimestamp = n1.getAttribute("stenchTimestamp");
+		Object n1Class = n1.getAttribute("ui.class");
 		Object n2Timestamp = n2Attributes.get("timestamp");
 		Object n2StenchTimestamp = n2Attributes.get("stenchTimestamp");
+		Object n2Class = n2Attributes.get("ui.class");
 
 		if (n2Timestamp != null && (n1Timestamp == null || (long) n2Timestamp > (long) n1Timestamp)) {
 			n1.clearAttributes();
@@ -402,13 +419,20 @@ public class FullMapRepresentation implements Serializable {
 		
 		for (String att: n2Attributes.keySet()) {
 			
-			if (att == "Stench" && (n1StenchTimestamp == null || (long) n2StenchTimestamp > (long) n1StenchTimestamp)) {
-				
+			if (att.equals("Stench") && (n1StenchTimestamp == null || (long) n2StenchTimestamp > (long) n1StenchTimestamp)) {
 				n1.setAttribute("Stench", n2Attributes.get("Stench"));
 				n1.setAttribute("stenchTimestamp", n2StenchTimestamp);
-				
-			} else { // att is one of [ui.label, ui.class, Diamond, Gold, LockIsOpen]
-				
+			} else if (att.equals("ui.class")){
+//				System.out.println("att:"+att);
+//				System.out.println("n1Class"+n1Class);
+//				System.out.println();
+				if (NodeStatus.closed.toString().equals(n1Class) || NodeStatus.closed.toString().equals(n2Class)) {
+					n1.setAttribute(att, NodeStatus.closed.toString());
+					System.out.println("[FullMapRep::mergeNode] Node "+id+" is closed.");
+				} else {
+					n1.setAttribute(att, NodeStatus.open.toString());
+				}
+			} else if (!att.equals("stenchTimestamp")){ // att is one of [ui.label, Diamond, Gold, LockIsOpen, timestamp]
 				if (n2Timestamp != null && (n1Timestamp == null || (long) n2Timestamp > (long) n1Timestamp)) {
 					n1.setAttribute(att, n2Attributes.get(att));
 				}
@@ -426,7 +450,9 @@ public class FullMapRepresentation implements Serializable {
 		// Edges
 		for (SerializableNode<String, HashMap<String, Object>> n: sgreceived.getAllNodes()){
 			for (String s: sgreceived.getEdges(n.getNodeId())){
-				addEdge(n.getNodeId(), s);
+				if (this.g.getEdge(s) == null) {
+					addEdge(n.getNodeId(), s);
+				}
 			}
 		}
 		

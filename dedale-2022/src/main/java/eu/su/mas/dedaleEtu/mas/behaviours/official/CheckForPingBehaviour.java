@@ -10,6 +10,9 @@ public class CheckForPingBehaviour extends SimpleBehaviour { // OneShotBehaviour
 	private static final long serialVersionUID = -2824535739297657670L;
 		
 	private int pingReceived; // 1 if ping message received, 2 if from unknown agent, 0 otherwise
+	private boolean timedOut;
+	private long timeoutDate;
+	private boolean toReinitialise;
 	
 	public CheckForPingBehaviour(ExploreDFSAgent agent) {
 		super(agent);
@@ -18,9 +21,16 @@ public class CheckForPingBehaviour extends SimpleBehaviour { // OneShotBehaviour
 	@Override
 	public void action() {
 		
+		if (toReinitialise) {
+			System.out.println("Agent "+myAgent.getLocalName()+" is checking for ping.");
+
+			timeoutDate = System.currentTimeMillis() + 500;
+			timedOut = false;
+			toReinitialise = false;
+		}
+		
 		ExploreDFSAgent myAgent = (ExploreDFSAgent) this.myAgent;
 		
-		System.out.println("Agent "+myAgent.getLocalName()+" is checking for ping.");
 
 		// The agent checks if he received a ping from a teammate. 	
 		MessageTemplate msgTemplate = MessageTemplate.and(
@@ -28,10 +38,10 @@ public class CheckForPingBehaviour extends SimpleBehaviour { // OneShotBehaviour
 				MessageTemplate.MatchPerformative(ACLMessage.PROPOSE));
 //				MessageTemplate.MatchConversationId();
 
-
 		ACLMessage ping = myAgent.receive(msgTemplate);
 		if (ping != null) {
 			this.pingReceived = 1;
+			this.toReinitialise = true;
 			System.out.println(myAgent.getLocalName()+" received a ping from "+ ping.getSender().getLocalName());
 
 			String sentBy = ping.getSender().getLocalName();
@@ -56,8 +66,7 @@ public class CheckForPingBehaviour extends SimpleBehaviour { // OneShotBehaviour
 
 				myAgent.sendMessage(pong);
 				System.out.println(this.myAgent.getLocalName()+" is sending a pong to "+ping.getSender().getLocalName());
-			}
-			else { // myAgent doesn't have any information about the sender
+			} else { // myAgent doesn't have any information about the sender
 				this.pingReceived = 2;
 				ACLMessage unknown = ping.createReply();
 				unknown.setSender(myAgent.getAID());
@@ -73,14 +82,19 @@ public class CheckForPingBehaviour extends SimpleBehaviour { // OneShotBehaviour
 			
 		} else {
 			this.pingReceived = 0;
-			block();
+			
+			if (System.currentTimeMillis() > timeoutDate) {
+				toReinitialise = true;
+				timedOut = true;
+			}
+			//block();
 		}
 	}
 
 	@Override
 	public boolean done() {
 		// Kiara: idk if this is necessary, have to test how it works with FSM
-		return this.pingReceived == 1 || this.pingReceived == 2;
+		return this.pingReceived == 1 || this.pingReceived == 2 || timedOut;
 	}
 	
 	@Override

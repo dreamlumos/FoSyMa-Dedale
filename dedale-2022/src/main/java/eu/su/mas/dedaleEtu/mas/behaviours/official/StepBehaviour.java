@@ -39,6 +39,11 @@ public class StepBehaviour extends SimpleBehaviour {
 			
 			// Check if map is fully explored OR the time is up
 			if (!(myAgent.getMap().hasOpenNode()) || System.currentTimeMillis() > timeOutDate){
+				if (!(myAgent.getMap().hasOpenNode()) ) {
+					System.out.println("[StepBehaviour] "+myAgent.getLocalName()+"Going to phase 1 because map is fully explored.");
+				} else {
+					System.out.println("[StepBehaviour] "+myAgent.getLocalName()+"Going to phase 1 because time is out.");
+				}
 				phase = 1; // We will now calculate the treasure distribution
 			} else {
 			
