@@ -1,6 +1,8 @@
 package eu.su.mas.dedaleEtu.mas.behaviours.official;
 
 import java.util.List;
+import java.util.Random;
+
 import dataStructures.tuple.Couple;
 import eu.su.mas.dedale.env.Observation;
 import eu.su.mas.dedale.mas.AbstractDedaleAgent;
@@ -28,7 +30,7 @@ public class ObserveEnvBehaviour extends SimpleBehaviour {
 		}
 
 		try {
-			this.myAgent.doWait(1000); // Just added here so we can see what the agent is doing
+			this.myAgent.doWait(1); // Just added here so we can see what the agent is doing
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -74,7 +76,20 @@ public class ObserveEnvBehaviour extends SimpleBehaviour {
 					if (shortestPath != null) {
 						nextNodeId = shortestPath.get(0);
 					} else {
+//						shortestPath = map.getShortestPathToClosestOpenNode(myPosition);
+//						nextNodeId = shortestPath.get(0);
 						//?
+						if (myPosition != null) {
+							//List of observable from the agent's current position
+
+							//Random move from the current position
+							Random r = new Random();
+							int moveId = 1 + r.nextInt(lobs.size() - 1);//removing the current position from the list of target, not necessary as to stay is an action but allow quicker random move
+
+							//The move action (if any) should be the last action of your behaviour
+							nextNodeId = lobs.get(moveId).getLeft();
+//							((AbstractDedaleAgent) this.myAgent).moveTo(lobs.get(moveId).getLeft());
+						}
 					}
 				}
 			}

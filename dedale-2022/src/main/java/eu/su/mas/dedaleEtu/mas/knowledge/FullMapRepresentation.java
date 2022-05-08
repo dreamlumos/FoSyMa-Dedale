@@ -2,12 +2,7 @@ package eu.su.mas.dedaleEtu.mas.knowledge;
 
 import java.awt.SystemTray;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -259,19 +254,36 @@ public class FullMapRepresentation implements Serializable {
 	}
 
 	public List<String> getShortestPathToClosestOpenNode(String myPosition) {
+		List<String> opennodes = getOpenNodes(); // pas testé le cas limite de 0 nodes ouverts
+		List<String> shortestPath = null;
+		while(shortestPath == null) {
+
+			//2) select the closest one
+			List<Couple<String, Integer>> lc =
+					opennodes.stream()
+							.map(on -> (getShortestPath(myPosition, on) != null) ? new Couple<String, Integer>(on, getShortestPath(myPosition, on).size()) : new Couple<String, Integer>(on, Integer.MAX_VALUE))//some nodes my be unreachable if the agents do not share at least one common node.
+							.collect(Collectors.toList());
+
+			Optional<Couple<String, Integer>> closest = lc.stream().min(Comparator.comparing(Couple::getRight));
+			//3) Compute shorterPath
+
+			shortestPath = getShortestPath(myPosition, closest.get().getLeft());
+		}
+		return shortestPath;
+
 		//1) Get all openNodes
-		List<String> opennodes=getOpenNodes();
-
-		//2) select the closest one
-		List<Couple<String,Integer>> lc=
-				opennodes.stream()
-				.map(on -> (getShortestPath(myPosition,on)!=null)? new Couple<String, Integer>(on,getShortestPath(myPosition,on).size()): new Couple<String, Integer>(on,Integer.MAX_VALUE))//some nodes my be unreachable if the agents do not share at least one common node.
-				.collect(Collectors.toList());
-
-		Optional<Couple<String,Integer>> closest=lc.stream().min(Comparator.comparing(Couple::getRight));
-		//3) Compute shorterPath
-
-		return getShortestPath(myPosition,closest.get().getLeft());
+//		List<String> opennodes=getOpenNodes();
+//
+//		//2) select the closest one
+//		List<Couple<String,Integer>> lc=
+//				opennodes.stream()
+//				.map(on -> (getShortestPath(myPosition,on)!=null)? new Couple<String, Integer>(on,getShortestPath(myPosition,on).size()): new Couple<String, Integer>(on,Integer.MAX_VALUE))//some nodes my be unreachable if the agents do not share at least one common node.
+//				.collect(Collectors.toList());
+//
+//		Optional<Couple<String,Integer>> closest=lc.stream().min(Comparator.comparing(Couple::getRight));
+//		//3) Compute shorterPath
+//
+//		return getShortestPath(myPosition,closest.get().getLeft());
 	}
 
 	public List<String> getShortestPathToNextClosestOpenNode(String myPosition) {
@@ -287,11 +299,28 @@ public class FullMapRepresentation implements Serializable {
 //		Optional<Couple<String,Integer>> closest=lc.stream().min(Comparator.comparing(Couple::getRight));
 		List<Couple<String, Integer>> myList = myStream.collect(Collectors.toList());
 		myList.remove(0); // removing the blocked node
-//		Optional<Couple<String,Integer>> nextClosest=lc.stream().min(Comparator.comparing(Couple::getRight));
-		Couple<String, Integer> nextClosest = myList.get(0);
-		//3) Compute shorterPath
+		if(myList.size() != 0){
+			//		Optional<Couple<String,Integer>> nextClosest=lc.stream().min(Comparator.comparing(Couple::getRight));
+			Couple<String, Integer> nextClosest = myList.get(0);
+			return getShortestPath(myPosition,nextClosest.getLeft());
+		}else{
+			List<String> noMove = new ArrayList<String>();
+			noMove.add(myPosition);
+			return noMove;
+//			//List of observable from the agent's current position
+//			myPosition.
+//			//Random move from the current position
+//			Random r = new Random();
+//			int moveId = 1 + r.nextInt(lobs.size() - 1);//removing the current position from the list of target, not necessary as to stay is an action but allow quicker random move
+//
+//			//The move action (if any) should be the last action of your behaviour
+//			((AbstractDedaleAgent) this.myAgent).moveTo(lobs.get(moveId).getLeft());
+	//						}
+		}
 
-		return getShortestPath(myPosition,nextClosest.getLeft());
+		//3) Compute shorterPath
+//		return null;
+
 	}
 
 	public List<String> getOpenNodes(){

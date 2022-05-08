@@ -337,8 +337,8 @@ public class Principal {
 		ag=createNewDedaleAgent(c, agentName, ExploreDFSAgent.class.getName(), entityParametersExplo3);//ExploreSoloAgent
 
 		agentList.add(ag);
-
-		// -------------
+//
+//		// -------------
 		c = containerList.get(ConfigurationFile.LOCAL_CONTAINER2_NAME);
 		Assert.assertNotNull("This container does not exist",c);
 
@@ -354,12 +354,12 @@ public class Principal {
 		ag=createNewDedaleAgent(c, agentName, ExploreDFSAgent.class.getName(), entityParametersExplo4);//ExploreSoloAgent
 
 		agentList.add(ag);
-
-		// -------------
+//
+//		// -------------
 		c = containerList.get(ConfigurationFile.LOCAL_CONTAINER2_NAME);
 		Assert.assertNotNull("This container does not exist",c);
 
-		//2) Give the name of your agent, MUST be the same as the one given in the entities file.
+//		2) Give the name of your agent, MUST be the same as the one given in the entities file.
 		agentName="A5";
 
 		//3) If you want to give specific parameters to your agent, add them here
@@ -371,12 +371,12 @@ public class Principal {
 		ag=createNewDedaleAgent(c, agentName, ExploreDFSAgent.class.getName(), entityParametersExplo5);//ExploreSoloAgent
 
 		agentList.add(ag);
-
-		// -------------
+//
+//		// -------------
 		c = containerList.get(ConfigurationFile.LOCAL_CONTAINER2_NAME);
 		Assert.assertNotNull("This container does not exist",c);
 
-		//2) Give the name of your agent, MUST be the same as the one given in the entities file.
+//		2) Give the name of your agent, MUST be the same as the one given in the entities file.
 		agentName="A6";
 
 		//3) If you want to give specific parameters to your agent, add them here

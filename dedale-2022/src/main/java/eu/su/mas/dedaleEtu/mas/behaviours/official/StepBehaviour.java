@@ -93,7 +93,7 @@ public class StepBehaviour extends SimpleBehaviour {
 			System.out.println("[StepBehaviour] Collecting phase for " + this.myAgent.getLocalName());
 			System.out.println(myAgent.getGoldAgents());
 			System.out.println(myAgent.getDiamondAgents());
-			if (shortestPathToPick.isEmpty()) {
+			if (shortestPathToPick == null || shortestPathToPick.isEmpty()) {
 				String myPosition = myAgent.getCurrentPosition();
 				if (nodeToPick == null) { // treasure to pick hasn't been decided
 					if(myAgent.getCurrTreasureToPick() != null) {

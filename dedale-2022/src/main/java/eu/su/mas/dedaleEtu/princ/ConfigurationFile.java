@@ -149,7 +149,8 @@ public final class ConfigurationFile {
 	 * Must'nt be null as it describes the native agents' capabilities 
 	 */
 
-	public static String INSTANCE_CONFIGURATION_ENTITIES="resources/map2022-entities.json";
+//	public static String INSTANCE_CONFIGURATION_ENTITIES="resources/map2022-entities.json";
+	public static String INSTANCE_CONFIGURATION_ENTITIES="resources/map2022-entities_copy.json";
 	//public static String INSTANCE_CONFIGURATION_ENTITIES=null;
 //	public static String INSTANCE_CONFIGURATION_ENTITIES="resources/agentExplo";
 //	public static String INSTANCE_CONFIGURATION_ENTITIES="resources/testAndHope";
