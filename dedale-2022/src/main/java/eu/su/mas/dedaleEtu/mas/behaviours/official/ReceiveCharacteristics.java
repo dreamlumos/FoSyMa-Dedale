@@ -1,33 +1,36 @@
 package eu.su.mas.dedaleEtu.mas.behaviours.official;
 
-import java.util.HashMap;
-
-import dataStructures.serializableGraph.SerializableSimpleGraph;
-import eu.su.mas.dedale.mas.AbstractDedaleAgent;
 import eu.su.mas.dedaleEtu.mas.agents.official.ExploreDFSAgent;
 import jade.core.behaviours.SimpleBehaviour;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
-import jade.lang.acl.UnreadableException;
 
 public class ReceiveCharacteristics extends SimpleBehaviour {
 
     private static final long serialVersionUID = -1122887021789014975L;
 
+    private ExploreDFSAgent myAgent;
     private int infoReceived;
     private long timeoutDate;
     private boolean timedOut;
+    private boolean toReinitialise = true;
 
     public ReceiveCharacteristics(ExploreDFSAgent agent) {
         super(agent);
-        this.timeoutDate = System.currentTimeMillis() + 500;
+        this.myAgent = agent;
     }
 
     @SuppressWarnings("unchecked")
     @Override
     public void action() {
 
-    	System.out.println(this.myAgent.getLocalName()+" is waiting for agent characteristics.");
+    	if (this.toReinitialise == true) {
+    		this.timeoutDate = System.currentTimeMillis() + 500;
+    		this.infoReceived = 0;
+    		this.timedOut = false;
+            System.out.println("[ReceiveCharacteristicsBehaviour] "+this.myAgent.getLocalName()+" is waiting for agent characteristics.");
+            this.toReinitialise = false;
+    	}
     	
         // The agent checks if he received characteristics from a teammate.
 
@@ -37,10 +40,11 @@ public class ReceiveCharacteristics extends SimpleBehaviour {
         ACLMessage infoMsg = this.myAgent.receive(msgTemplate);
 
         if (infoMsg != null) {
-        	System.out.println(this.myAgent.getLocalName()+": Characteristics received.");
+        	System.out.println("[ReceiveCharacteristicsBehaviour] "+this.myAgent.getLocalName()+" has received"+infoMsg.getSender().getLocalName()+"'s characteristics");
             this.infoReceived = 1;
+            this.toReinitialise = true;
 
-            ((ExploreDFSAgent) this.myAgent).updateKnownCharacteristics(infoMsg.getSender().getLocalName(), infoMsg.getContent());
+            this.myAgent.updateKnownCharacteristics(infoMsg.getSender().getLocalName(), infoMsg.getContent());
 
             // myAgent now sends a pong as an acknowledgment, and we enter the normal share map protocol
             ACLMessage pong = infoMsg.createReply();
@@ -51,12 +55,14 @@ public class ReceiveCharacteristics extends SimpleBehaviour {
             byte[] b = {1};
             pong.setByteSequenceContent(b);
 
-            ((AbstractDedaleAgent)this.myAgent).sendMessage(pong);
+            this.myAgent.sendMessage(pong);
 
         } else {
             this.infoReceived = 0;
+
             if (System.currentTimeMillis() > this.timeoutDate) {
             	this.timedOut = true;
+                this.toReinitialise = true;
             }
         }
     }

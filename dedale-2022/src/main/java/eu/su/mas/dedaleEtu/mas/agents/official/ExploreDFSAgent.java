@@ -157,7 +157,7 @@ public class ExploreDFSAgent extends AbstractDedaleAgent {
 		FSMExploCollect.registerState(new StepBehaviour(this), Step);
 		FSMExploCollect.registerState(new SharePartialMapBehaviour(this, this.currentPong), SharePartialMap);
 		FSMExploCollect.registerState(new CheckForPongUnknown(this), CheckForPong);
-		FSMExploCollect.registerState(new ShareCharacteristics(this, this.currentPong), ShareCharacteristics);
+		FSMExploCollect.registerState(new ShareCharacteristics(this), ShareCharacteristics);
 		FSMExploCollect.registerState(new CollectAssignedTreasure(this), CollectTreasure);
 		FSMExploCollect.registerState(new CalculateDistributionBehaviour(this), CalculateDistribution);
 		FSMExploCollect.registerState(new RandomWalkWait(this), RandomWalkWait);
@@ -386,6 +386,10 @@ public class ExploreDFSAgent extends AbstractDedaleAgent {
 		return this.type;
 	}
 
+	public ACLMessage getCurrentPong() {
+		return this.currentPong;
+	}
+	
 	public void setCurrentPong(ACLMessage currentPong) {
 		this.currentPong = currentPong;
 	}

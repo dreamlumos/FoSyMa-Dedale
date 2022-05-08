@@ -23,23 +23,31 @@ public class SharePartialMapBehaviour extends SimpleBehaviour {
 	private ACLMessage pong;
 	private boolean ackReceivedOrTimedOut;
 	private long timeoutDate;
+	private boolean toReinitialise;
 
 	public SharePartialMapBehaviour(Agent agent, ACLMessage pong) {
 		super(agent);
 		this.pong = pong;
 		this.phase = 0;
-		if(this.pong == null) { // Zoe: not sure if it's necessary, but just in case the transition happens even tho checkForPong didn't return 1
+		if (this.pong == null) { // Zoe: not sure if it's necessary, but just in case the transition happens even tho checkForPong didn't return 1
 			this.phase = 2;
 		}
+		toReinitialise = true;
 		ackReceivedOrTimedOut = false;
 	}
 	
 	@Override
 	public void action() {
-
-		System.out.println("Agent "+this.myAgent.getLocalName()+" is sharing a map.");
+		
+    	if (this.toReinitialise == true) {
+    		this.timeoutDate = System.currentTimeMillis() + 500;
+			this.ackReceivedOrTimedOut = false;
+    		System.out.println("[ReceiveMapBehaviour] Agent "+this.myAgent.getLocalName()+" is waiting for a map.");
+            this.toReinitialise = false;
+    	}
 
 		if (this.phase == 0) {
+			System.out.println("Agent "+this.myAgent.getLocalName()+" is sharing a map.");
 			
 			ACLMessage mapMsg = pong.createReply();
 			mapMsg.setSender(this.myAgent.getAID());
@@ -58,6 +66,7 @@ public class SharePartialMapBehaviour extends SimpleBehaviour {
 			((AbstractDedaleAgent)this.myAgent).sendMessage(mapMsg);
 			this.timeoutDate = System.currentTimeMillis() + 1000; // 1s timeout
 			this.phase = 1;
+			
 		} else if (this.phase == 1) {
 		
 			// Wait for ack 	
@@ -70,9 +79,11 @@ public class SharePartialMapBehaviour extends SimpleBehaviour {
 				System.out.println("Agent "+this.myAgent.getLocalName()+" received ack from Agent "+ackMsg.getSender().getLocalName());
 				((ExploreDFSAgent) this.myAgent).clearNodesToShare(ackMsg.getSender().getLocalName());
 				this.ackReceivedOrTimedOut = true;
+	            this.toReinitialise = true;
 			} else if (System.currentTimeMillis() > this.timeoutDate) {
 				System.out.println("Agent "+this.myAgent.getLocalName()+" didn't receive ack and timed out");
 				this.ackReceivedOrTimedOut = true;
+	            this.toReinitialise = true;
 			}
 			
 		}

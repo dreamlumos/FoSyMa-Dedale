@@ -28,7 +28,7 @@ public class ObserveEnvBehaviour extends SimpleBehaviour {
 		}
 
 		try {
-			this.myAgent.doWait(20000); // Just added here so we can see what the agent is doing
+			this.myAgent.doWait(1000); // Just added here so we can see what the agent is doing
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

@@ -17,6 +17,7 @@ public class ReceiveMapBehaviour extends SimpleBehaviour {
 	private int mapReceived;
     private long timeoutDate;
     private boolean timedOut;
+    private boolean toReinitialise = true;
 	
 	public ReceiveMapBehaviour(ExploreDFSAgent agent) {
 		super(agent);
@@ -27,8 +28,14 @@ public class ReceiveMapBehaviour extends SimpleBehaviour {
 	@Override
 	public void action() {
 
-		System.out.println("[ReceiveMapBehaviour] Agent "+this.myAgent.getLocalName()+" is waiting for a map.");
-
+    	if (this.toReinitialise == true) {
+    		this.timeoutDate = System.currentTimeMillis() + 500;
+    		this.timedOut = false;
+    		this.mapReceived = 0;
+    		System.out.println("[ReceiveMapBehaviour] Agent "+this.myAgent.getLocalName()+" is waiting for a map.");
+            this.toReinitialise = false;
+    	}
+		
 		// The agent checks if he received a map from a teammate.
 		MessageTemplate msgTemplate = MessageTemplate.and(
 				MessageTemplate.MatchProtocol("SHARE-TOPO"),
@@ -40,6 +47,7 @@ public class ReceiveMapBehaviour extends SimpleBehaviour {
 			System.out.println("[ReceiveMapBehaviour] Agent "+this.myAgent.getLocalName()+" has received a map.");
 
 			this.mapReceived = 1;
+            this.toReinitialise = true;
 
 			SerializableSimpleGraph<String, HashMap<String, Object>> sgreceived = null;
 			try {
@@ -62,10 +70,10 @@ public class ReceiveMapBehaviour extends SimpleBehaviour {
 			
 		} else {
 			this.mapReceived = 0;
-			//block();
 			
 			if (System.currentTimeMillis() > this.timeoutDate) {
 				this.timedOut = true;
+	            this.toReinitialise = true;
 			}
 		}
 	}

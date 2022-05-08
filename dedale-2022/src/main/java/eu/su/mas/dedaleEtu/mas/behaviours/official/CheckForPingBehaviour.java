@@ -1,20 +1,15 @@
 package eu.su.mas.dedaleEtu.mas.behaviours.official;
 
-import eu.su.mas.dedale.mas.AbstractDedaleAgent;
 import eu.su.mas.dedaleEtu.mas.agents.official.ExploreDFSAgent;
-import eu.su.mas.dedaleEtu.mas.knowledge.FullMapRepresentation;
 import jade.core.behaviours.SimpleBehaviour;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
-import org.apache.commons.math3.analysis.function.Exp;
-
-import java.util.HashMap;
 
 public class CheckForPingBehaviour extends SimpleBehaviour { // OneShotBehaviour?
 
 	private static final long serialVersionUID = -2824535739297657670L;
 		
-	private int pingReceived; // 1 if ping message received, 0 otherwise, 2 if from unknown agent
+	private int pingReceived; // 1 if ping message received, 2 if from unknown agent, 0 otherwise
 	
 	public CheckForPingBehaviour(ExploreDFSAgent agent) {
 		super(agent);
@@ -23,7 +18,7 @@ public class CheckForPingBehaviour extends SimpleBehaviour { // OneShotBehaviour
 	@Override
 	public void action() {
 		
-		ExploreDFSAgent myAgent = (ExploreDFSAgent)this.myAgent;
+		ExploreDFSAgent myAgent = (ExploreDFSAgent) this.myAgent;
 		
 		System.out.println("Agent "+myAgent.getLocalName()+" is checking for ping.");
 
@@ -86,7 +81,6 @@ public class CheckForPingBehaviour extends SimpleBehaviour { // OneShotBehaviour
 	public boolean done() {
 		// Kiara: idk if this is necessary, have to test how it works with FSM
 		return this.pingReceived == 1 || this.pingReceived == 2;
-//		return true;
 	}
 	
 	@Override

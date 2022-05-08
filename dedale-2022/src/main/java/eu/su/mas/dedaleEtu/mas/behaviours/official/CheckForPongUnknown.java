@@ -15,6 +15,7 @@ public class CheckForPongUnknown extends SimpleBehaviour {
     private boolean timedOut;
     private long timeoutDate = -1;
     private int res = 0; // 0: timeout, 1: pong, 2: unknown
+    private boolean toReinitialise = true;
 
     public CheckForPongUnknown(Agent a) {
         super(a);
@@ -22,12 +23,12 @@ public class CheckForPongUnknown extends SimpleBehaviour {
 
     @Override
     public void action() {
-    	if (this.timeoutDate == -1) {
+    	if (this.toReinitialise == true) {
     		this.timeoutDate = System.currentTimeMillis() + 500;
+            System.out.println("Agent "+this.myAgent.getLocalName()+" is checking for pong or unknown.");
+            this.toReinitialise = false;
     	}
     	
-        System.out.println("Agent "+this.myAgent.getLocalName()+" is checking for pong or unknown.");
-
         // The agent checks if he received a pong from a teammate.
         MessageTemplate msgTemplate = MessageTemplate.and(
                 MessageTemplate.MatchProtocol("SHARE-TOPO"),
@@ -39,6 +40,7 @@ public class CheckForPongUnknown extends SimpleBehaviour {
 
             this.pongReceived = true;
             res = 1;
+            this.toReinitialise = true;
 
             // Sharing of the map in a separate behaviour which is added to the pool
 //            this.myAgent.addBehaviour(new SharePartialMapBehaviour(this.myAgent, pong));
@@ -61,6 +63,7 @@ public class CheckForPongUnknown extends SimpleBehaviour {
 
             this.unknownReceived = true;
             res = 2;
+            this.toReinitialise = true;
 
             // Sharing of the characteristics in a separate behaviour which is added to the pool
             ((ExploreDFSAgent)this.myAgent).setCurrentPong(unknown);
@@ -77,6 +80,7 @@ public class CheckForPongUnknown extends SimpleBehaviour {
             	
             	this.res = 0;
             	this.timedOut = true;
+            	this.toReinitialise = true;
             } else {
 //            	System.out.println("test6");
             	this.timedOut = false;
@@ -91,7 +95,7 @@ public class CheckForPongUnknown extends SimpleBehaviour {
 
     @Override
     public int onEnd() {
-    	reset();
+    	// reset(); 
         return res;
     }
 }
