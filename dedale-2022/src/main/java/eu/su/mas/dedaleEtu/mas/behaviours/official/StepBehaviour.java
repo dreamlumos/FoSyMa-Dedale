@@ -23,7 +23,7 @@ public class StepBehaviour extends SimpleBehaviour {
 
 	public StepBehaviour(ExploreDFSAgent agent) {
 		super(agent);
-		timeOutDate = System.currentTimeMillis() + 60000; // 60000; // 180000;
+		timeOutDate = System.currentTimeMillis() + 199999999; //60000; // 60000; // 180000;
 	}
 	
 	@Override

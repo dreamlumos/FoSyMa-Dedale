@@ -37,6 +37,7 @@ public class CheckForPingBehaviour extends SimpleBehaviour { // OneShotBehaviour
 		ACLMessage ping = myAgent.receive(msgTemplate);
 		if (ping != null) {
 			this.pingReceived = 1;
+			System.out.println(myAgent.getLocalName()+" received a ping from "+ ping.getSender().getLocalName());
 
 			String sentBy = ping.getSender().getLocalName();
 			boolean knownAgent = false;
