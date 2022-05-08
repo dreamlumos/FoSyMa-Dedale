@@ -145,9 +145,14 @@ public class FullMapRepresentation implements Serializable {
 					}
 					break;
 				case STENCH:
-					if (previousStenchTimestamp == null || nbVisitTimestamp > (long) previousStenchTimestamp) {
+					if (lastVisitTimestamp != -1) { // we are visiting the node
 						n.setAttribute(observationType.toString(), observationValue);
-						n.setAttribute("stenchTimestamp", nbVisitTimestamp);
+						n.setAttribute("stenchTimestamp", lastVisitTimestamp);
+					} else if (nbVisitTimestamp != -1) { // we are visiting a neighbour of the node
+						if (previousStenchTimestamp == null || nbVisitTimestamp > (long) previousStenchTimestamp) {
+							n.setAttribute(observationType.toString(), observationValue);
+							n.setAttribute("stenchTimestamp", nbVisitTimestamp);
+						}
 					}
 					break;
 				default:
@@ -419,7 +424,7 @@ public class FullMapRepresentation implements Serializable {
 		
 		for (String att: n2Attributes.keySet()) {
 			
-			if (att.equals("Stench") && (n1StenchTimestamp == null || (long) n2StenchTimestamp > (long) n1StenchTimestamp)) {
+			if (att.equals("Stench") && n2StenchTimestamp != null && (n1StenchTimestamp == null || (long) n2StenchTimestamp > (long) n1StenchTimestamp)) {
 				n1.setAttribute("Stench", n2Attributes.get("Stench"));
 				n1.setAttribute("stenchTimestamp", n2StenchTimestamp);
 			} else if (att.equals("ui.class")){
