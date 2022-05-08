@@ -23,7 +23,7 @@ public class StepBehaviour extends SimpleBehaviour {
 
 	public StepBehaviour(ExploreDFSAgent agent) {
 		super(agent);
-		timeOutDate = System.currentTimeMillis() + 199999999; //60000; // 60000; // 180000;
+		timeOutDate = System.currentTimeMillis() + 120000; // 60000; // 180000;
 	}
 	
 	@Override
@@ -129,6 +129,7 @@ public class StepBehaviour extends SimpleBehaviour {
 									}
 								}
 								((ExploreDFSAgent) this.myAgent).setGoldDict(newGoldDict);
+								unsuccessfulMovesCollect = 0;
 								break;
 							case "Diamond":
 								HashMap<String, Integer> oldDiaDict = ((ExploreDFSAgent) this.myAgent).getMap().getDiamondDict();
@@ -140,8 +141,10 @@ public class StepBehaviour extends SimpleBehaviour {
 									}
 								}
 								((ExploreDFSAgent) this.myAgent).setDiamondDict(newDiaDict);
+								unsuccessfulMovesCollect = 0;
 								break;
 							default:
+								unsuccessfulMovesCollect = 0;
 								break;
 						}
 						this.phase = 1; // re-compute a treasure path
