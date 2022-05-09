@@ -1,16 +1,12 @@
 package eu.su.mas.dedaleEtu.mas.behaviours.official;
 
 import java.util.*;
-import java.util.stream.Collectors;
-
 import javafx.util.Pair;
 import org.paukov.combinatorics3.Generator;
 
 import eu.su.mas.dedaleEtu.mas.agents.official.ExploreDFSAgent;
 import jade.core.Agent;
 import jade.core.behaviours.SimpleBehaviour;
-
-import static java.util.Collections.max;
 
 public class CalculateDistributionBehaviour extends SimpleBehaviour {
 
@@ -39,7 +35,6 @@ public class CalculateDistributionBehaviour extends SimpleBehaviour {
 		int totalGold = 0;
 		int totalDiamond = 0;
 		for (Integer goldAmount : goldDict.values()) {
-//			System.out.println("Computing the gold amount");
 			totalGold += goldAmount;
 		}
 		System.out.println("[CalculateDistribution] Total gold : " + totalGold);
@@ -362,58 +357,35 @@ public class CalculateDistributionBehaviour extends SimpleBehaviour {
 					sortedAgents.put(capacity, agents);
 				}
 				
-//				if (type == 0) {
-					List<Integer> listOfCapacities = new ArrayList<>(sortedAgents.keySet());
-					listOfCapacities.sort(Collections.reverseOrder()); // should be in descending order
-					int currTreasure = treasureDict.get(nodeId);
-					for (Integer i : listOfCapacities) {
-						for (String s : sortedAgents.get(i)) {
-							if (currTreasure <= 0) {
-								currTreasure = 0;
-							}
-							List<Integer> knownValues = knownAgentCharacteristics.get(s);
-							int newTreasureVal = knownValues.get(type) - currTreasure;
-							if (newTreasureVal < 0) {
-								newTreasureVal = 0;
-							}
-							currTreasure -= i;
-							ArrayList<Integer> newChars = new ArrayList<>();
-							
-							if (type == 0) {
-								newChars.add(newTreasureVal);
-								newChars.add(knownValues.get(1));
-								newChars.add(knownValues.get(2));
-							} else if (type == 1) {
-								newChars.add(knownValues.get(0));
-								newChars.add(newTreasureVal);
-								newChars.add(knownValues.get(2));
-							}
-
-							newKnownAgentCharacteristics.put(s, newChars);
+				List<Integer> listOfCapacities = new ArrayList<>(sortedAgents.keySet());
+				listOfCapacities.sort(Collections.reverseOrder()); // should be in descending order
+				int currTreasure = treasureDict.get(nodeId);
+				for (Integer i : listOfCapacities) {
+					for (String s : sortedAgents.get(i)) {
+						if (currTreasure <= 0) {
+							currTreasure = 0;
 						}
+						List<Integer> knownValues = knownAgentCharacteristics.get(s);
+						int newTreasureVal = knownValues.get(type) - currTreasure;
+						if (newTreasureVal < 0) {
+							newTreasureVal = 0;
+						}
+						currTreasure -= i;
+						ArrayList<Integer> newChars = new ArrayList<>();
+						
+						if (type == 0) {
+							newChars.add(newTreasureVal);
+							newChars.add(knownValues.get(1));
+							newChars.add(knownValues.get(2));
+						} else if (type == 1) {
+							newChars.add(knownValues.get(0));
+							newChars.add(newTreasureVal);
+							newChars.add(knownValues.get(2));
+						}
+
+						newKnownAgentCharacteristics.put(s, newChars);
 					}
-//				} else if (type == 1) {
-//					List<Integer> sorted = new ArrayList<>(sortedAgents.keySet());
-//					sorted.sort(Collections.reverseOrder()); // should be in descending order
-//					int currDia = treasureDict.get(nodeId);
-//					for (Integer i : sorted) {
-//						for (String s : sortedAgents.get(i)) {
-//							if (currDia <= 0) {
-//								currDia = 0;
-//							}
-//							List<Integer> knownValues = knownAgentCharacteristics.get(s);
-//							int newDiaVal = knownValues.get(type) - currDia;
-//							if (newDiaVal < 0) {
-//								newDiaVal = 0;
-//							}
-//							currDia -= i;
-//							ArrayList<Integer> newChars = new ArrayList<>();
-//							
-//
-//							newKnownAgentCharacteristics.put(s, newChars);
-//						}
-//					}
-//				}
+				}
 			}
 		}
 		this.myAgent.setKnownAgentCharacteristics(newKnownAgentCharacteristics);

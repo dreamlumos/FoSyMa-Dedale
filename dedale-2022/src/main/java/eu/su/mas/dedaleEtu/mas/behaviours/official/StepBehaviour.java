@@ -14,27 +14,35 @@ import dataStructures.tuple.Couple;
 public class StepBehaviour extends SimpleBehaviour {
 
 	private static final long serialVersionUID = -7075642787451313299L;
-	private int phase = 0; // 0: exploration phase, 1: time to start collecting, 2: moving to treasure, 3: return to calculations, 4: blocked
+	
+	ExploreDFSAgent myAgent;
+	
+	private int phase = 0; 
+	// 0: exploration phase
+	// 1: time to start collecting
+	// 2: moving to treasure
+	// 3: return to calculations
+	
 	private long timeOutDate;
-	private String nodeToPick = null;
+	
+	private String nodeToPick = null; // node where we are going to next collect treasure
 	private List<String> shortestPathToPick = new ArrayList<>();
 
 	private int unsuccessfulMovesCollect = 0;
 
 	public StepBehaviour(ExploreDFSAgent agent) {
 		super(agent);
-		timeOutDate = System.currentTimeMillis() + 120000; // 60000; // 180000;
+		this.myAgent = agent;
+		this.timeOutDate = System.currentTimeMillis() + 120000; // 60000; // 180000;
 	}
 	
 	@Override
 	public void action() {
 
-//		System.out.println("THIS IS STEP BEHAVIOUR");
-
-		ExploreDFSAgent myAgent = (ExploreDFSAgent) this.myAgent;
-		int unsuccessfulMovesExplo = myAgent.getUnsuccessfulMovesExplo();
+//		int unsuccessfulMovesExplo = myAgent.getUnsuccessfulMovesExplo();
 		String nextNodeId = null;
 		boolean moveSuccessful = false;
+		
 		if (phase == 0) { // We are in the exploration phase
 			
 			// Check if map is fully explored OR the time is up

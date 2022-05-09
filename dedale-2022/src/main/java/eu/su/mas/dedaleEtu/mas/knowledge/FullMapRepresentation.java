@@ -244,14 +244,14 @@ public class FullMapRepresentation implements Serializable {
 //		Optional<Couple<String,Integer>> closest=lc.stream().min(Comparator.comparing(Couple::getRight));
 		List<Couple<String, Integer>> myList = myStream.collect(Collectors.toList());
 		myList.remove(0); // removing the blocked node
-		if(myList.size() != 0){
+//		if(myList.size() != 0){
 			//		Optional<Couple<String,Integer>> nextClosest=lc.stream().min(Comparator.comparing(Couple::getRight));
 			Couple<String, Integer> nextClosest = myList.get(0);
-			return getShortestPath(myPosition,nextClosest.getLeft());
-		}else{
-			List<String> noMove = new ArrayList<String>();
-			noMove.add(myPosition);
-			return noMove;
+			return getShortestPath(myPosition, nextClosest.getLeft());
+//		}else{
+//			List<String> noMove = new ArrayList<String>();
+//			noMove.add(myPosition);
+//			return noMove;
 //			//List of observable from the agent's current position
 //			myPosition.
 //			//Random move from the current position
@@ -260,8 +260,8 @@ public class FullMapRepresentation implements Serializable {
 //
 //			//The move action (if any) should be the last action of your behaviour
 //			((AbstractDedaleAgent) this.myAgent).moveTo(lobs.get(moveId).getLeft());
-	//						}
-		}
+//						}
+//		}
 
 		//3) Compute shorterPath
 //		return null;

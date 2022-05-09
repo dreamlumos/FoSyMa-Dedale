@@ -25,7 +25,7 @@ public class RandomWalkWait extends SimpleBehaviour {
         String myPosition=((AbstractDedaleAgent)this.myAgent).getCurrentPosition();
         System.out.println(this.myAgent.getLocalName()+" -- myCurrentPosition is: "+myPosition);
         if (myPosition!=null){
-            //List of observable from the agent's current position
+            //List of observables from the agent's current position
             List<Couple<String, List<Couple<Observation,Integer>>>> lobs=((AbstractDedaleAgent)this.myAgent).observe();//myPosition
 
             //Random move from the current position

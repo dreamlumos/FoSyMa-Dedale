@@ -14,30 +14,34 @@ public class ObserveEnvBehaviour extends SimpleBehaviour {
 
 	private static final long serialVersionUID = 7387125205688858126L;
 		
+	private ExploreDFSAgent myAgent;
+	
 	public ObserveEnvBehaviour(ExploreDFSAgent agent) {
 		super(agent);
+		this.myAgent = agent;
 	}
 	
 	@Override
 	public void action() {
-		System.out.println(this.myAgent.getLocalName()+" observe env!");
+		
+		System.out.println(this.myAgent.getLocalName()+" is observing its environment!");
 
-		FullMapRepresentation map = ((ExploreDFSAgent) this.myAgent).getMap();
+		FullMapRepresentation map = this.myAgent.getMap();
 		
 		if (map == null) {
 			map = new FullMapRepresentation(true);
-			((ExploreDFSAgent) this.myAgent).setMap(map);
+			this.myAgent.setMap(map);
 		}
 
 		try {
-			this.myAgent.doWait(1); // Just added here so we can see what the agent is doing
+			this.myAgent.doWait(1); // Waiting time here so we can see what the agent is doing
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		
 		// Retrieve the current position and the list of observations
-		String myPosition = ((AbstractDedaleAgent) this.myAgent).getCurrentPosition();
-		List<Couple<String,List<Couple<Observation,Integer>>>> lobs = ((AbstractDedaleAgent) this.myAgent).observe();
+		String myPosition = this.myAgent.getCurrentPosition();
+		List<Couple<String,List<Couple<Observation,Integer>>>> lobs = this.myAgent.observe();
 
 		// Update current node
 		List<Couple<Observation,Integer>> lObservations = lobs.get(0).getRight(); //list of observations associated to the currentPosition
@@ -58,43 +62,44 @@ public class ObserveEnvBehaviour extends SimpleBehaviour {
 				nextNodeId = nodeId;
 			}
 		}
+		this.myAgent.setNextNodeId(nextNodeId);
 		
 		// Update nodesToShare
-		((ExploreDFSAgent) this.myAgent).addNodeToShare(myPosition);
+		this.myAgent.addNodeToShare(myPosition);
 		
-		// Update next position
-
-		if ((((ExploreDFSAgent)this.myAgent).getMap().hasOpenNode())) {
-			if (((ExploreDFSAgent) this.myAgent).getUnsuccessfulMovesExplo() > 4) {
-				nextNodeId = map.getShortestPathToNextClosestOpenNode(myPosition).get(0);
-				((ExploreDFSAgent) this.myAgent).setUnsuccessfulMovesExplo();
-			} else {
-				if (nextNodeId == null) {
-					//no directly accessible openNode
-					//chose one, compute the path and take the first step.
-					List<String> shortestPath = map.getShortestPathToClosestOpenNode(myPosition);
-					if (shortestPath != null) {
-						nextNodeId = shortestPath.get(0);
-					} else {
-//						shortestPath = map.getShortestPathToClosestOpenNode(myPosition);
+//		// Update next position
+//
+//		if ((this.myAgent.getMap().hasOpenNode())) {
+//			if (this.myAgent.getUnsuccessfulMovesExplo() > 4) {
+//				nextNodeId = map.getShortestPathToNextClosestOpenNode(myPosition).get(0);
+//				this.myAgent.setUnsuccessfulMovesExplo();
+//			} else {
+//				if (nextNodeId == null) {
+//					//no directly accessible openNode
+//					//chose one, compute the path and take the first step.
+//					List<String> shortestPath = map.getShortestPathToClosestOpenNode(myPosition);
+//					if (shortestPath != null) {
 //						nextNodeId = shortestPath.get(0);
-						//?
-						if (myPosition != null) {
-							//List of observable from the agent's current position
-
-							//Random move from the current position
-							Random r = new Random();
-							int moveId = 1 + r.nextInt(lobs.size() - 1);//removing the current position from the list of target, not necessary as to stay is an action but allow quicker random move
-
-							//The move action (if any) should be the last action of your behaviour
-							nextNodeId = lobs.get(moveId).getLeft();
-//							((AbstractDedaleAgent) this.myAgent).moveTo(lobs.get(moveId).getLeft());
-						}
-					}
-				}
-			}
-			((ExploreDFSAgent) this.myAgent).setNextNodeId(nextNodeId);
-		}
+//					} else {
+////						shortestPath = map.getShortestPathToClosestOpenNode(myPosition);
+////						nextNodeId = shortestPath.get(0);
+//						//?
+//						if (myPosition != null) {
+//							//List of observable from the agent's current position
+//
+//							//Random move from the current position
+//							Random r = new Random();
+//							int moveId = 1 + r.nextInt(lobs.size() - 1);//removing the current position from the list of target, not necessary as to stay is an action but allow quicker random move
+//
+//							//The move action (if any) should be the last action of your behaviour
+//							nextNodeId = lobs.get(moveId).getLeft();
+////							((AbstractDedaleAgent) this.myAgent).moveTo(lobs.get(moveId).getLeft());
+//						}
+//					}
+//				}
+//			}
+//			this.myAgent.setNextNodeId(nextNodeId);
+//		}
 
 	}
 	
