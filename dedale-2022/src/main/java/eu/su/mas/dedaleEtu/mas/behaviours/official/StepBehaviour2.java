@@ -45,7 +45,9 @@ public class StepBehaviour2 extends SimpleBehaviour {
 	/* Exploration policy:
 	 * - Move to closest open node if possible (5 attempts)
 	 * - TODO: should probably try to reach that node with a diff path before changing objectives
-	 * - Else move to NEXT closest open node (
+	 * - Else move to NEXT closest open node (5 attempts)
+	 * - TODO: would be good to be able to try the third, fourth etc. closest nodes instead of giving up and going random
+	 * - Else random move
 	 * 
 	 * Collection policy:
 	 * 

@@ -43,7 +43,7 @@ public class CollectAssignedTreasure extends SimpleBehaviour {
                     if (Objects.equals(o.getLeft().getName(), this.myAgent.getType())) {
                         boolean isOpen = this.myAgent.openLock(o.getLeft()); // openLock
                         if (isOpen) {
-                            System.out.println("The lock is open.");
+                            System.out.println("[CollectAssignedTreasure] The lock is open.");
                             if (o.getRight() <= toPick.getValue()) { // if the amount is less or equal to expected amount
                                 try {
                                     int amountPicked = myAgent.pick(); // agent picks up the treasure
