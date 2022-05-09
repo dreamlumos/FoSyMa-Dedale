@@ -13,9 +13,12 @@ public class CalculateDistributionBehaviour extends SimpleBehaviour {
 	private static final long serialVersionUID = -687749337806691639L;
 
 	private boolean computed = false;
+	private boolean firstComputation = true;
+
 	private int collectingPhaseOver = 0; // 1 when over, 0 otherwise
 	private HashMap<String, ArrayList<Integer>> knownAgentCharacteristics;
 	private ExploreDFSAgent myAgent;
+	
 
 	public CalculateDistributionBehaviour(Agent agent) {
 		super(agent);
@@ -55,29 +58,49 @@ public class CalculateDistributionBehaviour extends SimpleBehaviour {
 			int totalCapacity = 0;
 			int totalTreasure = 0;
 			
-			if (type.equals("Gold")) {
+			if ("Gold".equals(type)) {
 				totalTreasure = totalGold;
 				for (String agent: goldAgents) {
-					totalCapacity += knownAgentCharacteristics.get(agent).get(0);
+					if (agent == this.myAgent.getLocalName()) {
+						totalCapacity += this.myAgent.getBackPackFreeSpace().get(0).getRight();
+					} else if (knownAgentCharacteristics.get(agent) != null) {
+						totalCapacity += knownAgentCharacteristics.get(agent).get(0);
+					}
 				}
 				System.out.println("[CalculateDistribution] Gold dict: "+goldDict);
-			} else if (type.equals("Diamond")) {
+			} else if ("Diamond".equals(type)) {
 				totalTreasure = totalDiamond;
 				for (String agent: diamondAgents) {
-					totalCapacity += knownAgentCharacteristics.get(agent).get(1);
+					if (agent == this.myAgent.getLocalName()) {
+						totalCapacity += this.myAgent.getBackPackFreeSpace().get(1).getRight();
+					} else if (knownAgentCharacteristics.get(agent) != null) {
+						totalCapacity += knownAgentCharacteristics.get(agent).get(1);
+					}
 				}
 				System.out.println("[CalculateDistribution] Diamond dict: "+diamondDict);
 			}
 
 			//System.out.println("[CalculateDistribution] Total Cap : " + totalCapacity);
 
-			if ((totalTreasure <= 0 || totalCapacity <= 0)) {
-				this.collectingPhaseOver = 1;
+			if (totalCapacity <= 0) { //TODO
+				this.collectingPhaseOver = 1; // we go to FinalBehaviour
 				System.out.println("[CalculateDistribution] "+this.myAgent.getLocalName()+": Collecting phase is over.");
 				return;
+			} else if (totalTreasure <= 0) {
+				if (this.myAgent.getExploDone()) {
+					this.myAgent.setRestartExplo(false);
+					this.collectingPhaseOver = 1; // we go to FinalBehaviour
+					System.out.println("[CalculateDistribution] "+this.myAgent.getLocalName()+": Collecting phase is over.");
+					return;
+				} else {
+					this.myAgent.setRestartExplo(true); // we go back to StepBehaviour and we restart the exploration
+					System.out.println("[CalculationDistribution] "+this.myAgent.getLocalName()+" is restarting exploration.");
+					this.firstComputation = false;
+					this.computed = false;
+				}	
 			}
 
-		} else {
+		} else if (firstComputation) {
 
 			// Generating all possible coalitions
 			// A coalition here refers to the group of agents that will be in charge of collecting a certain type of treasure
@@ -163,7 +186,6 @@ public class CalculateDistributionBehaviour extends SimpleBehaviour {
 				this.computed = true;
 
 				updateKnowledge(goldDict, treasureAttributions, 0);
-
 				break;
 
 			case "Diamond":
@@ -188,7 +210,6 @@ public class CalculateDistributionBehaviour extends SimpleBehaviour {
 				this.computed = true;
 
 				updateKnowledge(diamondDict, treasureAttributions, 1);
-
 				break;
 
 			default:
@@ -260,7 +281,11 @@ public class CalculateDistributionBehaviour extends SimpleBehaviour {
 				for (int nodePos=0; nodePos<nbNodes; nodePos++) {
 					int totalCapacity = 0;
 					for (String agentName: permutation.get(nodePos)) {
-						totalCapacity += this.myAgent.getKnownAgentCharacteristics(agentName).get(treasureType);
+						if (agentName == this.myAgent.getLocalName()) {
+							totalCapacity += this.myAgent.getBackPackFreeSpace().get(treasureType).getRight();
+						} else if (knownAgentCharacteristics.get(agentName) != null) {
+							totalCapacity += knownAgentCharacteristics.get(agentName).get(treasureType);
+						}
 					}
 					int nodeValue = treasureDict.get(treasureDictKeys.get(nodePos));
 					if (nodeValue > totalCapacity) {

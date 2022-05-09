@@ -54,6 +54,9 @@ public class ExploreDFSAgent extends AbstractDedaleAgent {
 	private HashMap<String, List<String>> treasureAttribution = new HashMap<>();
 	private List<String> goldAgents = null;
 	private List<String> diamondAgents = null;
+	
+	private boolean restartExplo = false;
+	private boolean exploDone = false;
 
 	private static final String ObserveEnv = "Observe Environment";
 	private static final String Step = "Step";
@@ -381,6 +384,21 @@ public class ExploreDFSAgent extends AbstractDedaleAgent {
 	}
 	public void setUnsuccessfulMovesExplo(){
 		this.unsuccessfulMovesExplo = 0;
+	}
+	
+	public void setRestartExplo(boolean value) {
+		this.restartExplo = value;
+	}
+	public boolean getRestartExplo() {
+		return this.restartExplo;
+	}
+	
+	public boolean getExploDone() {
+		return this.exploDone;
+	}
+	
+	public void setExploDone(boolean value) {
+		this.exploDone = value;
 	}
 	
 	@Override

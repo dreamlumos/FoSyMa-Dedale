@@ -54,6 +54,14 @@ public class StepBehaviour2 extends SimpleBehaviour {
 	 */
 	public void action() {
 
+		if (this.myAgent.getRestartExplo()) {
+			this.exploTimeOutDate = System.currentTimeMillis() + 30000; // 60000; // 180000;
+			this.phase = 0;
+			this.unsuccessfulMoves = 0;
+			this.shortestPathToPick = new ArrayList<>();
+			this.nextClosest = false; // if we have already tried to get the second closest node
+		}
+		
 		FullMapRepresentation map = this.myAgent.getMap();
 		
 		boolean moveSuccessful = false;
@@ -64,8 +72,10 @@ public class StepBehaviour2 extends SimpleBehaviour {
 			if (!(map.hasOpenNode()) || System.currentTimeMillis() > exploTimeOutDate){
 				if (System.currentTimeMillis() > exploTimeOutDate) {
 					System.out.println("[StepBehaviour] "+myAgent.getLocalName()+" is going to phase 1 because time is out.");
+					this.myAgent.setExploDone(false);
 				} else {
 					System.out.println("[StepBehaviour] "+myAgent.getLocalName()+" is going to phase 1 because map is fully explored.");
+					this.myAgent.setExploDone(true);
 				}
 				phase = 1; // We will now calculate the treasure distribution
 				return; // Unnecessary but just for readability
