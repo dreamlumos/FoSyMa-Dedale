@@ -25,22 +25,6 @@ public class StepBehaviour2 extends SimpleBehaviour {
 	// 2: moving to treasure
 	// 3: return to calculations
 	
-	// 0: exploration phase
-	// 1: collection phase (bc explo is done)
-	// 2: collection phase (bc explo timedout)
-	
-	private int previousStepResult;
-	// 0: step successful
-	// 1: step unsuccessful
-	
-	// When access to a node fails: 
-	// 0. Try to access it 5 times
-	// 1. Random step 5 times then recalculate path to objective
-	// 2. Change paths entirely
-	
-	private int exitStatus;
-	// 0: 
-	
 	private long exploTimeOutDate;
 	
 	private List<String> path;
